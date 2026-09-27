@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero SUNASS - Fiscalización de Metas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para visualización de ICG -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
+        
+        /* Estilos de la tabla cruzada (Tablero Principal) */
+        .tabla-sunass { width: 100%; border-collapse: collapse; background: white; font-size: 0.85rem; }
+        .tabla-sunass th { background-color: #003366; color: white; border: 1px solid #1a4c80; padding: 8px 4px; text-align: center; }
+        .tabla-sunass td { border: 1px solid #e2e8f0; padding: 6px 4px; vertical-align: middle; }
+        .tabla-sunass tbody tr:hover { background-color: #f8fafc; }
+        
+        /* Colores del Semáforo ICI */
+        .ici-green { background-color: #00b050 !important; color: white !important; font-weight: bold; }
+        .ici-yellow { background-color: #ffff00 !important; color: black !important; font-weight: bold; }
+        .ici-red { background-color: #ff0000 !important; color: white !important; font-weight: bold; }
+
+        /* Fila Especial ICG */
+        .icg-row { background-color: #002244 !important; color: white !important; font-weight: bold; }
+        .icg-row td { border-color: #003366; }
+
+        /* Cabecera pegajosa (Sticky) */
+        .table-container { max-height: 70vh; overflow-y: auto; }
+        .tabla-sunass thead { position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        /* Estilos Tabla Dinámica (Generador de Reportes) */
+        .raw-table-container { max-height: calc(100vh - 200px); overflow-y: auto; }
+        .tabla-dinamica { width: 100%; font-size: 0.85rem;}
+        .tabla-dinamica th { background-color: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; padding: 10px 12px; font-weight: 700; text-align: left; position: sticky; top: 0; z-index: 10;}
+        .tabla-dinamica td { border: 1px solid #e2e8f0; padding: 8px 12px; color: #334155; }
+        .tabla-dinamica tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .tabla-dinamica tbody tr:hover { background-color: #f1f5f9; }
+
+        /* Checkbox personalizado (Toggle) */
+        .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Panel Lateral Izquierdo -->
+    <div class="w-80 bg-[#002244] text-white flex flex-col shadow-xl z-20 transition-all duration-300">
+        <div class="p-6 flex items-center gap-3 border-b border-blue-900">
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#002244] font-bold text-xl shadow-inner">💧</div>
+            <div>
+                <h2 class="font-bold text-lg leading-tight">SUNASS</h2>
+                <p class="text-xs text-blue-300">Fiscalización de Metas</p>
+            </div>
+        </div>
+
+        <!-- Menú de Navegación de Módulos -->
+        <div class="flex p-2 bg-[#001833]">
+            <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="flex-1 py-2 text-sm font-bold rounded bg-blue-600 text-white transition-colors shadow-sm">📊 Tablero Oficial</button>
+            <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="flex-1 py-2 text-sm font-bold rounded text-gray-400 hover:text-white transition-colors">🛠️ Creador Reportes</button>
+        </div>
+        
+        <div class="p-6 flex-1 overflow-y-auto">
+            
+            <!-- PANEL DE FILTROS: TABLERO (Módulo 1) -->
+            <div id="panel-filtros-tablero" class="block">
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Empresa Prestadora</label>
+                    <select id="filtro-eps" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Cargando empresas...</option>
+                    </select>
+                </div>
+                <div class="mb-5">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
+                    <select id="filtro-periodo" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Cargando periodos...</option>
+                    </select>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Etapa del Procedimiento</label>
+                    <select id="filtro-etapa" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="">Cargando etapas...</option>
+                    </select>
+                </div>
+                <button id="btn-aplicar" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                    Aplicar Filtros
+                </button>
+            </div>
+
+            <!-- PANEL DE FILTROS: REPORTES (Módulo 2) -->
+            <div id="panel-filtros-reportes" class="hidden space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Empresa (Opcional)</label>
+                    <input type="text" id="rep-buscar-eps" placeholder="Ej. EMUSAP, SEDAPAL..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Meta / Indicador</label>
+                    <input type="text" id="rep-buscar-meta" placeholder="Ej. Agua no facturada, ICG..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Etapa (Opcional)</label>
+                    <select id="rep-filtro-etapa" class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="TODAS">-- Todas las Etapas --</option>
+                        <option value="RESULTADO_ACTUAL">Resultado Actual</option>
+                        <option value="FISCALIZACIÓN">Fiscalización</option>
+                        <option value="INSTRUCCIÓN">Instrucción</option>
+                        <option value="DECISIÓN">Decisión</option>
+                    </select>
+                </div>
+                
+                <div class="border-t border-blue-800 pt-4 mt-2">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-3">Configurar Columnas</label>
+                    <div class="space-y-2 text-sm" id="contenedor-columnas">
+                        <!-- Generado dinámicamente por JS -->
+                    </div>
+                </div>
+
+                <button onclick="generarReporte()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg mt-4">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    Actualizar Tabla
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área Principal de Visualización -->
+    <div class="flex-1 flex flex-col bg-[#f4f7f6] overflow-hidden relative">
+        
+        <!-- ========================================== -->
+        <!-- MÓDULO 1: TABLERO OFICIAL                  -->
+        <!-- ========================================== -->
+        <div id="modulo-tablero" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-10 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-100">
+            <header class="bg-white px-8 py-5 flex justify-between items-end shadow-sm z-10 border-b border-gray-200">
+                <div>
+                    <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
+                    <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
+                        Evaluando: <strong id="lbl-eps" class="text-[#00509e]">-</strong> &bull; 
+                        Periodo: <strong id="lbl-periodo" class="text-[#00509e]">-</strong> &bull; 
+                        Etapa: <span id="lbl-etapa" class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">-</span>
+                    </p>
+                </div>
+                <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Imprimir / PDF
+                </button>
+            </header>
+
+            <main class="flex-1 p-8 overflow-y-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- KPI Total Metas EPS -->
+                    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center items-center text-center relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-600"></div>
+                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-inner">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                        </div>
+                        <div class="flex items-baseline gap-2">
+                            <span id="kpi-total-metas" class="text-5xl font-black text-[#003366] tracking-tighter">0</span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider mt-2 px-2 leading-relaxed">
+                            Cantidad de metas de gestión aprobadas por RESOLUCIÓN
+                        </p>
+                    </div>
+
+                    <!-- Gráfico Evolución ICG -->
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-5 relative flex flex-col">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
+                            </h3>
+                            <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
+                        </div>
+                        <div class="flex-1 relative w-full min-h-[160px]">
+                            <canvas id="graficoICG"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                        <h2 class="font-bold text-gray-800 flex items-center gap-2">
+                            <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
+                            Resultados del cumplimiento de metas de gestión
+                        </h2>
+                        <div class="flex gap-4 text-xs font-medium text-gray-600">
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#00b050] rounded"></div> &ge; 100%</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#ffff00] rounded"></div> 80% - 99%</span>
+                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#ff0000] rounded"></div> &lt; 80%</span>
+                        </div>
+                    </div>
+                    <div class="table-container p-4">
+                        <table class="tabla-sunass">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" class="w-10">N°</th>
+                                    <th rowspan="2" class="w-1/4">Metas de gestión / Localidad</th>
+                                    <th rowspan="2" class="w-20">Unidad<br>medida</th>
+                                    <th colspan="5">Valor meta</th>
+                                    <th colspan="5">Valor obtenido</th>
+                                    <th colspan="5">Índice de Cumplimiento (ICI)</th>
+                                </tr>
+                                <tr class="text-[11px] uppercase tracking-wider bg-[#002244]">
+                                    <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                                    <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                                    <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-cuerpo">
+                                <tr><td colspan="18" class="text-center py-10 text-gray-500 font-medium">Cargando base de datos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MÓDULO 2: GENERADOR DE REPORTES (Oculto)   -->
+        <!-- ========================================== -->
+        <div id="modulo-reportes" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+            <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
+                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                        Generador de Reportes Ad-hoc
+                    </h1>
+                    <p class="text-gray-500 text-sm mt-1">Crea tablas personalizadas y cruza datos a nivel nacional.</p>
+                </div>
+                <button onclick="exportarCSV()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Exportar a Excel (CSV)
+                </button>
+            </header>
+
+            <main class="flex-1 p-6 overflow-hidden flex flex-col">
+                <div class="bg-white rounded-lg shadow-sm border border-slate-200 flex-1 flex flex-col overflow-hidden">
+                    <div class="p-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center text-sm">
+                        <span class="font-bold text-slate-600" id="rep-contador">Mostrando 0 registros</span>
+                        <span class="text-slate-400 italic">Los resultados se filtran y organizan según tus preferencias en el panel izquierdo.</span>
+                    </div>
+                    <div class="raw-table-container p-0">
+                        <table class="tabla-dinamica">
+                            <thead id="rep-tabla-head">
+                                <!-- Cabeceras generadas por JS -->
+                            </thead>
+                            <tbody id="rep-tabla-body">
+                                <tr><td class="text-center py-10 text-gray-500">Haz clic en "Actualizar Tabla" para ver los datos.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <!-- Importar la base de datos JS -->
+    <script src="datos_sunass.js"></script>
+
+    <script>
+        let db_global = [];
+        let miGraficoICG = null;
+        let dashboardIniciado = false;
+        
+        // Configuración de las columnas para el Creador de Reportes
+        const TODAS_LAS_COLUMNAS = [
+            { id: 'Cod_EP', nombre: 'Cód EPS', activa: true },
+            { id: 'Nombre_EPS', nombre: 'Nombre EPS', activa: true },
+            { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: false },
+            { id: 'Etapa', nombre: 'Etapa', activa: true },
+            { id: 'Nivel_Evaluacion', nombre: 'Nivel', activa: false },
+            { id: 'ID_Meta_General', nombre: 'ID Meta', activa: true },
+            { id: 'Descripcion_Especifica', nombre: 'Descripción de Meta', activa: true },
+            { id: 'Unidad_Medida', nombre: 'Unidad', activa: true },
+            { id: 'Año_Regulatorio', nombre: 'Año', activa: true },
+            { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: true },
+            { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: true },
+            { id: 'ICI', nombre: 'ICI (%)', activa: true }
+        ];
+
+        function initDashboard() {
+            if (dashboardIniciado) return;
+
+            if (typeof sunassData !== 'undefined') {
+                db_global = sunassData;
+            } else if (typeof baseDatosNacional !== 'undefined') {
+                db_global = baseDatosNacional;
+            } else {
+                document.getElementById('tabla-cuerpo').innerHTML = 
+                    '<tr><td colspan="18" class="text-center py-10 text-red-500 font-bold">Error: Asegúrese de que el archivo datos_sunass.js esté en la misma carpeta.</td></tr>';
+                return;
+            }
+
+            dashboardIniciado = true;
+            llenarFiltrosTablero();
+            dibujarOpcionesColumnas();
+            generarReporte();
+        }
+
+        function cambiarModulo(modulo) {
+            const modTablero = document.getElementById('modulo-tablero');
+            const modReportes = document.getElementById('modulo-reportes');
+            const panelTablero = document.getElementById('panel-filtros-tablero');
+            const panelReportes = document.getElementById('panel-filtros-reportes');
+            const btnTablero = document.getElementById('btn-mod-tablero');
+            const btnReportes = document.getElementById('btn-mod-reportes');
+
+            if (modulo === 'tablero') {
+                modTablero.classList.replace('opacity-0', 'opacity-100');
+                modTablero.classList.replace('z-0', 'z-10');
+                modTablero.classList.remove('pointer-events-none');
+                modReportes.classList.replace('opacity-100', 'opacity-0');
+                modReportes.classList.replace('z-10', 'z-0');
+                modReportes.classList.add('pointer-events-none');
+
+                panelTablero.classList.remove('hidden');
+                panelReportes.classList.add('hidden');
+
+                btnTablero.className = "flex-1 py-2 text-sm font-bold rounded bg-blue-600 text-white transition-colors shadow-sm";
+                btnReportes.className = "flex-1 py-2 text-sm font-bold rounded text-gray-400 hover:text-white transition-colors";
+            } else {
+                modReportes.classList.replace('opacity-0', 'opacity-100');
+                modReportes.classList.replace('z-0', 'z-10');
+                modReportes.classList.remove('pointer-events-none');
+                modTablero.classList.replace('opacity-100', 'opacity-0');
+                modTablero.classList.replace('z-10', 'z-0');
+                modTablero.classList.add('pointer-events-none');
+
+                panelReportes.classList.remove('hidden');
+                panelTablero.classList.add('hidden');
+
+                btnReportes.className = "flex-1 py-2 text-sm font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm";
+                btnTablero.className = "flex-1 py-2 text-sm font-bold rounded text-gray-400 hover:text-white transition-colors";
+            }
+        }
+
+        function llenarFiltrosTablero() {
+            const selectEps = document.getElementById('filtro-eps');
+            const selectPeriodo = document.getElementById('filtro-periodo');
+            const selectEtapa = document.getElementById('filtro-etapa');
+            
+            const uniqueEps = [...new Set(db_global.map(item => `${item.Cod_EP} | ${item.Nombre_EPS}`))].sort();
+            selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+
+            const updateSubFilters = () => {
+                const codEps = String(selectEps.value.split(' | ')[0]);
+                const datosEps = db_global.filter(item => String(item.Cod_EP) === String(codEps));
+
+                const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort();
+                selectPeriodo.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
+                
+                const updateEtapas = () => {
+                    const datosEpsPeriodo = datosEps.filter(item => item.Periodo_Regulatorio === selectPeriodo.value);
+                    const etapas = [...new Set(datosEpsPeriodo.map(item => item.Etapa))];
+                    selectEtapa.innerHTML = etapas.map(e => `<option value="${e}">${e}</option>`).join('');
+                };
+                
+                updateEtapas();
+                selectPeriodo.onchange = updateEtapas;
+            };
+
+            if(uniqueEps.length > 0) updateSubFilters();
+            selectEps.onchange = updateSubFilters;
+            document.getElementById('btn-aplicar').addEventListener('click', renderizarTablero);
+            renderizarTablero();
+        }
+
+        function formNum(valor) {
+            if (valor === null || valor === undefined || valor === "") return "-";
+            const num = parseFloat(valor);
+            if (isNaN(num)) return valor;
+            return num % 1 !== 0 ? num.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : num.toLocaleString('es-PE');
+        }
+
+        function obtenerColorIci(valor) {
+            if (valor === null || valor === undefined || valor === "") return "";
+            const v = parseFloat(valor);
+            if (isNaN(v)) return "";
+            if (v >= 100) return "ici-green";
+            if (v >= 80) return "ici-yellow";
+            return "ici-red";
+        }
+
+        function renderizarTablero() {
+            const epsSelect = document.getElementById('filtro-eps').value;
+            if(!epsSelect) return;
+            const codEps = String(epsSelect.split(' | ')[0]);
+            const periodoSelect = document.getElementById('filtro-periodo').value;
+            const etapaSelect = document.getElementById('filtro-etapa').value;
+
+            document.getElementById('lbl-eps').innerText = epsSelect;
+            document.getElementById('lbl-periodo').innerText = periodoSelect;
+            document.getElementById('lbl-etapa').innerText = etapaSelect ? etapaSelect.replace('_', ' ') : '-';
+
+            const datosFiltrados = db_global.filter(item => 
+                String(item.Cod_EP) === codEps && 
+                item.Periodo_Regulatorio === periodoSelect && 
+                item.Etapa === etapaSelect
+            );
+
+            const tbody = document.getElementById('tabla-cuerpo');
+            tbody.innerHTML = '';
+
+            if (datosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="18" class="text-center py-10 text-red-500 font-bold">No hay datos para esta combinación.</td></tr>';
+                document.getElementById('kpi-total-metas').innerText = "0";
+                if(miGraficoICG) miGraficoICG.destroy();
+                return;
+            }
+
+            const metasPivot = new Map();
+            datosFiltrados.forEach(fila => {
+                const clave = fila.ID_Meta_General + "|" + fila.Descripcion_Especifica;
+                if (!metasPivot.has(clave)) {
+                    metasPivot.set(clave, {
+                        id: fila.ID_Meta_General,
+                        descripcion: fila.Descripcion_Especifica,
+                        unidad: fila.Unidad_Medida || "",
+                        nivel: fila.Nivel_Evaluacion, 
+                        meta: {1:null, 2:null, 3:null, 4:null, 5:null},
+                        ejec: {1:null, 2:null, 3:null, 4:null, 5:null},
+                        ici:  {1:null, 2:null, 3:null, 4:null, 5:null}
+                    });
+                }
+
+                const strAnio = fila.Año_Regulatorio; 
+                let numAnio = null;
+                if (strAnio && strAnio.includes('1')) numAnio = 1;
+                else if (strAnio && strAnio.includes('2')) numAnio = 2;
+                else if (strAnio && strAnio.includes('3')) numAnio = 3;
+                else if (strAnio && strAnio.includes('4')) numAnio = 4;
+                else if (strAnio && strAnio.includes('5')) numAnio = 5;
+
+                if (numAnio) {
+                    const obj = metasPivot.get(clave);
+                    obj.meta[numAnio] = fila.Valor_Exigido;
+                    obj.ejec[numAnio] = fila.Valor_Ejecutado;
+                    obj.ici[numAnio] = fila.ICI;
+                }
+            });
+
+            const metasArray = Array.from(metasPivot.values());
+            const metasNormales = metasArray.filter(m => String(m.id).toUpperCase() !== 'ICG');
+            const filaIcg = metasArray.find(m => String(m.id).toUpperCase() === 'ICG');
+
+            let conteoMetasAprobadas = 0;
+
+            metasNormales.forEach(fila => {
+                const esLocalidad = fila.nivel === 'Localidad';
+                if (!esLocalidad && fila.id && !isNaN(parseInt(fila.id))) {
+                    conteoMetasAprobadas++;
+                }
+
+                const idMostrar = esLocalidad ? '' : fila.id;
+                const claseFondo = esLocalidad ? 'bg-slate-50' : 'bg-white';
+                const claseTextoDesc = esLocalidad ? 'pl-8 italic text-slate-500 font-medium' : 'font-bold text-gray-900';
+
+                let tr = document.createElement('tr');
+                tr.className = claseFondo;
+                
+                let html = `
+                    <td class="text-center font-bold text-slate-500">${idMostrar}</td>
+                    <td class="${claseTextoDesc}">${fila.descripcion}</td>
+                    <td class="text-center text-gray-500">${fila.unidad === '-' || !fila.unidad ? '' : fila.unidad}</td>
+                `;
+
+                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.meta[i])}</td>`;
+                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+
+                for (let i = 1; i <= 5; i++) {
+                    let iciVal = fila.ici[i];
+                    if (iciVal !== null && iciVal !== undefined && iciVal !== "") {
+                        const claseColor = obtenerColorIci(iciVal);
+                        html += `<td class="text-center ${claseColor}">${formNum(iciVal)}</td>`;
+                    } else {
+                        html += `<td class="text-center text-gray-300">-</td>`;
+                    }
+                }
+
+                tr.innerHTML = html;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('kpi-total-metas').innerText = conteoMetasAprobadas;
+
+            if (filaIcg) {
+                let trIcg = document.createElement('tr');
+                trIcg.className = 'icg-row shadow-md'; 
+                let htmlIcg = `<td class="text-center">-</td><td class="tracking-wide">${filaIcg.descripcion}</td><td class="text-center text-blue-200">%</td>`;
+                for (let i = 1; i <= 10; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                for (let i = 1; i <= 5; i++) {
+                    let val = filaIcg.ici[i];
+                    if (val !== null && val !== undefined && val !== "") {
+                        let claseColor = obtenerColorIci(val);
+                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
+                    } else {
+                        htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
+                    }
+                }
+                trIcg.innerHTML = htmlIcg;
+                tbody.appendChild(trIcg);
+            }
+
+            dibujarGrafico(filaIcg);
+        }
+
+        function dibujarGrafico(datosIcg) {
+            const canvasEl = document.getElementById('graficoICG');
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+            if (miGraficoICG) miGraficoICG.destroy();
+
+            const etiquetas = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+            let valores = [null, null, null, null, null];
+            let coloresPuntos = [];
+
+            if (datosIcg) {
+                for (let i = 1; i <= 5; i++) {
+                    let val = datosIcg.ici[i];
+                    if (val !== null && val !== undefined && val !== "") {
+                        let num = parseFloat(val);
+                        valores[i-1] = num;
+                        if (num >= 100) coloresPuntos.push('#00b050'); 
+                        else if (num >= 80) coloresPuntos.push('#eab308'); 
+                        else coloresPuntos.push('#ff0000'); 
+                    } else {
+                        coloresPuntos.push('#cbd5e1'); 
+                    }
+                }
+            }
+
+            if (typeof Chart === 'undefined') {
+                return;
+            }
+
+            miGraficoICG = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: etiquetas,
+                    datasets: [{
+                        label: 'ICG (%)',
+                        data: valores,
+                        borderColor: '#2563eb', 
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: coloresPuntos,
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        fill: true,
+                        tension: 0.2,
+                        spanGaps: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, max: 110, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function dibujarOpcionesColumnas() {
+            const contenedor = document.getElementById('contenedor-columnas');
+            let html = '';
+            TODAS_LAS_COLUMNAS.forEach((col, idx) => {
+                html += `
+                    <label class="flex items-center cursor-pointer mb-2 hover:bg-[#003366] p-1 rounded transition-colors">
+                        <div class="relative">
+                            <input type="checkbox" id="chk-col-${idx}" class="sr-only toggle-checkbox" ${col.activa ? 'checked' : ''} onchange="toggleColumna(${idx})">
+                            <div class="block bg-gray-600 w-8 h-5 rounded-full toggle-label transition-colors"></div>
+                            <div class="dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition transform ${col.activa ? 'translate-x-3' : ''}"></div>
+                        </div>
+                        <div class="ml-3 text-gray-300 font-medium select-none text-xs">${col.nombre}</div>
+                    </label>
+                `;
+            });
+            contenedor.innerHTML = html;
+        }
+
+        function toggleColumna(idx) {
+            TODAS_LAS_COLUMNAS[idx].activa = !TODAS_LAS_COLUMNAS[idx].activa;
+            const dot = document.querySelector(`#chk-col-${idx}`).parentElement.querySelector('.dot');
+            if (TODAS_LAS_COLUMNAS[idx].activa) {
+                dot.classList.add('translate-x-3');
+            } else {
+                dot.classList.remove('translate-x-3');
+            }
+        }
+
+        function generarReporte() {
+            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase();
+            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase();
+            const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
+
+            const dataFiltrada = db_global.filter(fila => {
+                const nombreEpsCompleto = (String(fila.Cod_EP) + " " + String(fila.Nombre_EPS)).toLowerCase();
+                const nombreMetaCompleto = (String(fila.ID_Meta_General) + " " + String(fila.Descripcion_Especifica)).toLowerCase();
+                
+                const cumpleEps = nombreEpsCompleto.includes(filtroEps);
+                const cumpleMeta = nombreMetaCompleto.includes(filtroMeta);
+                const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
+
+                return cumpleEps && cumpleMeta && cumpleEtapa;
+            });
+
+            const colsActivas = TODAS_LAS_COLUMNAS.filter(c => c.activa);
+
+            const thead = document.getElementById('rep-tabla-head');
+            let thHtml = '<tr>';
+            colsActivas.forEach(col => { thHtml += `<th>${col.nombre}</th>`; });
+            thHtml += '</tr>';
+            thead.innerHTML = thHtml;
+
+            const tbody = document.getElementById('rep-tabla-body');
+            const LIMITE_VISUAL = 1000;
+            let tbHtml = '';
+
+            if (dataFiltrada.length === 0) {
+                tbHtml = `<tr><td colspan="${colsActivas.length}" class="text-center py-8 text-gray-500 italic">No se encontraron registros con esos filtros.</td></tr>`;
+            } else {
+                const dataMostrar = dataFiltrada.slice(0, LIMITE_VISUAL);
+                dataMostrar.forEach(fila => {
+                    tbHtml += '<tr>';
+                    colsActivas.forEach(col => {
+                        let valor = fila[col.id];
+                        if (valor === null || valor === undefined) valor = '-';
+                        tbHtml += `<td>${valor}</td>`;
+                    });
+                    tbHtml += '</tr>';
+                });
+
+                if (dataFiltrada.length > LIMITE_VISUAL) {
+                    tbHtml += `<tr><td colspan="${colsActivas.length}" class="text-center py-4 bg-yellow-50 text-yellow-700 text-xs font-bold border-t border-yellow-200">
+                        Mostrando ${LIMITE_VISUAL} filas por rendimiento. Se encontraron ${dataFiltrada.length} en total. Exporta a CSV para ver el 100%.
+                    </td></tr>`;
+                }
+            }
+
+            tbody.innerHTML = tbHtml;
+            document.getElementById('rep-contador').innerText = `Mostrando ${dataFiltrada.length} registros`;
+        }
+
+        function exportarCSV() {
+            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase();
+            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase();
+            const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
+
+            const dataExportar = db_global.filter(fila => {
+                const nombreEpsCompleto = (String(fila.Cod_EP) + " " + String(fila.Nombre_EPS)).toLowerCase();
+                const nombreMetaCompleto = (String(fila.ID_Meta_General) + " " + String(fila.Descripcion_Especifica)).toLowerCase();
+                return nombreEpsCompleto.includes(filtroEps) && nombreMetaCompleto.includes(filtroMeta) && (filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa);
+            });
+
+            if (dataExportar.length === 0) {
+                const mensajeError = document.getElementById('rep-contador');
+                if (mensajeError) {
+                    mensajeError.innerText = "No hay datos para exportar con los filtros actuales.";
+                }
+                return;
+            }
+
+            const colsActivas = TODAS_LAS_COLUMNAS.filter(c => c.activa);
+            let csvContent = "\uFEFF"; 
+            csvContent += colsActivas.map(c => `"${c.nombre}"`).join(";") + "\n";
+
+            dataExportar.forEach(fila => {
+                let filaCsv = colsActivas.map(col => {
+                    let valor = fila[col.id];
+                    if (valor === null || valor === undefined) valor = '';
+                    let texto = String(valor).replace(/"/g, '""').replace(/\n/g, ' ');
+                    return `"${texto}"`;
+                });
+                csvContent += filaCsv.join(";") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const fecha = new Date().toISOString().slice(0,10).replace(/-/g,"");
+            link.setAttribute("href", URL.createObjectURL(blob));
+            link.setAttribute("download", `Reporte_Personalizado_SUNASS_${fecha}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDashboard);
+        } else {
+            initDashboard();
+        }
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>

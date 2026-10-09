@@ -1324,34 +1324,36 @@
             const selectEps = document.getElementById('filtro-eps');
             const selectPeriodo = document.getElementById('filtro-periodo');
             
-            // Construir lista única de EPS
+            // Construir lista única de EPS formateada como "Código. Nombre"
             const mapEps = new Map();
             db_global.forEach(item => {
-                const cod = String(item.Cod_EP || '').trim();
+                const rawCod = String(item.Cod_EP || '').trim();
                 const nombre = String(item.Nombre_EPS || '').trim();
-                const key = `${cod} | ${nombre}`;
-                if (!mapEps.has(key)) {
-                    mapEps.set(key, { cod, nombre, full: key });
+                if (!rawCod || !nombre) return;
+
+                const numCod = parseInt(rawCod.replace(/\D/g, ''), 10);
+                const codPadded = isNaN(numCod) ? rawCod : String(numCod).padStart(3, '0');
+                const etiqueta = `${codPadded}. ${nombre}`;
+
+                if (!mapEps.has(rawCod)) {
+                    mapEps.set(rawCod, {
+                        cod: rawCod,
+                        codPadded: codPadded,
+                        num: isNaN(numCod) ? 9999 : numCod,
+                        nombre: nombre,
+                        etiqueta: etiqueta
+                    });
                 }
             });
 
-            // Lista ordenada alfabéticamente por nombre (estilo Power BI como en la captura)
-            const epsOrdenadasNombre = Array.from(mapEps.values()).sort((a, b) => 
-                a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
-            );
+            // Lista ordenada en función creciente a sus códigos de EP (001, 002, 003...)
+            const epsOrdenadasCodigo = Array.from(mapEps.values()).sort((a, b) => a.num - b.num);
 
-            // Lista ordenada numéricamente por código para selectPeriodo
-            const uniqueEpsCod = Array.from(mapEps.keys()).sort((a, b) => {
-                const codA = parseInt(String(a.split(' | ')[0]).replace(/\D/g, '')) || 0;
-                const codB = parseInt(String(b.split(' | ')[0]).replace(/\D/g, '')) || 0;
-                return codA - codB;
-            });
-
-            selectEps.innerHTML = uniqueEpsCod.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+            selectEps.innerHTML = epsOrdenadasCodigo.map(eps => `<option value="${eps.etiqueta}">${eps.etiqueta}</option>`).join('');
 
             const updateSubFilters = () => {
-                const codEps = String(selectEps.value.split(' | ')[0]);
-                const datosEps = db_global.filter(item => String(item.Cod_EP) === codEps);
+                const codEps = String(selectEps.value || '').split(/[.|]/)[0].trim().padStart(3, '0');
+                const datosEps = db_global.filter(item => String(item.Cod_EP).padStart(3, '0') === codEps);
 
                 const ordenRomanos = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR'];
                 const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort((a, b) => {
@@ -1365,14 +1367,14 @@
                 renderizarTablero();
             };
 
-            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES (Selección individual)
-            const opcionesTablero = epsOrdenadasNombre.map(eps => ({
-                value: eps.full,
-                label: eps.nombre,
-                searchText: `${eps.cod} ${eps.nombre}`
+            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES (Evaluación e Informes)
+            const opcionesTablero = epsOrdenadasCodigo.map(eps => ({
+                value: eps.etiqueta,
+                label: eps.etiqueta,
+                searchText: `${eps.codPadded} ${eps.nombre}`
             }));
 
-            const epsInicial = epsOrdenadasNombre.length > 0 ? epsOrdenadasNombre[0].full : "";
+            const epsInicial = epsOrdenadasCodigo.length > 0 ? epsOrdenadasCodigo[0].etiqueta : "";
             if (epsInicial) selectEps.value = epsInicial;
 
             dropdownEpsTableroInstance = crearDropdownPowerBI({
@@ -1394,11 +1396,11 @@
                 }
             });
 
-            // 2. DROPDOWN EPS PARA CREADOR DE REPORTES (Selección múltiple con buscador)
-            const opcionesReportesEps = epsOrdenadasNombre.map(eps => ({
-                value: eps.nombre,
-                label: eps.nombre,
-                searchText: `${eps.cod} ${eps.nombre}`
+            // 2. DROPDOWN EPS PARA CREADOR DE REPORTES (Selección múltiple en orden creciente de código)
+            const opcionesReportesEps = epsOrdenadasCodigo.map(eps => ({
+                value: eps.etiqueta,
+                label: eps.etiqueta,
+                searchText: `${eps.codPadded} ${eps.nombre}`
             }));
 
             dropdownEpsReportesInstance = crearDropdownPowerBI({
@@ -1511,9 +1513,9 @@
             const periodoSelect = document.getElementById('filtro-periodo').value;
             if (!epsSelect || !periodoSelect) return;
 
-            const codEps = String(epsSelect.split(' | ')[0]);
+            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
             const datosEpsPeriodo = db_global.filter(item => 
-                String(item.Cod_EP) === codEps && 
+                String(item.Cod_EP).padStart(3, '0') === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
 
@@ -1584,7 +1586,7 @@
         function renderizarTablero() {
             const epsSelect = document.getElementById('filtro-eps').value;
             if (!epsSelect) return;
-            const codEps = String(epsSelect.split(' | ')[0]);
+            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
             const periodoSelect = document.getElementById('filtro-periodo').value;
 
             // Actualizar etiquetas en Módulo 1 (Evaluación) si existen
@@ -1601,7 +1603,7 @@
 
             // Datos generales de la EPS para Badges y Tarjeta Resumen
             const datosEps = db_global.filter(item => 
-                String(item.Cod_EP) === codEps && 
+                String(item.Cod_EP).padStart(3, '0') === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
 
@@ -1616,11 +1618,11 @@
             const cardEpsTamano = document.getElementById('card-eps-tamano');
             const cardEpsRegion = document.getElementById('card-eps-region');
 
-            const partesEps = epsSelect.split(' | ');
-            const codEpsFallback = partesEps[0] || '-';
-            const nombreEpsFallback = partesEps[1] || epsSelect;
+            const partesEps = epsSelect.split(/[.|]/);
+            const codEpsFallback = (partesEps[0] || '').trim().padStart(3, '0');
+            const nombreEpsFallback = epsSelect.replace(/^\d+[\.\s\|]+/, '').trim();
 
-            const datoReferencia = datosEps.length > 0 ? datosEps[0] : (db_global.find(item => String(item.Cod_EP) === codEps) || null);
+            const datoReferencia = datosEps.length > 0 ? datosEps[0] : (db_global.find(item => String(item.Cod_EP).padStart(3, '0') === codEps) || null);
 
             if (cardEpsNombre) {
                 const nombreMostrar = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : nombreEpsFallback;
@@ -1680,7 +1682,7 @@
         function renderizarSoloTabla() {
             const epsSelect = document.getElementById('filtro-eps').value;
             if (!epsSelect) return;
-            const codEps = String(epsSelect.split(' | ')[0]);
+            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
             const periodoSelect = document.getElementById('filtro-periodo').value;
             const etapaActual = etapaSeleccionadaGlobal;
 
@@ -1690,7 +1692,7 @@
             if (lblEtapaActiva) lblEtapaActiva.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
 
             const datosFiltrados = db_global.filter(item => 
-                String(item.Cod_EP) === codEps && 
+                String(item.Cod_EP).padStart(3, '0') === codEps && 
                 item.Periodo_Regulatorio === periodoSelect && 
                 item.Etapa === etapaActual
             );
@@ -1831,7 +1833,7 @@
             const tbody = document.getElementById('tabla-informes-cuerpo');
             if (!tbody || !epsSelect || !periodoSelect) return;
 
-            const codEps = String(epsSelect.split(' | ')[0]);
+            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
 
             if (!db_informes || db_informes.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="11" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
@@ -1839,7 +1841,7 @@
             }
 
             const informesEps = db_informes.filter(item => 
-                String(item.Cod_EP) === codEps && 
+                String(item.Cod_EP).padStart(3, '0') === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
 
@@ -2025,6 +2027,8 @@
 
             return db_global.filter(fila => {
                 const nombreEps = String(fila.Nombre_EPS || '').trim();
+                const codFila = String(fila.Cod_EP || '').trim().padStart(3, '0');
+                const etiquetaEps = `${codFila}. ${nombreEps}`;
                 const depto = String(fila.Departamento || '').toLowerCase().trim();
                 const descMeta = String(fila.Descripcion_Especifica || '').toLowerCase().trim();
                 const idMeta = String(fila.ID_Meta_General || '').toLowerCase().trim();
@@ -2032,7 +2036,7 @@
                 const nombreMetaCompleto = (idMeta + " " + metaPrinc + " " + descMeta).toLowerCase();
 
                 // 1. Filtro Empresa Prestadora (si no hay seleccionadas, coincide con todas)
-                const cumpleEps = setEps.size === 0 || setEps.has(nombreEps);
+                const cumpleEps = setEps.size === 0 || setEps.has(etiquetaEps) || setEps.has(nombreEps) || setEps.has(codFila);
 
                 // 2. Filtro Departamento (si no hay seleccionados, coincide con todos)
                 const cumpleDepto = setDeptos.size === 0 || setDeptos.has(depto);

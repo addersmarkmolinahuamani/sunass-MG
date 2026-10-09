@@ -99,9 +99,29 @@
             
             <!-- PANEL DE FILTROS: TABLERO (Módulo 1) -->
             <div id="panel-filtros-tablero" class="block">
-                <div class="mb-5">
+                <div class="mb-5 relative" id="contenedor-filtro-eps">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Empresa Prestadora</label>
-                    <select id="filtro-eps" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                    
+                    <!-- Campo de búsqueda rápida con autocompletado interactivo -->
+                    <div class="relative mb-2">
+                        <input type="text" id="buscar-eps-input" 
+                               placeholder="🔍 Escribe para buscar (ej: Seda, 010, Ica...)" 
+                               autocomplete="off"
+                               class="w-full p-2.5 pl-8 pr-7 rounded bg-[#001e3d] text-white placeholder-blue-300/60 border border-blue-800 text-xs font-medium focus:ring-2 focus:ring-blue-400 focus:outline-none transition shadow-inner">
+                        <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <button id="btn-limpiar-busqueda-eps" type="button" title="Limpiar búsqueda" 
+                                class="hidden absolute right-2 top-2 text-blue-300 hover:text-white text-xs px-1.5 py-0.5 rounded bg-blue-900/80 transition">✕</button>
+                    </div>
+
+                    <!-- Lista flotante de sugerencias predictivas -->
+                    <div id="lista-sugerencias-eps" 
+                         class="hidden absolute left-0 right-0 top-[68px] z-50 bg-white rounded-lg shadow-2xl border border-gray-200 max-h-60 overflow-y-auto divide-y divide-gray-100 text-xs">
+                    </div>
+
+                    <!-- Desplegable oficial -->
+                    <select id="filtro-eps" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm">
                         <option value="">Cargando empresas...</option>
                     </select>
                 </div>
@@ -480,8 +500,132 @@
                 renderizarTablero();
             };
 
+            // ==========================================
+            // BÚSQUEDA PREDICTIVA Y AUTOCOMPLETADO EPS
+            // ==========================================
+            const inputBuscar = document.getElementById('buscar-eps-input');
+            const btnLimpiar = document.getElementById('btn-limpiar-busqueda-eps');
+            const listaSugerencias = document.getElementById('lista-sugerencias-eps');
+
+            const normalizar = (txt) => (txt || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            function seleccionarEpsDirecto(epsSeleccionada) {
+                // Restaurar todas las opciones en el select oficial para preservar integridad
+                selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+                selectEps.value = epsSeleccionada;
+                
+                const partes = epsSeleccionada.split(' | ');
+                inputBuscar.value = partes[1] || epsSeleccionada;
+                btnLimpiar.classList.remove('hidden');
+                listaSugerencias.classList.add('hidden');
+                updateSubFilters();
+            }
+
+            function filtrarOpcionesEps(query) {
+                const qNorm = normalizar(query).trim();
+                if (!qNorm) {
+                    btnLimpiar.classList.add('hidden');
+                    listaSugerencias.classList.add('hidden');
+                    const actual = selectEps.value;
+                    selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+                    if (actual && uniqueEps.includes(actual)) selectEps.value = actual;
+                    return;
+                }
+
+                btnLimpiar.classList.remove('hidden');
+
+                const coincidencias = uniqueEps.filter(eps => normalizar(eps).includes(qNorm));
+
+                if (coincidencias.length === 0) {
+                    listaSugerencias.innerHTML = `<div class="p-3 text-center text-gray-400 italic">No se encontraron EPS con "${query}"</div>`;
+                    listaSugerencias.classList.remove('hidden');
+                    selectEps.innerHTML = `<option value="">Sin coincidencias</option>`;
+                } else {
+                    listaSugerencias.innerHTML = coincidencias.map(eps => {
+                        const partes = eps.split(' | ');
+                        const cod = partes[0];
+                        const nombre = partes[1] || '';
+                        return `
+                            <div class="item-sugerencia p-2.5 hover:bg-blue-50 cursor-pointer text-gray-800 transition flex items-center justify-between group" data-value="${eps}">
+                                <div class="flex items-center gap-1.5 truncate pr-2">
+                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold text-[10px] shrink-0">${cod}</span>
+                                    <span class="group-hover:text-blue-700 font-semibold truncate">${nombre}</span>
+                                </div>
+                                <span class="text-[10px] text-gray-400 group-hover:text-blue-600 font-bold shrink-0">Elegir ↵</span>
+                            </div>
+                        `;
+                    }).join('');
+                    listaSugerencias.classList.remove('hidden');
+
+                    // Filtrar también el desplegable select en tiempo real
+                    selectEps.innerHTML = coincidencias.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+
+                    // Asignar eventos de clic a cada sugerencia
+                    listaSugerencias.querySelectorAll('.item-sugerencia').forEach(el => {
+                        el.addEventListener('click', () => {
+                            seleccionarEpsDirecto(el.getAttribute('data-value'));
+                        });
+                    });
+                }
+            }
+
+            if (inputBuscar) {
+                inputBuscar.addEventListener('input', (e) => {
+                    filtrarOpcionesEps(e.target.value);
+                });
+
+                inputBuscar.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const primeraSugerencia = listaSugerencias.querySelector('.item-sugerencia');
+                        if (primeraSugerencia) {
+                            seleccionarEpsDirecto(primeraSugerencia.getAttribute('data-value'));
+                        } else if (selectEps.value) {
+                            listaSugerencias.classList.add('hidden');
+                            updateSubFilters();
+                        }
+                    } else if (e.key === 'Escape') {
+                        listaSugerencias.classList.add('hidden');
+                    }
+                });
+
+                inputBuscar.addEventListener('focus', () => {
+                    if (inputBuscar.value.trim() && !listaSugerencias.classList.contains('hidden') === false) {
+                        filtrarOpcionesEps(inputBuscar.value);
+                    }
+                });
+            }
+
+            if (btnLimpiar) {
+                btnLimpiar.addEventListener('click', () => {
+                    inputBuscar.value = '';
+                    btnLimpiar.classList.add('hidden');
+                    listaSugerencias.classList.add('hidden');
+                    selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+                    if (uniqueEps.length > 0) {
+                        selectEps.value = uniqueEps[0];
+                        updateSubFilters();
+                    }
+                });
+            }
+
+            // Cerrar lista flotante al hacer clic fuera
+            document.addEventListener('click', (e) => {
+                const contenedor = document.getElementById('contenedor-filtro-eps');
+                if (contenedor && !contenedor.contains(e.target) && listaSugerencias) {
+                    listaSugerencias.classList.add('hidden');
+                }
+            });
+
             if (uniqueEps.length > 0) updateSubFilters();
-            selectEps.onchange = updateSubFilters;
+            selectEps.onchange = () => {
+                if (inputBuscar && selectEps.value) {
+                    const partes = selectEps.value.split(' | ');
+                    inputBuscar.value = partes[1] || selectEps.value;
+                    btnLimpiar.classList.remove('hidden');
+                }
+                updateSubFilters();
+            };
             selectPeriodo.onchange = () => {
                 actualizarBotonesEtapa();
                 renderizarTablero();

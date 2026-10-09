@@ -1,0 +1,5 @@
+# Archivos de datos pesados y temporales
+*.xlsx
+scratch/
+__pycache__/
+*.log

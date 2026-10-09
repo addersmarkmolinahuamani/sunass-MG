@@ -20,7 +20,7 @@
             border-left: none; 
             border-right: 1px solid #1a4c80; 
             border-bottom: 1px solid #1a4c80; 
-            padding: 8px 4px; 
+            padding: 7px 4px; 
             text-align: center; 
         }
         .tabla-sunass td { 
@@ -124,17 +124,21 @@
             </div>
 
             <!-- PANEL DE FILTROS: REPORTES (Módulo 2) -->
-            <div id="panel-filtros-reportes" class="hidden space-y-5">
+            <div id="panel-filtros-reportes" class="hidden space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Empresa (Opcional)</label>
-                    <input type="text" id="rep-buscar-eps" placeholder="Ej. EMUSAP, SEDAPAL..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Empresa</label>
+                    <input type="text" id="rep-buscar-eps" placeholder="Ej. EMUSAP, SEDAPAL, ATUSA..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Departamento</label>
+                    <input type="text" id="rep-buscar-depto" placeholder="Ej. Amazonas, Lima, Tumbes..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Meta / Indicador</label>
                     <input type="text" id="rep-buscar-meta" placeholder="Ej. Agua no facturada, ICG..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Etapa (Opcional)</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Etapa</label>
                     <select id="rep-filtro-etapa" class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="TODAS">-- Todas las Etapas --</option>
                         <option value="RESULTADO_ACTUAL">Resultado Actual</option>
@@ -144,14 +148,14 @@
                     </select>
                 </div>
                 
-                <div class="border-t border-blue-800 pt-4 mt-2">
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-3">Configurar Columnas</label>
-                    <div class="space-y-2 text-sm" id="contenedor-columnas">
+                <div class="border-t border-blue-800 pt-3 mt-2">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Configurar Columnas</label>
+                    <div class="space-y-1.5 text-sm max-h-48 overflow-y-auto pr-1" id="contenedor-columnas">
                         <!-- Generado dinámicamente por JS -->
                     </div>
                 </div>
 
-                <button onclick="generarReporte()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg mt-4">
+                <button onclick="generarReporte()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg mt-3">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                     Actualizar Tabla
                 </button>
@@ -166,19 +170,28 @@
         <!-- MÓDULO 1: TABLERO OFICIAL                  -->
         <!-- ========================================== -->
         <div id="modulo-tablero" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-10 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-100">
-            <header class="bg-white px-8 py-5 flex justify-between items-end shadow-sm z-10 border-b border-gray-200">
+            <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
                 <div>
-                    <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
+                        <span id="badge-depto" class="hidden px-2.5 py-0.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200"></span>
+                        <span id="badge-tamano" class="hidden px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200"></span>
+                    </div>
                     <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
                         Evaluando: <strong id="lbl-eps" class="text-[#00509e]">-</strong> &bull; 
                         Periodo: <strong id="lbl-periodo" class="text-[#00509e]">-</strong> &bull; 
                         Etapa: <span id="lbl-etapa" class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">-</span>
                     </p>
                 </div>
-                <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                    Imprimir / PDF
-                </button>
+                <div class="flex items-center gap-3">
+                    <!-- Enlace directo al informe oficial linkeado -->
+                    <div id="contenedor-informe-link" class="hidden"></div>
+                    
+                    <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir / PDF
+                    </button>
+                </div>
             </header>
 
             <main class="flex-1 p-8 overflow-y-auto">
@@ -228,20 +241,23 @@
                             <thead>
                                 <tr>
                                     <th rowspan="2" class="w-10">N°</th>
-                                    <th rowspan="2" class="w-1/4">Metas de gestión / Localidad</th>
+                                    <th rowspan="2" class="w-1/4 min-w-[280px]">Metas de gestión / Localidad</th>
                                     <th rowspan="2" class="w-20">Unidad<br>medida</th>
-                                    <th colspan="5">Valor meta</th>
-                                    <th colspan="5">Valor obtenido</th>
+                                    <th colspan="7">Valor meta</th>
+                                    <th colspan="6">Valor obtenido</th>
                                     <th colspan="5">Índice de Cumplimiento (ICI)</th>
                                 </tr>
                                 <tr class="text-[11px] uppercase tracking-wider bg-[#002244]">
+                                    <th class="w-14 bg-[#001833]">Año Base</th>
                                     <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                                    <th class="w-14 bg-[#001833]">Acum.</th>
                                     <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                                    <th class="w-14 bg-[#001833]">Acum.</th>
                                     <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
                                 </tr>
                             </thead>
                             <tbody id="tabla-cuerpo">
-                                <tr><td colspan="18" class="text-center py-10 text-gray-500 font-medium">Cargando base de datos...</td></tr>
+                                <tr><td colspan="21" class="text-center py-10 text-gray-500 font-medium">Cargando base de datos...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -250,7 +266,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- MÓDULO 2: GENERADOR DE REPORTES (Oculto)   -->
+        <!-- MÓDULO 2: GENERADOR DE REPORTES            -->
         <!-- ========================================== -->
         <div id="modulo-reportes" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
             <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
@@ -259,7 +275,7 @@
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
                         Generador de Reportes Ad-hoc
                     </h1>
-                    <p class="text-gray-500 text-sm mt-1">Crea tablas personalizadas y cruza datos a nivel nacional.</p>
+                    <p class="text-gray-500 text-sm mt-1">Crea tablas personalizadas, cruza datos a nivel nacional y accede a informes linkeados.</p>
                 </div>
                 <button onclick="exportarCSV()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -297,20 +313,24 @@
         let miGraficoICG = null;
         let dashboardIniciado = false;
         
-        // Configuración de las columnas para el Creador de Reportes
+        // Configuración de las columnas para el Creador de Reportes (incluye nuevos metadatos e informes)
         const TODAS_LAS_COLUMNAS = [
             { id: 'Cod_EP', nombre: 'Cód EPS', activa: true },
             { id: 'Nombre_EPS', nombre: 'Nombre EPS', activa: true },
+            { id: 'Departamento', nombre: 'Departamento', activa: true },
+            { id: 'Tamano_EPS', nombre: 'Tamaño EPS', activa: false },
             { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: false },
             { id: 'Etapa', nombre: 'Etapa', activa: true },
             { id: 'Nivel_Evaluacion', nombre: 'Nivel', activa: false },
             { id: 'ID_Meta_General', nombre: 'ID Meta', activa: true },
             { id: 'Descripcion_Especifica', nombre: 'Descripción de Meta', activa: true },
             { id: 'Unidad_Medida', nombre: 'Unidad', activa: true },
-            { id: 'Año_Regulatorio', nombre: 'Año', activa: true },
+            { id: 'Año_Regulatorio', nombre: 'Año / Periodo', activa: true },
             { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: true },
             { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: true },
-            { id: 'ICI', nombre: 'ICI (%)', activa: true }
+            { id: 'ICI', nombre: 'ICI (%)', activa: true },
+            { id: 'Informe_Etapa', nombre: 'Informe / Resolución', activa: true },
+            { id: 'Informe_Etapa_Link', nombre: 'Enlace Web', activa: false }
         ];
 
         function initDashboard() {
@@ -322,7 +342,7 @@
                 db_global = baseDatosNacional;
             } else {
                 document.getElementById('tabla-cuerpo').innerHTML = 
-                    '<tr><td colspan="18" class="text-center py-10 text-red-500 font-bold">Error: Asegúrese de que el archivo datos_sunass.js esté en la misma carpeta.</td></tr>';
+                    '<tr><td colspan="21" class="text-center py-10 text-red-500 font-bold">Error: Asegúrese de que el archivo datos_sunass.js esté en la misma carpeta.</td></tr>';
                 return;
             }
 
@@ -374,7 +394,19 @@
             const selectPeriodo = document.getElementById('filtro-periodo');
             const selectEtapa = document.getElementById('filtro-etapa');
             
-            const uniqueEps = [...new Set(db_global.map(item => `${item.Cod_EP} | ${item.Nombre_EPS}`))].sort();
+            // Ordenar EPS de forma inteligente (numérica/alfabética)
+            const mapEps = new Map();
+            db_global.forEach(item => {
+                const key = `${item.Cod_EP} | ${item.Nombre_EPS}`;
+                if (!mapEps.has(key)) mapEps.set(key, item.Cod_EP);
+            });
+
+            const uniqueEps = Array.from(mapEps.keys()).sort((a, b) => {
+                const codA = parseInt(String(a.split(' | ')[0]).replace(/\D/g, '')) || 0;
+                const codB = parseInt(String(b.split(' | ')[0]).replace(/\D/g, '')) || 0;
+                return codA - codB;
+            });
+
             selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
 
             const updateSubFilters = () => {
@@ -401,14 +433,14 @@
         }
 
         function formNum(valor) {
-            if (valor === null || valor === undefined || valor === "") return "-";
+            if (valor === null || valor === undefined || valor === "" || valor === "-") return "-";
             const num = parseFloat(valor);
             if (isNaN(num)) return valor;
             return num % 1 !== 0 ? num.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : num.toLocaleString('es-PE');
         }
 
         function obtenerColorIci(valor) {
-            if (valor === null || valor === undefined || valor === "") return "";
+            if (valor === null || valor === undefined || valor === "" || valor === "-") return "";
             const v = parseFloat(valor);
             if (isNaN(v)) return "";
             if (v >= 100) return "ici-green";
@@ -436,13 +468,55 @@
             const tbody = document.getElementById('tabla-cuerpo');
             tbody.innerHTML = '';
 
+            const badgeDepto = document.getElementById('badge-depto');
+            const badgeTamano = document.getElementById('badge-tamano');
+            const contenedorLink = document.getElementById('contenedor-informe-link');
+
             if (datosFiltrados.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="18" class="text-center py-10 text-red-500 font-bold">No hay datos para esta combinación.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="21" class="text-center py-10 text-red-500 font-bold">No hay datos para esta combinación.</td></tr>';
                 document.getElementById('kpi-total-metas').innerText = "0";
+                badgeDepto.classList.add('hidden');
+                badgeTamano.classList.add('hidden');
+                contenedorLink.innerHTML = '';
+                contenedorLink.classList.add('hidden');
                 if(miGraficoICG) miGraficoICG.destroy();
                 return;
             }
 
+            // Metadatos adicionales de cabecera
+            const primerDato = datosFiltrados[0];
+            if (primerDato.Departamento) {
+                badgeDepto.innerText = '📍 ' + primerDato.Departamento;
+                badgeDepto.classList.remove('hidden');
+            } else {
+                badgeDepto.classList.add('hidden');
+            }
+
+            if (primerDato.Tamano_EPS) {
+                badgeTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
+                badgeTamano.classList.remove('hidden');
+            } else {
+                badgeTamano.classList.add('hidden');
+            }
+
+            // Enlace dinámico al informe oficial
+            const datoConLink = datosFiltrados.find(d => d.Informe_Etapa_Link);
+            if (datoConLink && datoConLink.Informe_Etapa_Link) {
+                const nombreDoc = datoConLink.Informe_Etapa || 'Ver Informe Oficial';
+                contenedorLink.innerHTML = `
+                    <a href="${datoConLink.Informe_Etapa_Link}" target="_blank" rel="noopener noreferrer" 
+                       class="px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded text-sm font-bold flex items-center gap-2 shadow-sm transition hover:shadow">
+                        <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                        <span class="truncate max-w-[280px]" title="${nombreDoc}">📄 ${nombreDoc}</span>
+                    </a>
+                `;
+                contenedorLink.classList.remove('hidden');
+            } else {
+                contenedorLink.innerHTML = '';
+                contenedorLink.classList.add('hidden');
+            }
+
+            // Construir Pivot con Año Base y Acumulado
             const metasPivot = new Map();
             datosFiltrados.forEach(fila => {
                 const clave = fila.ID_Meta_General + "|" + fila.Descripcion_Especifica;
@@ -451,26 +525,37 @@
                         id: fila.ID_Meta_General,
                         descripcion: fila.Descripcion_Especifica,
                         unidad: fila.Unidad_Medida || "",
-                        nivel: fila.Nivel_Evaluacion, 
+                        nivel: fila.Nivel_Evaluacion,
+                        base: null,
                         meta: {1:null, 2:null, 3:null, 4:null, 5:null},
+                        meta_acum: null,
                         ejec: {1:null, 2:null, 3:null, 4:null, 5:null},
+                        ejec_acum: null,
                         ici:  {1:null, 2:null, 3:null, 4:null, 5:null}
                     });
                 }
 
-                const strAnio = fila.Año_Regulatorio; 
-                let numAnio = null;
-                if (strAnio && strAnio.includes('1')) numAnio = 1;
-                else if (strAnio && strAnio.includes('2')) numAnio = 2;
-                else if (strAnio && strAnio.includes('3')) numAnio = 3;
-                else if (strAnio && strAnio.includes('4')) numAnio = 4;
-                else if (strAnio && strAnio.includes('5')) numAnio = 5;
+                const strAnio = String(fila.Año_Regulatorio || '').toUpperCase();
+                const obj = metasPivot.get(clave);
 
-                if (numAnio) {
-                    const obj = metasPivot.get(clave);
-                    obj.meta[numAnio] = fila.Valor_Exigido;
-                    obj.ejec[numAnio] = fila.Valor_Ejecutado;
-                    obj.ici[numAnio] = fila.ICI;
+                if (strAnio.includes('BASE')) {
+                    obj.base = fila.Valor_Exigido;
+                } else if (strAnio.includes('ACUM')) {
+                    obj.meta_acum = fila.Valor_Exigido;
+                    obj.ejec_acum = fila.Valor_Ejecutado;
+                } else {
+                    let numAnio = null;
+                    if (strAnio.includes('1')) numAnio = 1;
+                    else if (strAnio.includes('2')) numAnio = 2;
+                    else if (strAnio.includes('3')) numAnio = 3;
+                    else if (strAnio.includes('4')) numAnio = 4;
+                    else if (strAnio.includes('5')) numAnio = 5;
+
+                    if (numAnio) {
+                        obj.meta[numAnio] = fila.Valor_Exigido;
+                        obj.ejec[numAnio] = fila.Valor_Ejecutado;
+                        obj.ici[numAnio] = fila.ICI;
+                    }
                 }
             });
 
@@ -499,12 +584,19 @@
                     <td class="text-center text-gray-500">${fila.unidad === '-' || !fila.unidad ? '' : fila.unidad}</td>
                 `;
 
+                // 1. Valor Meta (Año Base + Años 1..5 + Acumulado)
+                html += `<td class="text-center bg-slate-50 font-medium text-slate-700">${formNum(fila.base)}</td>`;
                 for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.meta[i])}</td>`;
-                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+                html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.meta_acum)}</td>`;
 
+                // 2. Valor Obtenido (Años 1..5 + Acumulado)
+                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+                html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.ejec_acum)}</td>`;
+
+                // 3. ICI (Años 1..5)
                 for (let i = 1; i <= 5; i++) {
                     let iciVal = fila.ici[i];
-                    if (iciVal !== null && iciVal !== undefined && iciVal !== "") {
+                    if (iciVal !== null && iciVal !== undefined && iciVal !== "" && iciVal !== "-") {
                         const claseColor = obtenerColorIci(iciVal);
                         html += `<td class="text-center ${claseColor}">${formNum(iciVal)}</td>`;
                     } else {
@@ -522,10 +614,15 @@
                 let trIcg = document.createElement('tr');
                 trIcg.className = 'icg-row shadow-md'; 
                 let htmlIcg = `<td class="text-center">-</td><td class="tracking-wide">${filaIcg.descripcion}</td><td class="text-center text-blue-200">%</td>`;
-                for (let i = 1; i <= 10; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                
+                // Meta: 7 celdas (Base + 5 años + Acum)
+                for (let i = 1; i <= 7; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                // Obtenido: 6 celdas (5 años + Acum)
+                for (let i = 1; i <= 6; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                // ICI: 5 celdas
                 for (let i = 1; i <= 5; i++) {
                     let val = filaIcg.ici[i];
-                    if (val !== null && val !== undefined && val !== "") {
+                    if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIci(val);
                         htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
                     } else {
@@ -552,7 +649,7 @@
             if (datosIcg) {
                 for (let i = 1; i <= 5; i++) {
                     let val = datosIcg.ici[i];
-                    if (val !== null && val !== undefined && val !== "") {
+                    if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let num = parseFloat(val);
                         valores[i-1] = num;
                         if (num >= 100) coloresPuntos.push('#00b050'); 
@@ -629,19 +726,22 @@
         }
 
         function generarReporte() {
-            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase();
-            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase();
+            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase().trim();
+            const filtroDepto = (document.getElementById('rep-buscar-depto')?.value || '').toLowerCase().trim();
+            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase().trim();
             const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
 
             const dataFiltrada = db_global.filter(fila => {
-                const nombreEpsCompleto = (String(fila.Cod_EP) + " " + String(fila.Nombre_EPS)).toLowerCase();
-                const nombreMetaCompleto = (String(fila.ID_Meta_General) + " " + String(fila.Descripcion_Especifica)).toLowerCase();
+                const nombreEpsCompleto = (String(fila.Cod_EP || '') + " " + String(fila.Nombre_EPS || '')).toLowerCase();
+                const nombreDepto = String(fila.Departamento || '').toLowerCase();
+                const nombreMetaCompleto = (String(fila.ID_Meta_General || '') + " " + String(fila.Descripcion_Especifica || '')).toLowerCase();
                 
-                const cumpleEps = nombreEpsCompleto.includes(filtroEps);
-                const cumpleMeta = nombreMetaCompleto.includes(filtroMeta);
+                const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
+                const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
+                const cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
                 const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
 
-                return cumpleEps && cumpleMeta && cumpleEtapa;
+                return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
             });
 
             const colsActivas = TODAS_LAS_COLUMNAS.filter(c => c.activa);
@@ -664,8 +764,17 @@
                     tbHtml += '<tr>';
                     colsActivas.forEach(col => {
                         let valor = fila[col.id];
-                        if (valor === null || valor === undefined) valor = '-';
-                        tbHtml += `<td>${valor}</td>`;
+                        if (valor === null || valor === undefined || valor === "") valor = '-';
+                        
+                        let cellHtml = valor;
+                        // Formatear enlaces a documentos
+                        if (col.id === 'Informe_Etapa' && fila.Informe_Etapa_Link && valor !== '-') {
+                            cellHtml = `<a href="${fila.Informe_Etapa_Link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 font-bold underline flex items-center gap-1">📄 ${valor} ↗</a>`;
+                        } else if (col.id === 'Informe_Etapa_Link' && valor !== '-') {
+                            cellHtml = `<a href="${valor}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium">🔗 Abrir Enlace ↗</a>`;
+                        }
+                        
+                        tbHtml += `<td>${cellHtml}</td>`;
                     });
                     tbHtml += '</tr>';
                 });
@@ -682,14 +791,22 @@
         }
 
         function exportarCSV() {
-            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase();
-            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase();
+            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase().trim();
+            const filtroDepto = (document.getElementById('rep-buscar-depto')?.value || '').toLowerCase().trim();
+            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase().trim();
             const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
 
             const dataExportar = db_global.filter(fila => {
-                const nombreEpsCompleto = (String(fila.Cod_EP) + " " + String(fila.Nombre_EPS)).toLowerCase();
-                const nombreMetaCompleto = (String(fila.ID_Meta_General) + " " + String(fila.Descripcion_Especifica)).toLowerCase();
-                return nombreEpsCompleto.includes(filtroEps) && nombreMetaCompleto.includes(filtroMeta) && (filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa);
+                const nombreEpsCompleto = (String(fila.Cod_EP || '') + " " + String(fila.Nombre_EPS || '')).toLowerCase();
+                const nombreDepto = String(fila.Departamento || '').toLowerCase();
+                const nombreMetaCompleto = (String(fila.ID_Meta_General || '') + " " + String(fila.Descripcion_Especifica || '')).toLowerCase();
+                
+                const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
+                const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
+                const cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
+                const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
+
+                return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
             });
 
             if (dataExportar.length === 0) {

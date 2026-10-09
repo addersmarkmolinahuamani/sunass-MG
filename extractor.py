@@ -1,0 +1,430 @@
+import openpyxl
+import pandas as pd
+import numpy as np
+import re
+import os
+
+def norm_cod(c):
+    """Normaliza el código de EPS a un entero o identificador limpio."""
+    if c is None or pd.isna(c):
+        return None
+    s = str(c).strip().split('-')[0]
+    nums = re.sub(r'\D', '', s)
+    return int(nums) if nums else None
+
+def norm_periodo(p):
+    """Extrae el número romano del periodo regulatorio (ej: 'III PR' -> 'III')."""
+    if not p or pd.isna(p):
+        return ''
+    m = re.search(r'\b(I{1,3}|IV|V)\b', str(p).upper())
+    return m.group(1) if m else str(p).strip().upper()
+
+def norm_anio(a):
+    """Normaliza la etiqueta del año regulatorio."""
+    if not a or pd.isna(a):
+        return ''
+    s = str(a).strip().upper()
+    if 'BASE' in s:
+        return 'Año Base'
+    if 'ACUM' in s:
+        return 'Acumulado'
+    m = re.search(r'([1-5])', s)
+    return f"Año {m.group(1)}" if m else s
+
+def limpiar_link(target):
+    """Normaliza enlaces de SharePoint/OneDrive a URLs web absolutas y navegables."""
+    if not target:
+        return None
+    s = str(target).strip()
+    if s.startswith('http'):
+        return s
+    if ':b:/g/personal/' in s:
+        idx = s.find(':b:/g/personal/')
+        return 'https://sunassgobpe-my.sharepoint.com/' + s[idx:]
+    return s
+
+def limpiar_valor(valor, unidad_medida, es_ici=False):
+    """Limpia y castea valores de metas, ejecuciones e ICIs."""
+    if pd.isna(valor) or str(valor).strip() in ('-', '', 'None', 'nan', 'NaN'):
+        return None
+        
+    # Corrección de fechas accidentales de Excel (ej: 14.8 convertido a 14/08)
+    if isinstance(valor, pd.Timestamp) or type(valor).__name__ == 'datetime':
+        return float(f"{valor.day}.{valor.month}")
+        
+    if es_ici or (unidad_medida and str(unidad_medida).strip() == '%'):
+        try:
+            val_float = float(valor)
+            if 0 <= val_float <= 1.5:
+                return round(val_float * 100, 2)
+            else:
+                return round(val_float, 2)
+        except (ValueError, TypeError):
+            pass
+            
+    try:
+        val_float = float(valor)
+        return round(val_float, 2)
+    except (ValueError, TypeError):
+        pass
+        
+    return str(valor).strip()
+
+def cargar_informes_totales(file_path):
+    """Carga y mapea todos los informes e hipervínculos de la hoja 'INFORMES TOTALES'."""
+    print("Cargando hoja 'INFORMES TOTALES' e hipervínculos...")
+    wb = openpyxl.load_workbook(file_path, data_only=True)
+    ws = wb['INFORMES TOTALES']
+    
+    dict_inf = {}
+    dict_eps_meta = {} # Metadatos a nivel de EPS (Departamento, Tamaño)
+    
+    for r in range(7, ws.max_row + 1):
+        c_cod = ws.cell(r, 1).value
+        c_dep = ws.cell(r, 2).value
+        c_nom = ws.cell(r, 3).value
+        c_per = ws.cell(r, 4).value
+        c_eval = ws.cell(r, 14).value
+        c_est = ws.cell(r, 15).value
+        c_tam = ws.cell(r, 17).value
+        
+        cod_n = norm_cod(c_cod)
+        per_n = norm_periodo(c_per)
+        anio_n = norm_anio(c_eval)
+        
+        if cod_n:
+            dep_limpio = str(c_dep).strip() if c_dep else None
+            tam_limpio = str(c_tam).strip() if c_tam else None
+            if dep_limpio or tam_limpio:
+                dict_eps_meta[(cod_n, per_n)] = {
+                    'Departamento': dep_limpio,
+                    'Tamano_EPS': tam_limpio
+                }
+        
+        if cod_n and per_n and anio_n:
+            key = (cod_n, per_n, anio_n)
+            
+            def get_cell_data(col_idx):
+                cell = ws.cell(r, col_idx)
+                txt = cell.value
+                if txt is not None:
+                    txt = str(txt).strip()
+                    if txt in ('-', '', 'None', 'nan'): txt = None
+                link = limpiar_link(cell.hyperlink.target if cell.hyperlink else None)
+                return txt, link
+            
+            fisc_ini_txt, fisc_ini_lnk = get_cell_data(18)
+            fisc_fin_txt, fisc_fin_lnk = get_cell_data(19)
+            fisc_inf_txt, fisc_inf_lnk = get_cell_data(20)
+            fisc_cmp_txt, fisc_cmp_lnk = get_cell_data(21)
+            fisc_med_txt, fisc_med_lnk = get_cell_data(22)
+            pas_ins_txt, pas_ins_lnk = get_cell_data(23)
+            pas_cmp_txt, pas_cmp_lnk = get_cell_data(24)
+            pas_dec_txt, pas_dec_lnk = get_cell_data(25)
+            rec_rec_txt, rec_rec_lnk = get_cell_data(26)
+            rec_ape_txt, rec_ape_lnk = get_cell_data(27)
+            
+            dict_inf[key] = {
+                'Departamento': str(c_dep).strip() if c_dep else None,
+                'Empresa_Informes': str(c_nom).strip() if c_nom else None,
+                'Tamano_EPS': str(c_tam).strip() if c_tam else None,
+                'Estado_Evaluacion': str(c_est).strip() if c_est else None,
+                'Inf_Fisc_Inicial': fisc_ini_txt,
+                'Inf_Fisc_Inicial_Link': fisc_ini_lnk,
+                'Inf_Fisc_Final': fisc_fin_txt,
+                'Inf_Fisc_Final_Link': fisc_fin_lnk,
+                'Inf_Fiscalizacion': fisc_inf_txt,
+                'Inf_Fiscalizacion_Link': fisc_inf_lnk,
+                'Inf_Fisc_Complementario': fisc_cmp_txt,
+                'Inf_Fisc_Complementario_Link': fisc_cmp_lnk,
+                'Inf_Fisc_MedidasCorrectivas': fisc_med_txt,
+                'Inf_Fisc_MedidasCorrectivas_Link': fisc_med_lnk,
+                'Inf_PAS_Instruccion': pas_ins_txt,
+                'Inf_PAS_Instruccion_Link': pas_ins_lnk,
+                'Inf_PAS_Complementario': pas_cmp_txt,
+                'Inf_PAS_Complementario_Link': pas_cmp_lnk,
+                'Inf_PAS_Decision': pas_dec_txt,
+                'Inf_PAS_Decision_Link': pas_dec_lnk,
+                'Recurso_Reconsideracion': rec_rec_txt,
+                'Recurso_Reconsideracion_Link': rec_rec_lnk,
+                'Recurso_Apelacion': rec_ape_txt,
+                'Recurso_Apelacion_Link': rec_ape_lnk
+            }
+            
+    print(f"Éxito: {len(dict_inf)} registros de informes cargados para cruce.")
+    return dict_inf, dict_eps_meta
+
+def extraer_todas_las_eps_dinamico():
+    file_path = "Compilatorio ICI_ICG_EPS TOTALES_ACT EN PROCESO.xlsx"
+    print("Iniciando extracción completa (incluye EPS 008-052, Año Base, Acumulado y Cruce de Informes)...")
+    
+    # 1. Cargar metadatos de informes linkeados
+    dict_inf, dict_eps_meta = cargar_informes_totales(file_path)
+    
+    try:
+        xls = pd.ExcelFile(file_path)
+    except Exception as e:
+        print(f"Error al cargar el archivo Excel: {e}")
+        return
+        
+    # Incluir todas las hojas numéricas Y la EPS 008-052 (ATUSA)
+    hojas_eps = [hoja for hoja in xls.sheet_names if hoja.isdigit() or hoja == '008-052']
+    print(f"Total de hojas EPS a procesar: {len(hojas_eps)}")
+    
+    datos_extraidos_totales = []
+    
+    for hoja in hojas_eps:
+        df = pd.read_excel(xls, sheet_name=hoja, header=None)
+        
+        cod_ep = str(df.iloc[0, 0]).strip()
+        nombre_eps = str(df.iloc[1, 0]).strip()
+        periodo_reg = str(df.iloc[2, 0]).strip()
+        
+        cod_ep_num = norm_cod(cod_ep)
+        periodo_reg_romano = norm_periodo(periodo_reg)
+        
+        # Detección inteligente de etapas (tolerante a errores tipográficos como 'DESICIÓN')
+        mapa_etapas = {}
+        for num_fila in [3, 4]:
+            fila_etapas = df.iloc[num_fila, :]
+            for idx_col, valor in enumerate(fila_etapas):
+                valor_str = str(valor).strip().upper()
+                if 'RESULTADOS DEL CUMPLIMIENTO' in valor_str:
+                    continue  # Título general del banner
+                if 'RESULTADO' in valor_str and 'RESULTADO_ACTUAL' not in mapa_etapas:
+                    mapa_etapas['RESULTADO_ACTUAL'] = idx_col
+                elif 'FISC' in valor_str and 'FISCALIZACIÓN' not in mapa_etapas:
+                    mapa_etapas['FISCALIZACIÓN'] = idx_col
+                elif 'INSTRU' in valor_str and 'INSTRUCCIÓN' not in mapa_etapas:
+                    mapa_etapas['INSTRUCCIÓN'] = idx_col
+                elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
+                    mapa_etapas['DECISIÓN'] = idx_col
+                    
+        if not mapa_etapas:
+            continue
+            
+        # Ordenar etapas por columna para delimitar sus rangos
+        etapas_ordenadas = sorted(mapa_etapas.items(), key=lambda x: x[1])
+        
+        columnas_metricas = {}
+        
+        for idx_e, (etapa, col_inicio_etapa) in enumerate(etapas_ordenadas):
+            col_fin_etapa = etapas_ordenadas[idx_e + 1][1] if idx_e + 1 < len(etapas_ordenadas) else min(col_inicio_etapa + 30, len(df.columns))
+            
+            columnas_metricas[etapa] = {
+                'Base': None,
+                'Meta': {},
+                'Ejecutado': {},
+                'ICI': {},
+                'Acumulado_Meta': None,
+                'Acumulado_Ejecutado': None
+            }
+            
+            # Buscar columna de Año Base (usualmente col_inicio_etapa - 1 o en rows 4-6)
+            col_base = None
+            for c in range(max(0, col_inicio_etapa - 2), col_inicio_etapa + 2):
+                for r in [4, 5, 6]:
+                    txt = str(df.iloc[r, c]).upper()
+                    if 'BASE' in txt:
+                        col_base = c
+                        break
+                if col_base is not None:
+                    break
+            columnas_metricas[etapa]['Base'] = col_base
+            
+            # Buscar Años 1 al 5 y Acumulados
+            contadores_anio = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+            acums_encontrados = []
+            
+            for col_idx in range(col_inicio_etapa, col_fin_etapa):
+                texto_anio = str(df.iloc[6, col_idx]).upper().strip()
+                if not texto_anio.startswith("AÑO") and not texto_anio.isdigit() and 'ACUM' not in texto_anio:
+                    texto_anio = str(df.iloc[7, col_idx]).upper().strip()
+                
+                # Detectar Acumulado
+                if 'ACUM' in texto_anio or 'ACUM' in str(df.iloc[5, col_idx]).upper():
+                    acums_encontrados.append(col_idx)
+                    continue
+                    
+                anio_num = None
+                if "AÑO 1" in texto_anio or texto_anio == "1": anio_num = 1
+                elif "AÑO 2" in texto_anio or texto_anio == "2": anio_num = 2
+                elif "AÑO 3" in texto_anio or texto_anio == "3": anio_num = 3
+                elif "AÑO 4" in texto_anio or texto_anio == "4": anio_num = 4
+                elif "AÑO 5" in texto_anio or texto_anio == "5": anio_num = 5
+                
+                if anio_num:
+                    contadores_anio[anio_num] += 1
+                    aparicion = contadores_anio[anio_num]
+                    
+                    if aparicion == 1:
+                        columnas_metricas[etapa]['Meta'][anio_num] = col_idx
+                    elif aparicion == 2:
+                        columnas_metricas[etapa]['Ejecutado'][anio_num] = col_idx
+                    elif aparicion == 3:
+                        columnas_metricas[etapa]['ICI'][anio_num] = col_idx
+                        
+            if len(acums_encontrados) >= 1:
+                columnas_metricas[etapa]['Acumulado_Meta'] = acums_encontrados[0]
+            if len(acums_encontrados) >= 2:
+                columnas_metricas[etapa]['Acumulado_Ejecutado'] = acums_encontrados[1]
+
+        fila_inicio = 8
+        fila_fin = fila_inicio + 55
+        memoria_id_meta = ""
+        memoria_meta_principal = ""
+        
+        for row_idx in range(fila_inicio, fila_fin):
+            if row_idx >= len(df): break
+                
+            id_meta_crudo = str(df.iloc[row_idx, 1]).strip()
+            desc_meta_crudo = str(df.iloc[row_idx, 2]).strip()
+            unidad_medida_cruda = str(df.iloc[row_idx, 3]).strip()
+            if unidad_medida_cruda.lower() in ('nan', '-'): unidad_medida_cruda = None
+            
+            texto_combinado = (id_meta_crudo + " " + desc_meta_crudo).lower()
+            
+            es_fila_icg = False
+            if 'índice de cumplimiento global' in texto_combinado or 'indice de cumplimiento global' in texto_combinado or 'icg' in texto_combinado:
+                es_fila_icg = True
+            elif 'fuente:' in texto_combinado or 'elaboración:' in texto_combinado or 'elaboracion:' in texto_combinado or 'nota:' in texto_combinado:
+                break 
+            
+            if (id_meta_crudo.lower() in ('nan', '')) and (desc_meta_crudo.lower() in ('nan', '')) and not es_fila_icg:
+                continue
+
+            if es_fila_icg:
+                nivel = "EPS"
+                id_meta_crudo = "ICG"
+                memoria_meta_principal = "Índice de Cumplimiento Global (ICG)"
+                desc_especifica = "Índice de Cumplimiento Global (ICG)"
+                unidad_medida_cruda = "%"
+            else:
+                if id_meta_crudo not in ('nan', ''):
+                    nivel = "EPS"
+                    memoria_id_meta = id_meta_crudo
+                    memoria_meta_principal = desc_meta_crudo
+                    desc_especifica = desc_meta_crudo
+                else:
+                    nivel = "Localidad"
+                    id_meta_crudo = memoria_id_meta
+                    desc_especifica = desc_meta_crudo
+
+            # Obtener metadatos generales de la EPS
+            meta_eps_gen = dict_eps_meta.get((cod_ep_num, periodo_reg_romano), {})
+            departamento_val = meta_eps_gen.get('Departamento')
+            tamano_val = meta_eps_gen.get('Tamano_EPS')
+
+            for etapa in mapa_etapas.keys():
+                metricas = columnas_metricas[etapa]
+                
+                # Función interna para armar y agregar cada registro
+                def agregar_registro(anio_etiqueta, v_meta, v_ejec, v_ici):
+                    if v_meta is None and v_ejec is None and v_ici is None:
+                        return
+                        
+                    # Cruce con INFORMES TOTALES
+                    info_cruce = dict_inf.get((cod_ep_num, periodo_reg_romano, anio_etiqueta), {})
+                    
+                    # Determinar informe correspondiente a la etapa
+                    inf_etapa = None
+                    inf_etapa_link = None
+                    if etapa == 'FISCALIZACIÓN':
+                        inf_etapa = info_cruce.get('Inf_Fiscalizacion') or info_cruce.get('Inf_Fisc_Final') or info_cruce.get('Inf_Fisc_Inicial')
+                        inf_etapa_link = info_cruce.get('Inf_Fiscalizacion_Link') or info_cruce.get('Inf_Fisc_Final_Link') or info_cruce.get('Inf_Fisc_Inicial_Link')
+                    elif etapa == 'INSTRUCCIÓN':
+                        inf_etapa = info_cruce.get('Inf_PAS_Instruccion')
+                        inf_etapa_link = info_cruce.get('Inf_PAS_Instruccion_Link')
+                    elif etapa == 'DECISIÓN':
+                        inf_etapa = info_cruce.get('Inf_PAS_Decision')
+                        inf_etapa_link = info_cruce.get('Inf_PAS_Decision_Link')
+                    
+                    datos_extraidos_totales.append({
+                        'Cod_EP': cod_ep,
+                        'Nombre_EPS': nombre_eps,
+                        'Periodo_Regulatorio': periodo_reg,
+                        'Departamento': info_cruce.get('Departamento') or departamento_val,
+                        'Tamano_EPS': info_cruce.get('Tamano_EPS') or tamano_val,
+                        'Estado_Evaluacion': info_cruce.get('Estado_Evaluacion'),
+                        'ID_Meta_General': id_meta_crudo,
+                        'Meta_Principal': memoria_meta_principal,
+                        'Nivel_Evaluacion': nivel,
+                        'Descripcion_Especifica': desc_especifica,
+                        'Unidad_Medida': unidad_medida_cruda,
+                        'Etapa': etapa,
+                        'Año_Regulatorio': anio_etiqueta,
+                        'Valor_Exigido': v_meta,
+                        'Valor_Ejecutado': v_ejec,
+                        'ICI': v_ici,
+                        # Informe directo de la etapa
+                        'Informe_Etapa': inf_etapa,
+                        'Informe_Etapa_Link': inf_etapa_link,
+                        # Informes detallados
+                        'Inf_Fisc_Inicial': info_cruce.get('Inf_Fisc_Inicial'),
+                        'Inf_Fisc_Inicial_Link': info_cruce.get('Inf_Fisc_Inicial_Link'),
+                        'Inf_Fisc_Final': info_cruce.get('Inf_Fisc_Final'),
+                        'Inf_Fisc_Final_Link': info_cruce.get('Inf_Fisc_Final_Link'),
+                        'Inf_Fiscalizacion': info_cruce.get('Inf_Fiscalizacion'),
+                        'Inf_Fiscalizacion_Link': info_cruce.get('Inf_Fiscalizacion_Link'),
+                        'Inf_Fisc_Complementario': info_cruce.get('Inf_Fisc_Complementario'),
+                        'Inf_Fisc_Complementario_Link': info_cruce.get('Inf_Fisc_Complementario_Link'),
+                        'Inf_Fisc_MedidasCorrectivas': info_cruce.get('Inf_Fisc_MedidasCorrectivas'),
+                        'Inf_Fisc_MedidasCorrectivas_Link': info_cruce.get('Inf_Fisc_MedidasCorrectivas_Link'),
+                        'Inf_PAS_Instruccion': info_cruce.get('Inf_PAS_Instruccion'),
+                        'Inf_PAS_Instruccion_Link': info_cruce.get('Inf_PAS_Instruccion_Link'),
+                        'Inf_PAS_Complementario': info_cruce.get('Inf_PAS_Complementario'),
+                        'Inf_PAS_Complementario_Link': info_cruce.get('Inf_PAS_Complementario_Link'),
+                        'Inf_PAS_Decision': info_cruce.get('Inf_PAS_Decision'),
+                        'Inf_PAS_Decision_Link': info_cruce.get('Inf_PAS_Decision_Link'),
+                        'Recurso_Reconsideracion': info_cruce.get('Recurso_Reconsideracion'),
+                        'Recurso_Reconsideracion_Link': info_cruce.get('Recurso_Reconsideracion_Link'),
+                        'Recurso_Apelacion': info_cruce.get('Recurso_Apelacion'),
+                        'Recurso_Apelacion_Link': info_cruce.get('Recurso_Apelacion_Link')
+                    })
+
+                # 1. AÑO BASE (solo aplica a metas normales, no a ICG)
+                if not es_fila_icg and metricas['Base'] is not None:
+                    val_base = limpiar_valor(df.iloc[row_idx, metricas['Base']], unidad_medida_cruda)
+                    agregar_registro('Año Base', val_base, None, None)
+
+                # 2. AÑOS REGULATORIOS (Años 1 al 5)
+                anios_disponibles = list(metricas['Meta'].keys())
+                for anio in anios_disponibles:
+                    idx_meta = metricas['Meta'].get(anio)
+                    idx_ejec = metricas['Ejecutado'].get(anio)
+                    idx_ici = metricas['ICI'].get(anio)
+                    
+                    if es_fila_icg:
+                        val_meta = None
+                        val_ejec = None
+                        val_ici = limpiar_valor(df.iloc[row_idx, idx_ici], '%', es_ici=True) if idx_ici else None
+                    else:
+                        val_meta = limpiar_valor(df.iloc[row_idx, idx_meta], unidad_medida_cruda) if idx_meta else None
+                        val_ejec = limpiar_valor(df.iloc[row_idx, idx_ejec], unidad_medida_cruda) if idx_ejec else None
+                        val_ici = limpiar_valor(df.iloc[row_idx, idx_ici], unidad_medida_cruda, es_ici=True) if idx_ici else None
+                    
+                    agregar_registro(f"Año {anio}", val_meta, val_ejec, val_ici)
+
+                # 3. ACUMULADO
+                if not es_fila_icg:
+                    idx_acum_m = metricas['Acumulado_Meta']
+                    idx_acum_e = metricas['Acumulado_Ejecutado']
+                    val_acum_m = limpiar_valor(df.iloc[row_idx, idx_acum_m], unidad_medida_cruda) if idx_acum_m else None
+                    val_acum_e = limpiar_valor(df.iloc[row_idx, idx_acum_e], unidad_medida_cruda) if idx_acum_e else None
+                    agregar_registro('Acumulado', val_acum_m, val_acum_e, None)
+            
+            if es_fila_icg:
+                break 
+
+    if datos_extraidos_totales:
+        df_final = pd.DataFrame(datos_extraidos_totales)
+        output_name = "Base_EPS_Nacional_Estructurada_Final.xlsx"
+        print(f"Escribiendo resultado en '{output_name}'...")
+        df_final.to_excel(output_name, index=False)
+        print(f"¡Éxito total! Se extrajeron {len(df_final)} registros enriquecidos.")
+        print(f"EPS procesadas: {df_final['Cod_EP'].nunique()}")
+        print(f"Años/Periodos presentes: {df_final['Año_Regulatorio'].unique()}")
+        print(f"Registros con informe vinculado: {df_final['Informe_Etapa'].notna().sum()}")
+
+if __name__ == "__main__":
+    extraer_todas_las_eps_dinamico()

@@ -323,9 +323,10 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
-            <div class="flex gap-1">
-                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="flex-1 py-1.5 text-xs font-bold rounded bg-blue-600 text-white transition-colors shadow-sm">📊 Tablero</button>
-                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="flex-1 py-1.5 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors">🛠️ Reportes</button>
+            <div class="grid grid-cols-3 gap-1">
+                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center">📊 Evaluación</button>
+                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">📑 Informes</button>
+                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">🛠️ Reportes</button>
             </div>
         </div>
         
@@ -526,15 +527,77 @@
                     </div>
                 </div>
 
-                <!-- MATRIZ DE INFORMES Y RESOLUCIONES OFICIALES LINKEADOS (DEBAJO DE LA TABLA) -->
-                <div id="seccion-matriz-informes" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mt-8 mb-10">
+            </main>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- MÓDULO 2: MATRIZ DE INFORMES Y RESOLUCIONES -->
+        <!-- ========================================== -->
+        <div id="modulo-matriz" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+            <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
+                <div>
+                    <div class="flex items-center gap-2.5">
+                        <h1 class="text-3xl font-extrabold text-[#003366]">Matriz de Informes y Resoluciones</h1>
+                        <span id="badge-matriz-depto" class="hidden px-2.5 py-0.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200"></span>
+                        <span id="badge-matriz-tamano" class="hidden px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200"></span>
+                    </div>
+                    <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
+                        Evaluando: <strong id="lbl-matriz-eps" class="text-[#00509e]">-</strong> &bull; 
+                        Periodo: <strong id="lbl-matriz-periodo" class="text-[#00509e]">-</strong>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2.5">
+                    <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                        🏠 Portada
+                    </button>
+                    <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Imprimir / PDF
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 p-8 overflow-y-auto">
+                <!-- Tarjetas de Información Rápida de la Matriz -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shadow-inner">
+                            📑
+                        </div>
+                        <div>
+                            <div id="kpi-matriz-total" class="text-2xl font-black text-[#003366]">0</div>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Informes en este Periodo</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold shadow-inner">
+                            ⚖️
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-emerald-800">Fiscalización y PAS</div>
+                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Etapas Oficiales Cubiertas</p>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold shadow-inner">
+                            ☁️
+                        </div>
+                        <div>
+                            <div class="text-sm font-black text-indigo-700">Repositorio Oficial</div>
+                            <p class="text-[11px] text-gray-500 font-medium">Haz clic en cada código para abrir el PDF oficial en OneDrive/SharePoint.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MATRIZ OFICIAL DE INFORMES -->
+                <div id="seccion-matriz-informes" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-10">
                     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
                         <div>
                             <h2 class="font-bold text-gray-800 flex items-center gap-2 text-base">
                                 <div class="w-3 h-3 bg-emerald-600 rounded-full"></div>
                                 Matriz de Informes y Resoluciones Oficiales Linkeados
                             </h2>
-                            <p class="text-xs text-gray-500 mt-0.5">Haz clic en cualquier informe para abrir el documento oficial en OneDrive / SharePoint.</p>
+                            <p class="text-xs text-gray-500 mt-0.5">Accede a la trazabilidad completa de informes por año regulatorio y etapa.</p>
                         </div>
                         <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200">
                             Documentos Digitales SUNASS
@@ -573,7 +636,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- MÓDULO 2: GENERADOR DE REPORTES            -->
+        <!-- MÓDULO 3: GENERADOR DE REPORTES            -->
         <!-- ========================================== -->
         <div id="modulo-reportes" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f8fafc] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
             <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
@@ -662,13 +725,9 @@
                 const mainTablero = document.querySelector('#modulo-tablero main');
                 if (mainTablero) mainTablero.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (destino === 'matriz') {
-                cambiarModulo('tablero');
-                setTimeout(() => {
-                    const seccionMatriz = document.getElementById('seccion-matriz-informes');
-                    if (seccionMatriz) {
-                        seccionMatriz.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                }, 200);
+                cambiarModulo('matriz');
+                const mainMatriz = document.querySelector('#modulo-matriz main');
+                if (mainMatriz) mainMatriz.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (destino === 'reportes') {
                 cambiarModulo('reportes');
             }
@@ -731,38 +790,55 @@
 
         function cambiarModulo(modulo) {
             const modTablero = document.getElementById('modulo-tablero');
+            const modMatriz = document.getElementById('modulo-matriz');
             const modReportes = document.getElementById('modulo-reportes');
             const panelTablero = document.getElementById('panel-filtros-tablero');
             const panelReportes = document.getElementById('panel-filtros-reportes');
             const btnTablero = document.getElementById('btn-mod-tablero');
+            const btnMatriz = document.getElementById('btn-mod-matriz');
             const btnReportes = document.getElementById('btn-mod-reportes');
 
+            // Ocultar todos los módulos principales
+            [modTablero, modMatriz, modReportes].forEach(m => {
+                if (m) {
+                    m.classList.remove('opacity-100', 'z-10');
+                    m.classList.add('opacity-0', 'z-0', 'pointer-events-none');
+                }
+            });
+
+            // Resetear estilos de los botones del menú lateral
+            if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+            if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+            if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+
             if (modulo === 'tablero') {
-                modTablero.classList.replace('opacity-0', 'opacity-100');
-                modTablero.classList.replace('z-0', 'z-10');
-                modTablero.classList.remove('pointer-events-none');
-                modReportes.classList.replace('opacity-100', 'opacity-0');
-                modReportes.classList.replace('z-10', 'z-0');
-                modReportes.classList.add('pointer-events-none');
-
-                panelTablero.classList.remove('hidden');
-                panelReportes.classList.add('hidden');
-
-                btnTablero.className = "flex-1 py-2 text-sm font-bold rounded bg-blue-600 text-white transition-colors shadow-sm";
-                btnReportes.className = "flex-1 py-2 text-sm font-bold rounded text-gray-400 hover:text-white transition-colors";
-            } else {
-                modReportes.classList.replace('opacity-0', 'opacity-100');
-                modReportes.classList.replace('z-0', 'z-10');
-                modReportes.classList.remove('pointer-events-none');
-                modTablero.classList.replace('opacity-100', 'opacity-0');
-                modTablero.classList.replace('z-10', 'z-0');
-                modTablero.classList.add('pointer-events-none');
-
-                panelReportes.classList.remove('hidden');
-                panelTablero.classList.add('hidden');
-
-                btnReportes.className = "flex-1 py-2 text-sm font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm";
-                btnTablero.className = "flex-1 py-2 text-sm font-bold rounded text-gray-400 hover:text-white transition-colors";
+                if (modTablero) {
+                    modTablero.classList.replace('opacity-0', 'opacity-100');
+                    modTablero.classList.replace('z-0', 'z-10');
+                    modTablero.classList.remove('pointer-events-none');
+                }
+                if (panelTablero) panelTablero.classList.remove('hidden');
+                if (panelReportes) panelReportes.classList.add('hidden');
+                if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center";
+            } else if (modulo === 'matriz') {
+                if (modMatriz) {
+                    modMatriz.classList.replace('opacity-0', 'opacity-100');
+                    modMatriz.classList.replace('z-0', 'z-10');
+                    modMatriz.classList.remove('pointer-events-none');
+                }
+                if (panelTablero) panelTablero.classList.remove('hidden');
+                if (panelReportes) panelReportes.classList.add('hidden');
+                if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center";
+                renderizarMatrizInformes();
+            } else if (modulo === 'reportes') {
+                if (modReportes) {
+                    modReportes.classList.replace('opacity-0', 'opacity-100');
+                    modReportes.classList.replace('z-0', 'z-10');
+                    modReportes.classList.remove('pointer-events-none');
+                }
+                if (panelReportes) panelReportes.classList.remove('hidden');
+                if (panelTablero) panelTablero.classList.add('hidden');
+                if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center";
             }
         }
 
@@ -1007,8 +1083,15 @@
             const codEps = String(epsSelect.split(' | ')[0]);
             const periodoSelect = document.getElementById('filtro-periodo').value;
 
+            // Actualizar etiquetas en Módulo 1 (Evaluación)
             document.getElementById('lbl-eps').innerText = epsSelect;
             document.getElementById('lbl-periodo').innerText = periodoSelect;
+
+            // Actualizar etiquetas en Módulo 2 (Matriz de Informes)
+            const lblMatrizEps = document.getElementById('lbl-matriz-eps');
+            const lblMatrizPeriodo = document.getElementById('lbl-matriz-periodo');
+            if (lblMatrizEps) lblMatrizEps.innerText = epsSelect;
+            if (lblMatrizPeriodo) lblMatrizPeriodo.innerText = periodoSelect;
 
             // Datos generales de la EPS para Badges
             const datosEps = db_global.filter(item => 
@@ -1018,28 +1101,40 @@
 
             const badgeDepto = document.getElementById('badge-depto');
             const badgeTamano = document.getElementById('badge-tamano');
+            const badgeMatrizDepto = document.getElementById('badge-matriz-depto');
+            const badgeMatrizTamano = document.getElementById('badge-matriz-tamano');
 
             if (datosEps.length > 0) {
                 const primerDato = datosEps[0];
                 if (primerDato.Departamento) {
                     badgeDepto.innerText = '📍 ' + primerDato.Departamento;
                     badgeDepto.classList.remove('hidden');
+                    if (badgeMatrizDepto) {
+                        badgeMatrizDepto.innerText = '📍 ' + primerDato.Departamento;
+                        badgeMatrizDepto.classList.remove('hidden');
+                    }
                 } else {
                     badgeDepto.classList.add('hidden');
+                    if (badgeMatrizDepto) badgeMatrizDepto.classList.add('hidden');
                 }
 
                 if (primerDato.Tamano_EPS) {
                     badgeTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
                     badgeTamano.classList.remove('hidden');
+                    if (badgeMatrizTamano) {
+                        badgeMatrizTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
+                        badgeMatrizTamano.classList.remove('hidden');
+                    }
                 } else {
                     badgeTamano.classList.add('hidden');
+                    if (badgeMatrizTamano) badgeMatrizTamano.classList.add('hidden');
                 }
             }
 
             // Renderizar la tabla de metas para la etapa activa
             renderizarSoloTabla();
 
-            // Renderizar la Matriz completa de Informes Oficiales (debajo de la tabla)
+            // Renderizar la Matriz completa de Informes Oficiales en su módulo
             renderizarMatrizInformes();
         }
 
@@ -1270,6 +1365,22 @@
             });
 
             tbody.innerHTML = html;
+
+            // Actualizar contador total de informes registrados en este periodo
+            let totalInformesRegistrados = 0;
+            aniosOrdenados.forEach(anio => {
+                const docObj = mapPorAnio.get(anio);
+                if (docObj) {
+                    columnasDoc.forEach(col => {
+                        const texto = docObj[col.txtKey];
+                        if (texto && texto !== '-' && String(texto).trim() !== '') {
+                            totalInformesRegistrados++;
+                        }
+                    });
+                }
+            });
+            const kpiTotalEl = document.getElementById('kpi-matriz-total');
+            if (kpiTotalEl) kpiTotalEl.innerText = totalInformesRegistrados;
         }
 
         function dibujarGrafico(datosIcg) {

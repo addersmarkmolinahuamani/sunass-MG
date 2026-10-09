@@ -337,26 +337,37 @@
                 <div class="mb-5 relative" id="contenedor-filtro-eps">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Empresa Prestadora</label>
                     
-                    <!-- Campo de búsqueda rápida con autocompletado interactivo -->
-                    <div class="relative mb-2">
-                        <input type="text" id="buscar-eps-input" 
-                               placeholder="🔍 Escribe para buscar (ej: Seda, 010, Ica...)" 
-                               autocomplete="off"
-                               class="w-full p-2.5 pl-8 pr-7 rounded bg-[#001e3d] text-white placeholder-blue-300/60 border border-blue-800 text-xs font-medium focus:ring-2 focus:ring-blue-400 focus:outline-none transition shadow-inner">
-                        <svg class="w-3.5 h-3.5 text-blue-400 absolute left-2.5 top-3 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                        <button id="btn-limpiar-busqueda-eps" type="button" title="Limpiar búsqueda" 
-                                class="hidden absolute right-2 top-2 text-blue-300 hover:text-white text-xs px-1.5 py-0.5 rounded bg-blue-900/80 transition">✕</button>
+                    <!-- Selector Desplegable estilo Power BI con Búsqueda Integrada -->
+                    <div class="relative" id="dropdown-eps-tablero">
+                        <!-- Botón Gatillo (Trigger) -->
+                        <button type="button" id="btn-trigger-eps-tablero"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-eps-tablero">Cargando empresas...</span>
+                            <svg id="arrow-trigger-eps-tablero" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Menú Desplegable Flotante (Popup) -->
+                        <div id="menu-dropdown-eps-tablero" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <!-- Búsqueda Integrada en la Cabecera del Desplegable -->
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-eps-tablero" placeholder="Buscar" autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-eps-tablero" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <!-- Lista con scroll de opciones con checkbox -->
+                            <div id="lista-opciones-eps-tablero" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Lista flotante de sugerencias predictivas -->
-                    <div id="lista-sugerencias-eps" 
-                         class="hidden absolute left-0 right-0 top-[68px] z-50 bg-white rounded-lg shadow-2xl border border-gray-200 max-h-60 overflow-y-auto divide-y divide-gray-100 text-xs">
-                    </div>
-
-                    <!-- Desplegable oficial -->
-                    <select id="filtro-eps" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm">
+                    <!-- Select oculto para mantener compatibilidad con cualquier script -->
+                    <select id="filtro-eps" class="hidden">
                         <option value="">Cargando empresas...</option>
                     </select>
                 </div>
@@ -375,9 +386,40 @@
 
             <!-- PANEL DE FILTROS: REPORTES (Módulo 2) -->
             <div id="panel-filtros-reportes" class="hidden space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Empresa</label>
-                    <input type="text" id="rep-buscar-eps" placeholder="Ej. EMUSAP, SEDAPAL, EMAPISCO..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                <div class="relative" id="contenedor-filtro-eps-reportes">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Empresa Prestadora</label>
+                    
+                    <!-- Selector Desplegable estilo Power BI con Búsqueda Integrada para Reportes -->
+                    <div class="relative" id="dropdown-eps-reportes">
+                        <!-- Botón Gatillo (Trigger) -->
+                        <button type="button" id="btn-trigger-eps-reportes"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-eps-reportes">Todas</span>
+                            <svg id="arrow-trigger-eps-reportes" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Menú Desplegable Flotante (Popup) -->
+                        <div id="menu-dropdown-eps-reportes" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <!-- Búsqueda Integrada en la Cabecera del Desplegable -->
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-eps-reportes" placeholder="Buscar" autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-eps-reportes" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <!-- Lista con scroll de opciones con checkbox -->
+                            <div id="lista-opciones-eps-reportes" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input oculto para mantener compatibilidad con generarReporte() y exportarCSV() -->
+                    <input type="hidden" id="rep-buscar-eps" value="">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Departamento</label>
@@ -877,6 +919,10 @@
             if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
             if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
 
+            // Cerrar cualquier dropdown de EPS abierto
+            document.querySelectorAll('[id^="menu-dropdown-eps-"]').forEach(m => m.classList.add('hidden'));
+            document.querySelectorAll('[id^="arrow-trigger-eps-"]').forEach(a => a.classList.remove('rotate-180'));
+
             if (modulo === 'tablero') {
                 if (modTablero) {
                     modTablero.classList.replace('opacity-0', 'opacity-100');
@@ -908,24 +954,249 @@
             }
         }
 
+        let dropdownEpsTableroInstance = null;
+        let dropdownEpsReportesInstance = null;
+
+        function crearDropdownPowerBI({
+            idContenedor,
+            idTrigger,
+            idLabel,
+            idArrow,
+            idMenu,
+            idInput,
+            idBtnLimpiar,
+            idLista,
+            opciones, // Array de { value, label, searchText }
+            permitirTodas = false,
+            textoTodas = "Todas",
+            valorInicial = "",
+            onSelect
+        }) {
+            const contenedor = document.getElementById(idContenedor);
+            const btnTrigger = document.getElementById(idTrigger);
+            const lblTrigger = document.getElementById(idLabel);
+            const arrow = document.getElementById(idArrow);
+            const menu = document.getElementById(idMenu);
+            const inputBuscar = document.getElementById(idInput);
+            const btnLimpiar = document.getElementById(idBtnLimpiar);
+            const listaEl = document.getElementById(idLista);
+
+            if (!contenedor || !btnTrigger || !menu || !inputBuscar || !listaEl) return null;
+
+            let valorSeleccionado = valorInicial;
+            let filtroQuery = "";
+
+            const normalizar = (txt) => (txt || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+            function actualizarTextoGatillo() {
+                if (permitirTodas && (!valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas")) {
+                    lblTrigger.innerText = textoTodas;
+                    lblTrigger.title = textoTodas;
+                } else {
+                    const opc = opciones.find(o => o.value === valorSeleccionado);
+                    if (opc) {
+                        lblTrigger.innerText = opc.label;
+                        lblTrigger.title = opc.label;
+                    } else if (valorSeleccionado) {
+                        lblTrigger.innerText = valorSeleccionado;
+                        lblTrigger.title = valorSeleccionado;
+                    } else {
+                        lblTrigger.innerText = permitirTodas ? textoTodas : "Seleccionar...";
+                    }
+                }
+            }
+
+            function renderizarOpciones() {
+                const q = normalizar(filtroQuery).trim();
+                let html = '';
+
+                // Opción "Todas" si está habilitada
+                if (permitirTodas) {
+                    const coincideTodas = !q || normalizar(textoTodas).includes(q) || normalizar("todas").includes(q);
+                    if (coincideTodas) {
+                        const esTodasSeleccionada = !valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas";
+                        html += `
+                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esTodasSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="">
+                                <div class="w-3.5 h-3.5 rounded-xs border ${esTodasSeleccionada ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-400 bg-white'} flex items-center justify-center shrink-0 text-[10px] font-black transition">
+                                    ${esTodasSeleccionada ? '✓' : ''}
+                                </div>
+                                <span class="truncate text-xs ${esTodasSeleccionada ? 'font-bold text-blue-900' : 'text-slate-800 font-medium'}">${textoTodas}</span>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Filtrar opciones
+                const opcionesFiltradas = opciones.filter(opc => {
+                    if (!q) return true;
+                    return normalizar(opc.searchText || opc.label).includes(q);
+                });
+
+                if (opcionesFiltradas.length === 0 && (!permitirTodas || q)) {
+                    html += `<div class="p-4 text-center text-slate-400 italic text-xs">No se encontraron empresas</div>`;
+                } else {
+                    opcionesFiltradas.forEach(opc => {
+                        const esSeleccionada = valorSeleccionado === opc.value;
+                        html += `
+                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="${opc.value}">
+                                <div class="w-3.5 h-3.5 rounded-xs border ${esSeleccionada ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-400 bg-white'} flex items-center justify-center shrink-0 text-[10px] font-black transition">
+                                    ${esSeleccionada ? '✓' : ''}
+                                </div>
+                                <span class="truncate text-xs ${esSeleccionada ? 'font-bold text-blue-900' : 'text-slate-800 font-medium'}" title="${opc.label}">${opc.label}</span>
+                            </div>
+                        `;
+                    });
+                }
+
+                listaEl.innerHTML = html;
+
+                // Eventos de clic en las opciones
+                listaEl.querySelectorAll('.opcion-pbi').forEach(itemEl => {
+                    itemEl.addEventListener('click', () => {
+                        const val = itemEl.getAttribute('data-val');
+                        seleccionar(val);
+                    });
+                });
+            }
+
+            function abrir() {
+                // Cerrar cualquier otro menú abierto
+                document.querySelectorAll('[id^="menu-dropdown-eps-"]').forEach(m => {
+                    if (m !== menu) m.classList.add('hidden');
+                });
+                document.querySelectorAll('[id^="arrow-trigger-eps-"]').forEach(a => {
+                    if (a !== arrow) a.classList.remove('rotate-180');
+                });
+
+                menu.classList.remove('hidden');
+                if (arrow) arrow.classList.add('rotate-180');
+                filtroQuery = "";
+                inputBuscar.value = "";
+                if (btnLimpiar) btnLimpiar.classList.add('hidden');
+                renderizarOpciones();
+
+                setTimeout(() => {
+                    inputBuscar.focus();
+                    const selEl = listaEl.querySelector('.bg-blue-50\\/60');
+                    if (selEl) selEl.scrollIntoView({ block: 'nearest' });
+                }, 40);
+            }
+
+            function cerrar() {
+                menu.classList.add('hidden');
+                if (arrow) arrow.classList.remove('rotate-180');
+            }
+
+            function alternar() {
+                if (menu.classList.contains('hidden')) {
+                    abrir();
+                } else {
+                    cerrar();
+                }
+            }
+
+            function seleccionar(nuevoValor) {
+                valorSeleccionado = nuevoValor;
+                actualizarTextoGatillo();
+                cerrar();
+                if (typeof onSelect === 'function') {
+                    onSelect(valorSeleccionado);
+                }
+            }
+
+            // Eventos del Gatillo
+            btnTrigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                alternar();
+            });
+
+            // Evitar que el clic dentro del menú lo cierre
+            menu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Input Buscar
+            inputBuscar.addEventListener('input', (e) => {
+                filtroQuery = e.target.value;
+                if (btnLimpiar) {
+                    if (filtroQuery.trim()) {
+                        btnLimpiar.classList.remove('hidden');
+                    } else {
+                        btnLimpiar.classList.add('hidden');
+                    }
+                }
+                renderizarOpciones();
+            });
+
+            inputBuscar.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const primeraOpcion = listaEl.querySelector('.opcion-pbi');
+                    if (primeraOpcion) {
+                        seleccionar(primeraOpcion.getAttribute('data-val'));
+                    }
+                } else if (e.key === 'Escape') {
+                    cerrar();
+                }
+            });
+
+            if (btnLimpiar) {
+                btnLimpiar.addEventListener('click', () => {
+                    inputBuscar.value = '';
+                    filtroQuery = '';
+                    btnLimpiar.classList.add('hidden');
+                    renderizarOpciones();
+                    inputBuscar.focus();
+                });
+            }
+
+            // Cerrar al hacer clic fuera del componente
+            document.addEventListener('click', (e) => {
+                if (!contenedor.contains(e.target)) {
+                    cerrar();
+                }
+            });
+
+            actualizarTextoGatillo();
+
+            return {
+                setValor: (val) => {
+                    valorSeleccionado = val;
+                    actualizarTextoGatillo();
+                    renderizarOpciones();
+                },
+                getValor: () => valorSeleccionado
+            };
+        }
+
         function llenarFiltrosTablero() {
             const selectEps = document.getElementById('filtro-eps');
             const selectPeriodo = document.getElementById('filtro-periodo');
             
-            // Ordenar EPS numéricamente por código
+            // Construir lista única de EPS
             const mapEps = new Map();
             db_global.forEach(item => {
-                const key = `${item.Cod_EP} | ${item.Nombre_EPS}`;
-                if (!mapEps.has(key)) mapEps.set(key, item.Cod_EP);
+                const cod = String(item.Cod_EP || '').trim();
+                const nombre = String(item.Nombre_EPS || '').trim();
+                const key = `${cod} | ${nombre}`;
+                if (!mapEps.has(key)) {
+                    mapEps.set(key, { cod, nombre, full: key });
+                }
             });
 
-            const uniqueEps = Array.from(mapEps.keys()).sort((a, b) => {
+            // Lista ordenada alfabéticamente por nombre (estilo Power BI como en la captura)
+            const epsOrdenadasNombre = Array.from(mapEps.values()).sort((a, b) => 
+                a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' })
+            );
+
+            // Lista ordenada numéricamente por código para selectPeriodo
+            const uniqueEpsCod = Array.from(mapEps.keys()).sort((a, b) => {
                 const codA = parseInt(String(a.split(' | ')[0]).replace(/\D/g, '')) || 0;
                 const codB = parseInt(String(b.split(' | ')[0]).replace(/\D/g, '')) || 0;
                 return codA - codB;
             });
 
-            selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
+            selectEps.innerHTML = uniqueEpsCod.map(eps => `<option value="${eps}">${eps}</option>`).join('');
 
             const updateSubFilters = () => {
                 const codEps = String(selectEps.value.split(' | ')[0]);
@@ -943,132 +1214,63 @@
                 renderizarTablero();
             };
 
-            // ==========================================
-            // BÚSQUEDA PREDICTIVA Y AUTOCOMPLETADO EPS
-            // ==========================================
-            const inputBuscar = document.getElementById('buscar-eps-input');
-            const btnLimpiar = document.getElementById('btn-limpiar-busqueda-eps');
-            const listaSugerencias = document.getElementById('lista-sugerencias-eps');
+            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES
+            const opcionesTablero = epsOrdenadasNombre.map(eps => ({
+                value: eps.full,
+                label: eps.nombre,
+                searchText: `${eps.cod} ${eps.nombre}`
+            }));
 
-            const normalizar = (txt) => (txt || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const epsInicial = epsOrdenadasNombre.length > 0 ? epsOrdenadasNombre[0].full : "";
+            if (epsInicial) selectEps.value = epsInicial;
 
-            function seleccionarEpsDirecto(epsSeleccionada) {
-                // Restaurar todas las opciones en el select oficial para preservar integridad
-                selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
-                selectEps.value = epsSeleccionada;
-                
-                const partes = epsSeleccionada.split(' | ');
-                inputBuscar.value = partes[1] || epsSeleccionada;
-                btnLimpiar.classList.remove('hidden');
-                listaSugerencias.classList.add('hidden');
-                updateSubFilters();
-            }
-
-            function filtrarOpcionesEps(query) {
-                const qNorm = normalizar(query).trim();
-                if (!qNorm) {
-                    btnLimpiar.classList.add('hidden');
-                    listaSugerencias.classList.add('hidden');
-                    const actual = selectEps.value;
-                    selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
-                    if (actual && uniqueEps.includes(actual)) selectEps.value = actual;
-                    return;
-                }
-
-                btnLimpiar.classList.remove('hidden');
-
-                const coincidencias = uniqueEps.filter(eps => normalizar(eps).includes(qNorm));
-
-                if (coincidencias.length === 0) {
-                    listaSugerencias.innerHTML = `<div class="p-3 text-center text-gray-400 italic">No se encontraron EPS con "${query}"</div>`;
-                    listaSugerencias.classList.remove('hidden');
-                    selectEps.innerHTML = `<option value="">Sin coincidencias</option>`;
-                } else {
-                    listaSugerencias.innerHTML = coincidencias.map(eps => {
-                        const partes = eps.split(' | ');
-                        const cod = partes[0];
-                        const nombre = partes[1] || '';
-                        return `
-                            <div class="item-sugerencia p-2.5 hover:bg-blue-50 cursor-pointer text-gray-800 transition flex items-center justify-between group" data-value="${eps}">
-                                <div class="flex items-center gap-1.5 truncate pr-2">
-                                    <span class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded font-bold text-[10px] shrink-0">${cod}</span>
-                                    <span class="group-hover:text-blue-700 font-semibold truncate">${nombre}</span>
-                                </div>
-                                <span class="text-[10px] text-gray-400 group-hover:text-blue-600 font-bold shrink-0">Elegir ↵</span>
-                            </div>
-                        `;
-                    }).join('');
-                    listaSugerencias.classList.remove('hidden');
-
-                    // Filtrar también el desplegable select en tiempo real
-                    selectEps.innerHTML = coincidencias.map(eps => `<option value="${eps}">${eps}</option>`).join('');
-
-                    // Asignar eventos de clic a cada sugerencia
-                    listaSugerencias.querySelectorAll('.item-sugerencia').forEach(el => {
-                        el.addEventListener('click', () => {
-                            seleccionarEpsDirecto(el.getAttribute('data-value'));
-                        });
-                    });
-                }
-            }
-
-            if (inputBuscar) {
-                inputBuscar.addEventListener('input', (e) => {
-                    filtrarOpcionesEps(e.target.value);
-                });
-
-                inputBuscar.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const primeraSugerencia = listaSugerencias.querySelector('.item-sugerencia');
-                        if (primeraSugerencia) {
-                            seleccionarEpsDirecto(primeraSugerencia.getAttribute('data-value'));
-                        } else if (selectEps.value) {
-                            listaSugerencias.classList.add('hidden');
-                            updateSubFilters();
-                        }
-                    } else if (e.key === 'Escape') {
-                        listaSugerencias.classList.add('hidden');
-                    }
-                });
-
-                inputBuscar.addEventListener('focus', () => {
-                    if (inputBuscar.value.trim() && !listaSugerencias.classList.contains('hidden') === false) {
-                        filtrarOpcionesEps(inputBuscar.value);
-                    }
-                });
-            }
-
-            if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', () => {
-                    inputBuscar.value = '';
-                    btnLimpiar.classList.add('hidden');
-                    listaSugerencias.classList.add('hidden');
-                    selectEps.innerHTML = uniqueEps.map(eps => `<option value="${eps}">${eps}</option>`).join('');
-                    if (uniqueEps.length > 0) {
-                        selectEps.value = uniqueEps[0];
-                        updateSubFilters();
-                    }
-                });
-            }
-
-            // Cerrar lista flotante al hacer clic fuera
-            document.addEventListener('click', (e) => {
-                const contenedor = document.getElementById('contenedor-filtro-eps');
-                if (contenedor && !contenedor.contains(e.target) && listaSugerencias) {
-                    listaSugerencias.classList.add('hidden');
+            dropdownEpsTableroInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-eps',
+                idTrigger: 'btn-trigger-eps-tablero',
+                idLabel: 'lbl-trigger-eps-tablero',
+                idArrow: 'arrow-trigger-eps-tablero',
+                idMenu: 'menu-dropdown-eps-tablero',
+                idInput: 'input-buscar-eps-tablero',
+                idBtnLimpiar: 'btn-limpiar-eps-tablero',
+                idLista: 'lista-opciones-eps-tablero',
+                opciones: opcionesTablero,
+                permitirTodas: false,
+                valorInicial: epsInicial,
+                onSelect: (val) => {
+                    selectEps.value = val;
+                    updateSubFilters();
                 }
             });
 
-            if (uniqueEps.length > 0) updateSubFilters();
-            selectEps.onchange = () => {
-                if (inputBuscar && selectEps.value) {
-                    const partes = selectEps.value.split(' | ');
-                    inputBuscar.value = partes[1] || selectEps.value;
-                    btnLimpiar.classList.remove('hidden');
+            // 2. DROPDOWN EPS PARA CREADOR DE REPORTES
+            const opcionesReportes = epsOrdenadasNombre.map(eps => ({
+                value: eps.nombre,
+                label: eps.nombre,
+                searchText: `${eps.cod} ${eps.nombre}`
+            }));
+
+            dropdownEpsReportesInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-eps-reportes',
+                idTrigger: 'btn-trigger-eps-reportes',
+                idLabel: 'lbl-trigger-eps-reportes',
+                idArrow: 'arrow-trigger-eps-reportes',
+                idMenu: 'menu-dropdown-eps-reportes',
+                idInput: 'input-buscar-eps-reportes',
+                idBtnLimpiar: 'btn-limpiar-eps-reportes',
+                idLista: 'lista-opciones-eps-reportes',
+                opciones: opcionesReportes,
+                permitirTodas: true,
+                textoTodas: "Todas",
+                valorInicial: "",
+                onSelect: (val) => {
+                    const inputHiddenRep = document.getElementById('rep-buscar-eps');
+                    if (inputHiddenRep) inputHiddenRep.value = val;
+                    generarReporte();
                 }
-                updateSubFilters();
-            };
+            });
+
+            if (uniqueEpsCod.length > 0) updateSubFilters();
+
             selectPeriodo.onchange = () => {
                 actualizarBotonesEtapa();
                 renderizarTablero();

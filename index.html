@@ -310,11 +310,9 @@
 
     <!-- Panel Lateral Izquierdo -->
     <div class="w-80 bg-[#002244] text-white flex flex-col shadow-xl z-20 transition-all duration-300">
-        <div class="p-6 flex items-center gap-3 border-b border-blue-900">
-            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-[#002244] font-bold text-xl shadow-inner">💧</div>
-            <div>
-                <h2 class="font-bold text-lg leading-tight">SUNASS</h2>
-                <p class="text-xs text-blue-300">Fiscalización de Metas</p>
+        <div class="p-4 border-b border-blue-900 bg-[#001c38]">
+            <div class="bg-white rounded-xl py-2.5 px-3.5 shadow-md flex items-center justify-center">
+                <img src="logo_sunass_sidebar.png" alt="SUNASS - El regulador del agua potable" class="h-10 w-auto max-w-full object-contain">
             </div>
         </div>
 
@@ -510,16 +508,7 @@
         <div id="modulo-tablero" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-10 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-100">
             <header class="bg-white px-8 py-5 flex justify-between items-center shadow-sm z-10 border-b border-gray-200">
                 <div>
-                    <div class="flex items-center gap-2.5">
-                        <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
-                        <span id="badge-depto" class="hidden px-2.5 py-0.5 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-200"></span>
-                        <span id="badge-tamano" class="hidden px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200"></span>
-                    </div>
-                    <p class="text-gray-500 text-sm mt-1 flex items-center gap-2">
-                        Evaluando: <strong id="lbl-eps" class="text-[#00509e]">-</strong> &bull; 
-                        Periodo: <strong id="lbl-periodo" class="text-[#00509e]">-</strong> &bull; 
-                        Etapa activa: <span id="lbl-etapa" class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded text-xs font-bold">-</span>
-                    </p>
+                    <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
                 </div>
                 <div class="flex items-center gap-2.5">
                     <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
@@ -768,7 +757,7 @@
                 <div>
                     <h1 class="text-2xl font-extrabold text-slate-800 flex items-center gap-3">
                         <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-                        Generador de Reportes Ad-hoc
+                        Generador dinámico de reportes
                     </h1>
                     <p class="text-gray-500 text-sm mt-1">Crea tablas personalizadas, cruza datos a nivel nacional y accede a informes linkeados.</p>
                 </div>
@@ -819,17 +808,17 @@
         const TODAS_LAS_COLUMNAS = [
             { id: 'Cod_EP', nombre: 'Cód EPS', activa: true },
             { id: 'Nombre_EPS', nombre: 'Nombre EPS', activa: true },
-            { id: 'Departamento', nombre: 'Departamento', activa: true },
+            { id: 'Departamento', nombre: 'Departamento', activa: false },
             { id: 'Tamano_EPS', nombre: 'Tamaño EPS', activa: false },
-            { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: false },
-            { id: 'Etapa', nombre: 'Etapa', activa: true },
+            { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: true },
+            { id: 'Etapa', nombre: 'Etapa', activa: false },
             { id: 'Nivel_Evaluacion', nombre: 'Nivel', activa: false },
-            { id: 'ID_Meta_General', nombre: 'ID Meta', activa: true },
+            { id: 'ID_Meta_General', nombre: 'ID Meta', activa: false },
             { id: 'Descripcion_Especifica', nombre: 'Descripción de Meta', activa: true },
-            { id: 'Unidad_Medida', nombre: 'Unidad', activa: true },
+            { id: 'Unidad_Medida', nombre: 'Unidad', activa: false },
             { id: 'Año_Regulatorio', nombre: 'Año / Periodo', activa: true },
-            { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: true },
-            { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: true },
+            { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: false },
+            { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: false },
             { id: 'ICI', nombre: 'ICI (%)', activa: true },
             { id: 'Informe_Etapa', nombre: 'Informe / Resolución', activa: true },
             { id: 'Informe_Etapa_Link', nombre: 'Enlace Web', activa: false }
@@ -1598,9 +1587,11 @@
             const codEps = String(epsSelect.split(' | ')[0]);
             const periodoSelect = document.getElementById('filtro-periodo').value;
 
-            // Actualizar etiquetas en Módulo 1 (Evaluación)
-            document.getElementById('lbl-eps').innerText = epsSelect;
-            document.getElementById('lbl-periodo').innerText = periodoSelect;
+            // Actualizar etiquetas en Módulo 1 (Evaluación) si existen
+            const lblEps = document.getElementById('lbl-eps');
+            const lblPeriodo = document.getElementById('lbl-periodo');
+            if (lblEps) lblEps.innerText = epsSelect;
+            if (lblPeriodo) lblPeriodo.innerText = periodoSelect;
 
             // Actualizar etiquetas en Módulo 2 (Matriz de Informes)
             const lblMatrizEps = document.getElementById('lbl-matriz-eps');
@@ -1651,26 +1642,30 @@
             if (datosEps.length > 0) {
                 const primerDato = datosEps[0];
                 if (primerDato.Departamento) {
-                    badgeDepto.innerText = '📍 ' + primerDato.Departamento;
-                    badgeDepto.classList.remove('hidden');
+                    if (badgeDepto) {
+                        badgeDepto.innerText = '📍 ' + primerDato.Departamento;
+                        badgeDepto.classList.remove('hidden');
+                    }
                     if (badgeMatrizDepto) {
                         badgeMatrizDepto.innerText = '📍 ' + primerDato.Departamento;
                         badgeMatrizDepto.classList.remove('hidden');
                     }
                 } else {
-                    badgeDepto.classList.add('hidden');
+                    if (badgeDepto) badgeDepto.classList.add('hidden');
                     if (badgeMatrizDepto) badgeMatrizDepto.classList.add('hidden');
                 }
 
                 if (primerDato.Tamano_EPS) {
-                    badgeTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
-                    badgeTamano.classList.remove('hidden');
+                    if (badgeTamano) {
+                        badgeTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
+                        badgeTamano.classList.remove('hidden');
+                    }
                     if (badgeMatrizTamano) {
                         badgeMatrizTamano.innerText = '🏢 EPS ' + primerDato.Tamano_EPS;
                         badgeMatrizTamano.classList.remove('hidden');
                     }
                 } else {
-                    badgeTamano.classList.add('hidden');
+                    if (badgeTamano) badgeTamano.classList.add('hidden');
                     if (badgeMatrizTamano) badgeMatrizTamano.classList.add('hidden');
                 }
             }
@@ -1689,7 +1684,8 @@
             const periodoSelect = document.getElementById('filtro-periodo').value;
             const etapaActual = etapaSeleccionadaGlobal;
 
-            document.getElementById('lbl-etapa').innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
+            const lblEtapa = document.getElementById('lbl-etapa');
+            if (lblEtapa) lblEtapa.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
             const lblEtapaActiva = document.getElementById('lbl-etapa-activa');
             if (lblEtapaActiva) lblEtapaActiva.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
 

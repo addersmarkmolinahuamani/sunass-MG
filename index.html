@@ -68,7 +68,7 @@
         .raw-table-container { max-height: calc(100vh - 200px); overflow-y: auto; }
         .tabla-dinamica { width: 100%; font-size: 0.85rem;}
         .tabla-dinamica th { background-color: #e2e8f0; color: #1e293b; border: 1px solid #cbd5e1; padding: 10px 12px; font-weight: 700; text-align: left; position: sticky; top: 0; z-index: 10;}
-        .tabla-dinamica td { border: 1px solid #e2e8f0; padding: 8px 12px; color: #334155; }
+        .tabla-dinamica td { border: 1px solid #e2e8f0; padding: 8px 12px; color: #334155; vertical-align: top; }
         .tabla-dinamica tbody tr:nth-child(even) { background-color: #f8fafc; }
         .tabla-dinamica tbody tr:hover { background-color: #f1f5f9; }
 
@@ -710,9 +710,74 @@
             { id: 'Informe_Etapa_Link', nombre: 'Enlace Web', activa: false }
         ];
 
-        // ==========================================
-        // CONTROL Y NAVEGACIÓN DE PORTADA DE INICIO
-        // ==========================================
+        // =========================================================================
+        // MAPEO Y ESTRUCTURA DE INFORMES Y RESOLUCIONES POR AÑO REGULATORIO
+        // =========================================================================
+        // Orden procesal cronológico oficial para concatenar documentos en el reporte
+        const ETAPAS_INFORMES = [
+            { txtKey: 'Inf_Fisc_Inicial', linkKey: 'Inf_Fisc_Inicial_Link', etapa: 'Fiscalización Inicial' },
+            { txtKey: 'Inf_Fisc_Final', linkKey: 'Inf_Fisc_Final_Link', etapa: 'Fiscalización Final' },
+            { txtKey: 'Inf_Fiscalizacion', linkKey: 'Inf_Fiscalizacion_Link', etapa: 'Fiscalización' },
+            { txtKey: 'Inf_Fisc_Complementario', linkKey: 'Inf_Fisc_Complementario_Link', etapa: 'Fisc. Complementario' },
+            { txtKey: 'Inf_Fisc_MedidasCorrectivas', linkKey: 'Inf_Fisc_MedidasCorrectivas_Link', etapa: 'Medidas Correctivas' },
+            { txtKey: 'Inf_PAS_Instruccion', linkKey: 'Inf_PAS_Instruccion_Link', etapa: 'PAS Instrucción' },
+            { txtKey: 'Inf_PAS_Complementario', linkKey: 'Inf_PAS_Complementario_Link', etapa: 'PAS Complementario' },
+            { txtKey: 'Inf_PAS_Decision', linkKey: 'Inf_PAS_Decision_Link', etapa: 'PAS Decisión' },
+            { txtKey: 'Recurso_Reconsideracion', linkKey: 'Recurso_Reconsideracion_Link', etapa: 'Recurso Reconsideración' },
+            { txtKey: 'Recurso_Apelacion', linkKey: 'Recurso_Apelacion_Link', etapa: 'Recurso Apelación' }
+        ];
+
+        const mapaInformesLookup = new Map();
+
+        function escaparHtml(str) {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function generarClaveInforme(codEp, periodo, anio) {
+            const codClean = String(codEp || '').replace(/\D/g, '');
+            const codNum = codClean !== '' ? parseInt(codClean, 10) : String(codEp || '').trim();
+            return `${codNum}_${String(periodo || '').trim()}_${String(anio || '').trim()}`;
+        }
+
+        function construirMapaInformes() {
+            mapaInformesLookup.clear();
+            if (!db_informes || !Array.isArray(db_informes)) return;
+            
+            db_informes.forEach(item => {
+                const key = generarClaveInforme(item.Cod_EP, item.Periodo_Regulatorio, item.Año_Regulatorio);
+                mapaInformesLookup.set(key, item);
+            });
+        }
+
+        function obtenerInformesDelAnio(fila) {
+            if (!fila) return [];
+            const key = generarClaveInforme(fila.Cod_EP, fila.Periodo_Regulatorio, fila.Año_Regulatorio);
+            const registroDoc = mapaInformesLookup.get(key);
+            if (!registroDoc) return [];
+
+            const listaDocs = [];
+            ETAPAS_INFORMES.forEach(etapa => {
+                const valorTexto = registroDoc[etapa.txtKey];
+                if (valorTexto && typeof valorTexto === 'string' && valorTexto.trim() !== '' && valorTexto.trim() !== '-') {
+                    const valorLink = registroDoc[etapa.linkKey];
+                    listaDocs.push({
+                        texto: valorTexto.trim(),
+                        link: (valorLink && typeof valorLink === 'string' && valorLink.startsWith('http')) ? valorLink.trim() : null,
+                        etapa: etapa.etapa
+                    });
+                }
+            });
+
+            return listaDocs;
+        }
+
+
         function navegarDesdePortada(destino) {
             const portada = document.getElementById('pantalla-portada');
             if (portada) {
@@ -779,6 +844,7 @@
 
             if (typeof matrizInformesNacional !== 'undefined') {
                 db_informes = matrizInformesNacional;
+                construirMapaInformes();
             }
 
             dashboardIniciado = true;
@@ -1485,7 +1551,14 @@
                 
                 const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
                 const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
-                const cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
+                
+                let cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
+                if (!cumpleMeta && filtroMeta !== "") {
+                    // Permitir buscar también por número o código de informe/resolución
+                    const docsAnio = obtenerInformesDelAnio(fila);
+                    cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(filtroMeta));
+                }
+
                 const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
 
                 return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
@@ -1510,14 +1583,51 @@
                 dataMostrar.forEach(fila => {
                     tbHtml += '<tr>';
                     colsActivas.forEach(col => {
-                        let valor = fila[col.id];
-                        if (valor === null || valor === undefined || valor === "") valor = '-';
+                        let cellHtml = '';
                         
-                        let cellHtml = valor;
-                        if (col.id === 'Informe_Etapa' && fila.Informe_Etapa_Link && valor !== '-') {
-                            cellHtml = `<a href="${fila.Informe_Etapa_Link}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 font-bold underline flex items-center gap-1">📄 ${valor} ↗</a>`;
-                        } else if (col.id === 'Informe_Etapa_Link' && valor !== '-') {
-                            cellHtml = `<a href="${valor}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 underline font-medium">🔗 Abrir Enlace ↗</a>`;
+                        if (col.id === 'Informe_Etapa') {
+                            const docs = obtenerInformesDelAnio(fila);
+                            if (docs.length === 0) {
+                                cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
+                            } else {
+                                cellHtml = `<div class="flex flex-col gap-1.5 py-0.5 text-left min-w-[210px]">` +
+                                    docs.map(doc => {
+                                        const lineas = doc.texto.split('\n').map(l => escaparHtml(l.trim())).filter(Boolean).join('<br>');
+                                        if (doc.link && doc.link.startsWith('http')) {
+                                            return `<a href="${doc.link}" target="_blank" rel="noopener noreferrer" 
+                                                       class="inline-flex items-center gap-1.5 px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200/80 rounded text-[11px] font-bold transition shadow-2xs group leading-tight" 
+                                                       title="${escaparHtml(doc.texto)}">
+                                                        <span class="text-xs shrink-0">📄</span>
+                                                        <span class="break-words">${lineas}</span>
+                                                        <span class="text-[10px] text-blue-400 group-hover:text-blue-700 shrink-0">↗</span>
+                                                    </a>`;
+                                        } else {
+                                            return `<div class="px-2 py-1 bg-slate-50 text-slate-700 border border-slate-200 rounded text-[11px] font-medium leading-tight break-words">
+                                                        📄 ${lineas}
+                                                    </div>`;
+                                        }
+                                    }).join('') +
+                                `</div>`;
+                            }
+                        } else if (col.id === 'Informe_Etapa_Link') {
+                            const docs = obtenerInformesDelAnio(fila);
+                            const docsConLink = docs.filter(d => d.link && d.link.startsWith('http'));
+                            if (docsConLink.length === 0) {
+                                cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
+                            } else {
+                                cellHtml = `<div class="flex flex-col gap-1 py-0.5 text-left">` +
+                                    docsConLink.map(d => `
+                                        <a href="${d.link}" target="_blank" rel="noopener noreferrer" 
+                                           class="text-blue-600 hover:text-blue-800 underline font-semibold text-xs inline-flex items-center gap-1">
+                                            🔗 ${escaparHtml(d.etapa)} ↗
+                                        </a>
+                                    `).join('') +
+                                `</div>`;
+                            }
+                        } else {
+                            let valor = fila[col.id];
+                            if (valor === null || valor === undefined || valor === "") valor = '-';
+                            cellHtml = escaparHtml(valor);
                         }
                         
                         tbHtml += `<td>${cellHtml}</td>`;
@@ -1549,7 +1659,13 @@
                 
                 const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
                 const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
-                const cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
+                
+                let cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
+                if (!cumpleMeta && filtroMeta !== "") {
+                    const docsAnio = obtenerInformesDelAnio(fila);
+                    cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(filtroMeta));
+                }
+
                 const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
 
                 return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
@@ -1569,10 +1685,24 @@
 
             dataExportar.forEach(fila => {
                 let filaCsv = colsActivas.map(col => {
-                    let valor = fila[col.id];
-                    if (valor === null || valor === undefined) valor = '';
-                    let texto = String(valor).replace(/"/g, '""').replace(/\n/g, ' ');
-                    return `"${texto}"`;
+                    if (col.id === 'Informe_Etapa') {
+                        const docs = obtenerInformesDelAnio(fila);
+                        if (docs.length === 0) return '""';
+                        // Concatenar con salto de línea (\n), ordenados por etapa procesal
+                        const textoDocs = docs.map(d => d.texto.trim()).join("\n");
+                        return `"${textoDocs.replace(/"/g, '""')}"`;
+                    } else if (col.id === 'Informe_Etapa_Link') {
+                        const docs = obtenerInformesDelAnio(fila);
+                        const links = docs.filter(d => d.link && d.link.startsWith('http')).map(d => d.link);
+                        if (links.length === 0) return '""';
+                        const textoLinks = links.join("\n");
+                        return `"${textoLinks.replace(/"/g, '""')}"`;
+                    } else {
+                        let valor = fila[col.id];
+                        if (valor === null || valor === undefined) valor = '';
+                        let texto = String(valor).replace(/"/g, '""').replace(/\n/g, ' ');
+                        return `"${texto}"`;
+                    }
                 });
                 csvContent += filaCsv.join(";") + "\n";
             });

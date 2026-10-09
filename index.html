@@ -468,7 +468,12 @@
                 const codEps = String(selectEps.value.split(' | ')[0]);
                 const datosEps = db_global.filter(item => String(item.Cod_EP) === codEps);
 
-                const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort();
+                const ordenRomanos = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR'];
+                const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort((a, b) => {
+                    const idxA = ordenRomanos.indexOf(a);
+                    const idxB = ordenRomanos.indexOf(b);
+                    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+                });
                 selectPeriodo.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
                 
                 actualizarBotonesEtapa();

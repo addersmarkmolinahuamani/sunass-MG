@@ -16,8 +16,7 @@ def exportar_base_web():
         columnas_metas = [
             'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Departamento', 'Tamano_EPS', 'Estado_Evaluacion',
             'ID_Meta_General', 'Meta_Principal', 'Nivel_Evaluacion', 'Descripcion_Especifica', 'Unidad_Medida',
-            'Etapa', 'Año_Regulatorio', 'Valor_Exigido', 'Valor_Ejecutado', 'ICI',
-            'Informe_Etapa', 'Informe_Etapa_Link'
+            'Etapa', 'Año_Regulatorio', 'Valor_Exigido', 'Valor_Ejecutado', 'ICI'
         ]
         cols_metas_presentes = [c for c in columnas_metas if c in df.columns]
         registros_metas = df[cols_metas_presentes].to_dict(orient='records')

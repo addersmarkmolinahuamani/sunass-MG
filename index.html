@@ -76,26 +76,42 @@
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
 
-        /* Portada de Inicio Fija Estilo Power BI */
+        /* Portada de Inicio Fija Estilo Power BI - Canvas 16:9 con Proporciones Bloqueadas */
         #pantalla-portada {
-            background-image: url('fondo_portada.jpg');
-            background-size: cover;
-            background-position: center bottom;
-            background-repeat: no-repeat;
+            background-color: #000c1e;
             height: 100vh;
             width: 100vw;
             overflow: hidden !important;
+            position: fixed;
+            inset: 0;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
             transition: opacity 0.4s ease, visibility 0.4s ease;
         }
+        .canvas-portada {
+            width: 100vw;
+            height: 56.25vw; /* 9/16 = 0.5625 */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 16/9 = 1.7778 */
+            aspect-ratio: 16 / 9;
+            background-image: url('fondo_portada.jpg');
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            position: relative;
+            overflow: hidden;
+            container-type: size;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+        }
         .tarjeta-portada {
-            background: #ffffff;
-            border-radius: 1.15rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 30, 80, 0.25), 0 8px 10px -6px rgba(0, 30, 80, 0.2);
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .tarjeta-portada:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 28px -10px rgba(0, 60, 160, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 16px 32px -6px rgba(0, 50, 140, 0.32) !important;
         }
         @media print {
             #pantalla-portada { display: none !important; }
@@ -105,173 +121,190 @@
 <body class="flex h-screen overflow-hidden">
 
     <!-- ======================================================== -->
-    <!-- PORTADA DE INICIO FIJA (SIN SCROLL / POWER BI CANVAS)    -->
+    <!-- PORTADA DE INICIO FIJA (CANVAS 16:9 ARMONIOSO POWER BI)  -->
     <!-- ======================================================== -->
-    <div id="pantalla-portada" class="fixed inset-0 z-50 flex flex-col justify-between overflow-hidden text-white transition-opacity duration-500 opacity-100 pointer-events-auto h-screen w-screen select-none">
+    <div id="pantalla-portada" class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-[#000c1e] text-white transition-opacity duration-500 opacity-100 pointer-events-auto select-none">
         
-        <!-- SECCIÓN SUPERIOR: TÍTULOS Y CÁPSULAS DE MÉTRICAS -->
-        <div class="relative z-10 w-full pt-4 sm:pt-6 pb-1 px-4 flex flex-col items-center flex-shrink-0">
-            <!-- Título Principal -->
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-wide text-center drop-shadow-md leading-tight">
-                Metas de Gestión
-            </h1>
-            <h2 class="text-xs sm:text-sm lg:text-base text-blue-100 font-light tracking-widest text-center mt-0.5 drop-shadow-sm">
-                Empresas Prestadoras
-            </h2>
-
-            <!-- Cápsulas Ejecutivas de Métricas -->
-            <div class="mt-3 w-full max-w-2xl lg:max-w-3xl bg-[#002456]/70 backdrop-blur-md border border-blue-400/35 rounded-2xl py-1.5 px-4 sm:px-6 shadow-xl flex items-center justify-around gap-2 sm:gap-4">
-                <!-- Cápsula 1 -->
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
-                        📄
-                    </div>
-                    <div>
-                        <div id="portada-kpi-pr" class="text-xl sm:text-2xl font-extrabold text-white leading-none">148</div>
-                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Periodos<br class="hidden sm:inline"> Regulatorios</div>
-                    </div>
-                </div>
-
-                <div class="h-6 w-px bg-blue-400/30"></div>
-
-                <!-- Cápsula 2 -->
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
-                        📑
-                    </div>
-                    <div>
-                        <div id="portada-kpi-inf" class="text-xl sm:text-2xl font-extrabold text-white leading-none">916</div>
-                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Informes y<br class="hidden sm:inline"> Resoluciones</div>
-                    </div>
-                </div>
-
-                <div class="h-6 w-px bg-blue-400/30"></div>
-
-                <!-- Cápsula 3 -->
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
-                        💧
-                    </div>
-                    <div>
-                        <div id="portada-kpi-eps" class="text-xl sm:text-2xl font-extrabold text-white leading-none">50</div>
-                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Empresas<br class="hidden sm:inline"> Prestadoras</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN CENTRAL: PERSONAJE SUNASS + 3 TARJETAS DE INGRESO -->
-        <div class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 my-auto flex-1 flex items-center justify-center gap-4 lg:gap-8 min-h-0 py-1">
+        <div class="canvas-portada">
             
-            <!-- Personaje Oficial SUNASS (Proporcionado a la altura de las tarjetas, sin invadir el pie) -->
-            <div class="flex-shrink-0 flex items-center justify-center">
+            <!-- TÍTULOS PRINCIPALES (Centrados encima de la Cápsula y Tarjetas) -->
+            <div class="absolute pointer-events-none" style="top: 4cqh; left: 26cqw; width: 57cqw; text-align: center; z-index: 20;">
+                <h1 style="font-size: 6.2cqh; font-weight: 900; color: #ffffff; letter-spacing: -0.01em; line-height: 1.1; text-shadow: 0 2px 10px rgba(0,20,60,0.6);">
+                    Metas de Gestión
+                </h1>
+                <h2 style="font-size: 3.5cqh; font-weight: 500; color: rgba(255, 255, 255, 0.95); margin-top: 0.3cqh; letter-spacing: 0.01em; text-shadow: 0 1px 6px rgba(0,20,60,0.5);">
+                    Empresas Prestadoras
+                </h2>
+            </div>
+
+            <!-- PERSONAJE OFICIAL SUNASS (Alineado en la base con las tarjetas, a la izquierda) -->
+            <div class="absolute" style="left: 6.5cqw; bottom: 21.5cqh; height: 48cqh; width: 19cqw; display: flex; align-items: flex-end; justify-content: center; z-index: 20;">
                 <img src="personaje_sunass.png" 
                      alt="Personaje SUNASS Fiscalización" 
-                     class="h-[42vh] max-h-[350px] min-h-[190px] w-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)] transform hover:scale-105 transition-transform duration-300 pointer-events-none select-none">
+                     style="height: 100%; max-height: 48cqh; width: auto; object-fit: contain; filter: drop-shadow(0 10px 22px rgba(0, 15, 50, 0.45)); pointer-events: none;">
             </div>
 
-            <!-- Grid de las 3 Tarjetas de Ingreso solicitadas -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 lg:gap-5 flex-1 w-full max-w-3xl lg:max-w-4xl h-[42vh] max-h-[350px] min-h-[200px]">
-                
-                <!-- TARJETA 1: RESULTADOS DE EVALUACIÓN -->
+            <!-- CÁPSULA DE MÉTRICAS (Mismo ancho y límites que las 3 tarjetas inferiores) -->
+            <div class="absolute" style="left: 26cqw; top: 23.5cqh; width: 57cqw; height: 13.5cqh; z-index: 20; border: 1.5px solid rgba(255, 255, 255, 0.45); background: rgba(0, 42, 92, 0.4); backdrop-filter: blur(8px); border-radius: 1.8cqh; display: grid; grid-template-columns: 1fr 1fr 1fr; align-items: center; box-shadow: 0 8px 24px -4px rgba(0, 20, 60, 0.3);">
+                <!-- KPI 1 -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1.2cqw; padding: 0 1cqw; border-right: 1px solid rgba(255, 255, 255, 0.3); height: 8.5cqh;">
+                    <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                        <svg style="width: 3.2cqh; height: 3.2cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <div id="portada-kpi-pr" style="font-size: 3.8cqh; font-weight: 800; color: #ffffff; line-height: 1;">148</div>
+                        <div style="font-size: 1.55cqh; font-weight: 500; color: rgba(255, 255, 255, 0.95); line-height: 1.15; margin-top: 0.3cqh;">Periodos<br>Regulatorios</div>
+                    </div>
+                </div>
+
+                <!-- KPI 2 -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1.2cqw; padding: 0 1cqw; border-right: 1px solid rgba(255, 255, 255, 0.3); height: 8.5cqh;">
+                    <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                        <svg style="width: 3.2cqh; height: 3.2cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                    </div>
+                    <div>
+                        <div id="portada-kpi-inf" style="font-size: 3.8cqh; font-weight: 800; color: #ffffff; line-height: 1;">916</div>
+                        <div style="font-size: 1.55cqh; font-weight: 500; color: rgba(255, 255, 255, 0.95); line-height: 1.15; margin-top: 0.3cqh;">Informes y<br>Resoluciones</div>
+                    </div>
+                </div>
+
+                <!-- KPI 3 -->
+                <div style="display: flex; align-items: center; justify-content: center; gap: 1.2cqw; padding: 0 1cqw; height: 8.5cqh;">
+                    <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                        <svg style="width: 3.2cqh; height: 3.2cqh;" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>
+                    </div>
+                    <div>
+                        <div id="portada-kpi-eps" style="font-size: 3.8cqh; font-weight: 800; color: #ffffff; line-height: 1;">50</div>
+                        <div style="font-size: 1.55cqh; font-weight: 500; color: rgba(255, 255, 255, 0.95); line-height: 1.15; margin-top: 0.3cqh;">Empresas<br>Prestadoras</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAS 3 TARJETAS EN FILA (Mismo ancho total 57cqw que la cápsula superior) -->
+            <div class="absolute" style="left: 26cqw; top: 39.5cqh; width: 57cqw; height: 39cqh; z-index: 20; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.8cqw;">
+                <!-- Tarjeta 1: Resultados de evaluación -->
                 <div onclick="navegarDesdePortada('tablero')" 
-                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
+                     class="tarjeta-portada group" 
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.2cqh 1.6cqw 1.8cqh 1.6cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-blue-600 group-hover:scale-105 transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <!-- Icono circular azul -->
+                        <div style="width: 6.8cqh; height: 6.8cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
+                            <svg style="width: 3.6cqh; height: 3.6cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         </div>
-                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-blue-600 transition-colors">
-                            Resultados de evaluación
+                        <!-- Título -->
+                        <h3 style="font-size: 2.7cqh; font-weight: 800; color: #002b66; line-height: 1.15; margin-top: 1.3cqh;">
+                            Resultados de<br>evaluación
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
-                            Consulta interactiva del cumplimiento de metas, niveles de ICG, indicadores ICI y semaforización oficial por EPS.
+                        <!-- Línea azul de acento (como en la referencia Power BI) -->
+                        <div style="width: 2.8cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.9cqh 0 0.9cqh 0;"></div>
+                        <!-- Descripción -->
+                        <p style="font-size: 1.6cqh; color: #556987; line-height: 1.28; font-weight: 400;">
+                            Consulta del cumplimiento de metas, niveles de ICG e indicadores ICI por EPS.
                         </p>
                     </div>
-                    <div class="flex justify-end mt-2">
-                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-blue-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <!-- Flecha abajo a la derecha -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 1cqh;">
+                        <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
                             &rarr;
                         </span>
                     </div>
                 </div>
 
-                <!-- TARJETA 2: MATRIZ DE INFORMES Y RESOLUCIONES -->
+                <!-- Tarjeta 2: Matriz de informes y resoluciones -->
                 <div onclick="navegarDesdePortada('matriz')" 
-                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
+                     class="tarjeta-portada group" 
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.2cqh 1.6cqw 1.8cqh 1.6cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-emerald-600 group-hover:scale-105 transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <!-- Icono circular azul -->
+                        <div style="width: 6.8cqh; height: 6.8cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
+                            <svg style="width: 3.6cqh; height: 3.6cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
-                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-emerald-600 transition-colors">
-                            Matriz de informes y resoluciones
+                        <!-- Título -->
+                        <h3 style="font-size: 2.7cqh; font-weight: 800; color: #002b66; line-height: 1.15; margin-top: 1.3cqh;">
+                            Matriz de informes<br>y resoluciones
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
-                            Accede a la matriz de informes iniciales, finales, de instrucción y resoluciones oficiales con enlaces directos en la nube.
+                        <!-- Línea azul de acento -->
+                        <div style="width: 2.8cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.9cqh 0 0.9cqh 0;"></div>
+                        <!-- Descripción -->
+                        <p style="font-size: 1.6cqh; color: #556987; line-height: 1.28; font-weight: 400;">
+                            Accede a los informes iniciales, finales y resoluciones oficiales con enlaces directos.
                         </p>
                     </div>
-                    <div class="flex justify-end mt-2">
-                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-emerald-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <!-- Flecha abajo a la derecha -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 1cqh;">
+                        <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
                             &rarr;
                         </span>
                     </div>
                 </div>
 
-                <!-- TARJETA 3: CREADOR DE REPORTES -->
+                <!-- Tarjeta 3: Creador de reportes -->
                 <div onclick="navegarDesdePortada('reportes')" 
-                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
+                     class="tarjeta-portada group" 
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.2cqh 1.6cqw 1.8cqh 1.6cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
-                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-indigo-600 group-hover:scale-105 transition-all">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <!-- Icono circular azul -->
+                        <div style="width: 6.8cqh; height: 6.8cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
+                            <svg style="width: 3.6cqh; height: 3.6cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
-                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-indigo-600 transition-colors">
-                            Creador de reportes
+                        <!-- Título -->
+                        <h3 style="font-size: 2.7cqh; font-weight: 800; color: #002b66; line-height: 1.15; margin-top: 1.3cqh;">
+                            Creador de<br>reportes
                         </h3>
-                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
-                            Genera consultas dinámicas personalizadas a nivel nacional, selecciona campos y exporta tablas estructuradas a Excel (CSV).
+                        <!-- Línea azul de acento -->
+                        <div style="width: 2.8cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.9cqh 0 0.9cqh 0;"></div>
+                        <!-- Descripción -->
+                        <p style="font-size: 1.6cqh; color: #556987; line-height: 1.28; font-weight: 400;">
+                            Genera consultas personalizadas a nivel nacional y exporta tablas a Excel (CSV).
                         </p>
                     </div>
-                    <div class="flex justify-end mt-2">
-                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-indigo-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <!-- Flecha abajo a la derecha -->
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 1cqh;">
+                        <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
                             &rarr;
                         </span>
                     </div>
                 </div>
-
             </div>
-        </div>
 
-        <!-- PIE DE PÁGINA FIJO (CON LOGO EN ESQUINA INFERIOR IZQUIERDA) -->
-        <footer class="relative z-10 w-full py-2 px-4 sm:px-10 text-white flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-4 text-xs flex-shrink-0">
-            <!-- Esquina inferior izquierda: Logo oficial SUNASS en la curva blanca -->
-            <div class="flex items-center">
+            <!-- LOGO SUNASS EN ESQUINA INFERIOR IZQUIERDA (Dentro del recorte blanco de fondo_portada.jpg) -->
+            <div class="absolute" style="left: 2cqw; bottom: 1.5cqh; width: 15.5cqw; height: 11cqh; display: flex; align-items: center; justify-content: center; z-index: 20;">
                 <img src="logo_sunass.png" 
                      alt="SUNASS - El regulador del agua potable" 
-                     class="h-8 sm:h-10 lg:h-12 w-auto object-contain drop-shadow-sm">
+                     style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); pointer-events: none;">
             </div>
 
-            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
+            <!-- FRANJA INFERIOR DE METADATOS (Acentos verdes verticales como en la referencia Power BI) -->
+            <footer class="absolute" style="left: 22cqw; right: 18cqw; bottom: 2.8cqh; height: 8cqh; display: flex; align-items: center; justify-content: space-between; z-index: 20;">
+                <!-- Columna 1: Dirección de Fiscalización -->
+                <div style="display: flex; align-items: center; gap: 0.8cqw;">
+                    <div style="width: 2.5px; height: 4.8cqh; background: #00a86b; border-radius: 2px; flex-shrink: 0;"></div>
+                    <div>
+                        <div style="font-size: 1.6cqh; font-weight: 800; color: #ffffff; line-height: 1.2; letter-spacing: 0.01em;">SUNASS - Dirección de Fiscalización</div>
+                        <div style="font-size: 1.4cqh; color: #cfe3f7; line-height: 1.2; margin-top: 0.3cqh;">Centro de Consulta Normativa MG</div>
+                    </div>
+                </div>
 
-            <!-- Dirección de Fiscalización -->
-            <div class="text-center md:text-left">
-                <span class="font-bold text-white text-[11px] sm:text-xs tracking-wide block">SUNASS - Dirección de Fiscalización</span>
-                <span class="text-blue-200 text-[10px] block">Centro de Consulta Normativa y Evaluación de MG</span>
-            </div>
+                <!-- Columna 2: Fecha de Actualización -->
+                <div style="display: flex; align-items: center; gap: 0.8cqw;">
+                    <div style="width: 2.5px; height: 4.8cqh; background: #00a86b; border-radius: 2px; flex-shrink: 0;"></div>
+                    <div>
+                        <div style="font-size: 1.6cqh; font-weight: 800; color: #ffffff; line-height: 1.2; letter-spacing: 0.01em;">Fecha de actualización</div>
+                        <div style="font-size: 1.4cqh; color: #cfe3f7; line-height: 1.2; margin-top: 0.3cqh;">Octubre 2026</div>
+                    </div>
+                </div>
 
-            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
+                <!-- Columna 3: Versión Oficial -->
+                <div style="display: flex; align-items: center; gap: 0.8cqw;">
+                    <div style="width: 2.5px; height: 4.8cqh; background: #00a86b; border-radius: 2px; flex-shrink: 0;"></div>
+                    <div>
+                        <div style="font-size: 1.6cqh; font-weight: 800; color: #ffffff; line-height: 1.2; letter-spacing: 0.01em;">Versión 2.0</div>
+                        <div style="font-size: 1.4cqh; color: #cfe3f7; line-height: 1.2; margin-top: 0.3cqh;">2026.V2</div>
+                    </div>
+                </div>
+            </footer>
 
-            <!-- Fecha de Actualización -->
-            <div class="text-center md:text-left">
-                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-wider block">Fecha de actualización</span>
-                <span class="text-white font-bold text-[11px] sm:text-xs block">Octubre 2026</span>
-            </div>
-
-            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
-
-            <!-- Versión Oficial -->
-            <div class="text-center md:text-right">
-                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-wider block">Versión Oficial</span>
-                <span class="text-white font-bold text-[11px] sm:text-xs block">Versión 2.0 (2026.V2)</span>
-            </div>
-        </footer>
+        </div>
 
     </div>
 

@@ -573,7 +573,12 @@
                             <h3 class="text-sm font-bold text-gray-700 flex items-center gap-2">
                                 <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
                             </h3>
-                            <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="A partir de 85% no es pasible de sanción">
+                                    <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Frontera 85%
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
+                            </div>
                         </div>
                         <div class="flex-1 relative w-full min-h-[160px]">
                             <canvas id="graficoICG"></canvas>
@@ -806,7 +811,7 @@
         let db_informes = [];
         let miGraficoICG = null;
         let dashboardIniciado = false;
-        let etapaSeleccionadaGlobal = 'FISCALIZACIÓN';
+        let etapaSeleccionadaGlobal = 'RESULTADO_ACTUAL';
         
         // Configuración de las columnas para el Creador de Reportes
         const TODAS_LAS_COLUMNAS = [
@@ -1530,7 +1535,7 @@
             etapasDisponibles.sort((a, b) => ordenEtapas.indexOf(a) - ordenEtapas.indexOf(b));
 
             if (!etapasDisponibles.includes(etapaSeleccionadaGlobal) && etapasDisponibles.length > 0) {
-                etapaSeleccionadaGlobal = etapasDisponibles.includes('FISCALIZACIÓN') ? 'FISCALIZACIÓN' : etapasDisponibles[0];
+                etapaSeleccionadaGlobal = etapasDisponibles.includes('RESULTADO_ACTUAL') ? 'RESULTADO_ACTUAL' : etapasDisponibles[0];
             }
 
             const contenedor = document.getElementById('contenedor-botones-etapa');
@@ -1593,7 +1598,7 @@
             if (t === 'P') return 'Pequeña';
             if (t === 'M') return 'Mediana';
             if (t === 'G') return 'Grande';
-            if (t === 'SG') return 'Grande';
+            if (t === 'SG') return 'Super grande';
             return tam;
         }
 
@@ -1980,31 +1985,76 @@
                 type: 'line',
                 data: {
                     labels: etiquetas,
-                    datasets: [{
-                        label: 'ICG (%)',
-                        data: valores,
-                        borderColor: '#2563eb', 
-                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                        borderWidth: 3,
-                        pointBackgroundColor: coloresPuntos,
-                        pointBorderColor: '#ffffff',
-                        pointBorderWidth: 2,
-                        pointRadius: 6,
-                        pointHoverRadius: 8,
-                        fill: true,
-                        tension: 0.2,
-                        spanGaps: true
-                    }]
+                    datasets: [
+                        {
+                            label: 'ICG (%)',
+                            data: valores,
+                            borderColor: '#2563eb', 
+                            backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                            borderWidth: 3,
+                            pointBackgroundColor: coloresPuntos,
+                            pointBorderColor: '#ffffff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            fill: true,
+                            tension: 0.2,
+                            spanGaps: true,
+                            order: 1
+                        },
+                        {
+                            label: 'Frontera 85% (Sin sanción ≥ 85%)',
+                            data: [85, 85, 85, 85, 85],
+                            borderColor: '#e11d48',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            pointHoverRadius: 0,
+                            fill: false,
+                            tension: 0,
+                            order: 2
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    if (context.datasetIndex === 1) {
+                                        return ' Frontera 85% (No sancionable ≥ 85%)';
+                                    }
+                                    const v = context.parsed.y;
+                                    return ` ICG: ${v !== null && v !== undefined ? v + '%' : 'S/D'}`;
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         y: { beginAtZero: true, max: 110, grid: { color: '#f1f5f9' } },
                         x: { grid: { display: false } }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'fronteraLabelPlugin',
+                    afterDatasetsDraw(chart) {
+                        const { ctx: c, chartArea, scales: { y } } = chart;
+                        if (!chartArea || !y) return;
+                        const yPos = y.getPixelForValue(85);
+                        if (yPos < chartArea.top || yPos > chartArea.bottom) return;
+
+                        c.save();
+                        c.font = 'bold 10px system-ui, sans-serif';
+                        c.fillStyle = '#e11d48';
+                        c.textAlign = 'right';
+                        c.textBaseline = 'bottom';
+                        c.fillText('Frontera 85%', chartArea.right - 6, yPos - 3);
+                        c.restore();
+                    }
+                }]
             });
         }
 

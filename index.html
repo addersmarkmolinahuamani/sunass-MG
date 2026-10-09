@@ -421,17 +421,63 @@
                     <!-- Input oculto para mantener compatibilidad con generarReporte() y exportarCSV() -->
                     <input type="hidden" id="rep-buscar-eps" value="">
                 </div>
-                <div>
+                <!-- DEPARTAMENTO -->
+                <div class="relative" id="contenedor-filtro-depto-reportes">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Departamento</label>
-                    <input type="text" id="rep-buscar-depto" placeholder="Ej. Ica, Amazonas, Lima..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                    <div class="relative" id="dropdown-depto-reportes">
+                        <button type="button" id="btn-trigger-depto-reportes"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-depto-reportes">Todos</span>
+                            <svg id="arrow-trigger-depto-reportes" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="menu-dropdown-depto-reportes" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-depto-reportes" placeholder="Buscar" autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-depto-reportes" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <div id="lista-opciones-depto-reportes" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div>
+
+                <!-- BUSCAR META / INDICADOR -->
+                <div class="relative" id="contenedor-filtro-meta-reportes">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Meta / Indicador</label>
-                    <input type="text" id="rep-buscar-meta" placeholder="Ej. Agua no facturada, ICG..." class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500">
+                    <div class="relative" id="dropdown-meta-reportes">
+                        <button type="button" id="btn-trigger-meta-reportes"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-meta-reportes">Todas</span>
+                            <svg id="arrow-trigger-meta-reportes" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="menu-dropdown-meta-reportes" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-meta-reportes" placeholder="Buscar" autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-meta-reportes" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <div id="lista-opciones-meta-reportes" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <div>
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Etapa</label>
-                    <select id="rep-filtro-etapa" class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                    <select id="rep-filtro-etapa" onchange="generarReporte()" class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="TODAS">-- Todas las Etapas --</option>
                         <option value="RESULTADO_ACTUAL">Resultado Actual</option>
                         <option value="FISCALIZACIÓN">Fiscalización</option>
@@ -488,18 +534,44 @@
 
             <main class="flex-1 p-8 overflow-y-auto">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- KPI Total Metas EPS -->
-                    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-center items-center text-center relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-1.5 bg-blue-600"></div>
-                        <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform shadow-inner">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <!-- KPI Total Metas y Ficha Resumen EPS -->
+                    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500"></div>
+                        
+                        <!-- Datos de la Empresa Prestadora -->
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block mb-1">Empresa Prestadora</span>
+                                <h3 id="card-eps-nombre" class="text-sm font-bold text-slate-800 leading-snug line-clamp-2" title="-">-</h3>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 py-2 px-2.5 bg-slate-50 rounded-lg border border-slate-100 text-[11px]">
+                                <div>
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Cód. EPS</span>
+                                    <span id="card-eps-codigo" class="font-bold text-blue-900 truncate block">-</span>
+                                </div>
+                                <div class="border-l border-slate-200 pl-2">
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Tamaño</span>
+                                    <span id="card-eps-tamano" class="font-bold text-slate-700 truncate block">-</span>
+                                </div>
+                                <div class="border-l border-slate-200 pl-2">
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Región</span>
+                                    <span id="card-eps-region" class="font-bold text-slate-700 truncate block">-</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="flex items-baseline gap-2">
-                            <span id="kpi-total-metas" class="text-5xl font-black text-[#003366] tracking-tighter">0</span>
+
+                        <!-- Cantidad de Metas de Gestión Aprobadas por Resolución -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
+                            <div class="pr-3">
+                                <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight leading-tight">
+                                    Cantidad de metas de gestión aprobadas por resolución
+                                </p>
+                            </div>
+                            <div class="shrink-0 flex items-center justify-center px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 rounded-xl shadow-2xs">
+                                <span id="kpi-total-metas" class="text-3xl sm:text-4xl font-black text-[#003366] tracking-tight">0</span>
+                            </div>
                         </div>
-                        <p class="text-[11px] text-gray-500 font-bold uppercase tracking-wider mt-2 px-2 leading-relaxed">
-                            Cantidad de metas de gestión aprobadas por RESOLUCIÓN
-                        </p>
                     </div>
 
                     <!-- Gráfico Evolución ICG -->
@@ -531,15 +603,26 @@
 
                 <!-- TABLA PRINCIPAL DE METAS DE GESTIÓN -->
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
-                        <h2 class="font-bold text-gray-800 flex items-center gap-2">
+                    <div class="px-6 py-3 border-b border-gray-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-2.5 bg-gray-50">
+                        <h2 class="font-bold text-gray-800 flex items-center gap-2 text-sm md:text-base">
                             <div class="w-3 h-3 bg-blue-600 rounded-full"></div>
                             Resultados del cumplimiento de metas de gestión
                         </h2>
-                        <div class="flex gap-4 text-xs font-medium text-gray-600">
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#00b050] rounded"></div> &ge; 100%</span>
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#ffff00] rounded"></div> 80% - 99%</span>
-                            <span class="flex items-center gap-1"><div class="w-3 h-3 bg-[#ff0000] rounded"></div> &lt; 80%</span>
+                        <div class="flex flex-col gap-1 text-[11px] font-medium text-gray-600 bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-2xs">
+                            <!-- Fila 1: Leyenda ICI -->
+                            <div class="flex items-center gap-3">
+                                <span class="font-bold text-slate-800 text-[10px] uppercase w-8 tracking-wider">ICI:</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> &ge; 100%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ffff00] rounded-xs border border-slate-300"></div> 80% - 99%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ff0000] rounded-xs"></div> &lt; 80%</span>
+                            </div>
+                            <!-- Fila 2 (Inferior): Leyenda ICG -->
+                            <div class="flex items-center gap-3 pt-1 border-t border-slate-100">
+                                <span class="font-bold text-blue-900 text-[10px] uppercase w-8 tracking-wider">ICG:</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> &ge; 100%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ffff00] rounded-xs border border-slate-300"></div> 85% - 99%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ff0000] rounded-xs"></div> &lt; 85%</span>
+                            </div>
                         </div>
                     </div>
                     <div class="table-container p-0">
@@ -847,6 +930,9 @@
                 portada.classList.add('opacity-100', 'pointer-events-auto');
                 portada.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            // Cerrar cualquier dropdown abierto
+            document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
+            document.querySelectorAll('[id^="arrow-trigger-"]').forEach(a => a.classList.remove('rotate-180'));
         }
 
         function actualizarKpisPortada() {
@@ -919,9 +1005,9 @@
             if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
             if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
 
-            // Cerrar cualquier dropdown de EPS abierto
-            document.querySelectorAll('[id^="menu-dropdown-eps-"]').forEach(m => m.classList.add('hidden'));
-            document.querySelectorAll('[id^="arrow-trigger-eps-"]').forEach(a => a.classList.remove('rotate-180'));
+            // Cerrar cualquier dropdown abierto
+            document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
+            document.querySelectorAll('[id^="arrow-trigger-"]').forEach(a => a.classList.remove('rotate-180'));
 
             if (modulo === 'tablero') {
                 if (modTablero) {
@@ -956,6 +1042,8 @@
 
         let dropdownEpsTableroInstance = null;
         let dropdownEpsReportesInstance = null;
+        let dropdownDeptoReportesInstance = null;
+        let dropdownMetaReportesInstance = null;
 
         function crearDropdownPowerBI({
             idContenedor,
@@ -967,8 +1055,10 @@
             idBtnLimpiar,
             idLista,
             opciones, // Array de { value, label, searchText }
+            esMultiple = false,
             permitirTodas = false,
             textoTodas = "Todas",
+            textoPlaceholder = "Seleccionar...",
             valorInicial = "",
             onSelect
         }) {
@@ -983,25 +1073,51 @@
 
             if (!contenedor || !btnTrigger || !menu || !inputBuscar || !listaEl) return null;
 
-            let valorSeleccionado = valorInicial;
+            let valorSeleccionado = !esMultiple ? (valorInicial || "") : "";
+            let valoresSeleccionados = new Set(
+                esMultiple 
+                    ? (Array.isArray(valorInicial) ? valorInicial : (valorInicial ? [valorInicial] : []))
+                    : []
+            );
             let filtroQuery = "";
 
-            const normalizar = (txt) => (txt || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const normalizar = (txt) => (txt || '').toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
             function actualizarTextoGatillo() {
-                if (permitirTodas && (!valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas")) {
-                    lblTrigger.innerText = textoTodas;
-                    lblTrigger.title = textoTodas;
-                } else {
-                    const opc = opciones.find(o => o.value === valorSeleccionado);
-                    if (opc) {
-                        lblTrigger.innerText = opc.label;
-                        lblTrigger.title = opc.label;
-                    } else if (valorSeleccionado) {
-                        lblTrigger.innerText = valorSeleccionado;
-                        lblTrigger.title = valorSeleccionado;
+                if (esMultiple) {
+                    if (valoresSeleccionados.size === 0) {
+                        lblTrigger.innerText = textoTodas;
+                        lblTrigger.title = textoTodas;
+                    } else if (valoresSeleccionados.size === 1) {
+                        const val = Array.from(valoresSeleccionados)[0];
+                        const opc = opciones.find(o => o.value === val);
+                        const txt = opc ? opc.label : val;
+                        lblTrigger.innerText = txt;
+                        lblTrigger.title = txt;
                     } else {
-                        lblTrigger.innerText = permitirTodas ? textoTodas : "Seleccionar...";
+                        const sufijo = textoTodas.toLowerCase().endsWith('os') ? 'seleccionados' : 'seleccionadas';
+                        lblTrigger.innerText = `${valoresSeleccionados.size} ${sufijo}`;
+                        const nombres = Array.from(valoresSeleccionados).map(v => {
+                            const o = opciones.find(x => x.value === v);
+                            return o ? o.label : v;
+                        }).join(', ');
+                        lblTrigger.title = nombres;
+                    }
+                } else {
+                    if (permitirTodas && (!valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas")) {
+                        lblTrigger.innerText = textoTodas;
+                        lblTrigger.title = textoTodas;
+                    } else {
+                        const opc = opciones.find(o => o.value === valorSeleccionado);
+                        if (opc) {
+                            lblTrigger.innerText = opc.label;
+                            lblTrigger.title = opc.label;
+                        } else if (valorSeleccionado) {
+                            lblTrigger.innerText = valorSeleccionado;
+                            lblTrigger.title = valorSeleccionado;
+                        } else {
+                            lblTrigger.innerText = permitirTodas ? textoTodas : textoPlaceholder;
+                        }
                     }
                 }
             }
@@ -1010,13 +1126,16 @@
                 const q = normalizar(filtroQuery).trim();
                 let html = '';
 
-                // Opción "Todas" si está habilitada
+                // Opción "Todas" / "Todos"
                 if (permitirTodas) {
-                    const coincideTodas = !q || normalizar(textoTodas).includes(q) || normalizar("todas").includes(q);
+                    const coincideTodas = !q || normalizar(textoTodas).includes(q) || normalizar("todas").includes(q) || normalizar("todos").includes(q);
                     if (coincideTodas) {
-                        const esTodasSeleccionada = !valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas";
+                        const esTodasSeleccionada = esMultiple 
+                            ? (valoresSeleccionados.size === 0)
+                            : (!valorSeleccionado || valorSeleccionado === "TODAS" || valorSeleccionado === "Todas");
+                        
                         html += `
-                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esTodasSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="">
+                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esTodasSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="__TODAS__">
                                 <div class="w-3.5 h-3.5 rounded-xs border ${esTodasSeleccionada ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-400 bg-white'} flex items-center justify-center shrink-0 text-[10px] font-black transition">
                                     ${esTodasSeleccionada ? '✓' : ''}
                                 </div>
@@ -1033,16 +1152,19 @@
                 });
 
                 if (opcionesFiltradas.length === 0 && (!permitirTodas || q)) {
-                    html += `<div class="p-4 text-center text-slate-400 italic text-xs">No se encontraron empresas</div>`;
+                    html += `<div class="p-4 text-center text-slate-400 italic text-xs">No se encontraron coincidencias</div>`;
                 } else {
                     opcionesFiltradas.forEach(opc => {
-                        const esSeleccionada = valorSeleccionado === opc.value;
+                        const esSeleccionada = esMultiple
+                            ? valoresSeleccionados.has(opc.value)
+                            : (valorSeleccionado === opc.value);
+
                         html += `
-                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="${opc.value}">
+                            <div class="opcion-pbi px-3 py-2 hover:bg-blue-50/80 cursor-pointer flex items-center gap-2.5 transition text-slate-700 select-none ${esSeleccionada ? 'bg-blue-50/60 font-bold' : ''}" data-val="${escaparHtml(opc.value)}">
                                 <div class="w-3.5 h-3.5 rounded-xs border ${esSeleccionada ? 'border-blue-600 bg-blue-600 text-white' : 'border-slate-400 bg-white'} flex items-center justify-center shrink-0 text-[10px] font-black transition">
                                     ${esSeleccionada ? '✓' : ''}
                                 </div>
-                                <span class="truncate text-xs ${esSeleccionada ? 'font-bold text-blue-900' : 'text-slate-800 font-medium'}" title="${opc.label}">${opc.label}</span>
+                                <span class="truncate text-xs ${esSeleccionada ? 'font-bold text-blue-900' : 'text-slate-800 font-medium'}" title="${escaparHtml(opc.label)}">${escaparHtml(opc.label)}</span>
                             </div>
                         `;
                     });
@@ -1052,19 +1174,50 @@
 
                 // Eventos de clic en las opciones
                 listaEl.querySelectorAll('.opcion-pbi').forEach(itemEl => {
-                    itemEl.addEventListener('click', () => {
+                    itemEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
                         const val = itemEl.getAttribute('data-val');
-                        seleccionar(val);
+                        if (esMultiple) {
+                            toggleMultiple(val);
+                        } else {
+                            seleccionarSimple(val === "__TODAS__" ? "" : val);
+                        }
                     });
                 });
             }
 
+            function toggleMultiple(val) {
+                if (val === "__TODAS__") {
+                    valoresSeleccionados.clear();
+                } else {
+                    if (valoresSeleccionados.has(val)) {
+                        valoresSeleccionados.delete(val);
+                    } else {
+                        valoresSeleccionados.add(val);
+                    }
+                }
+                actualizarTextoGatillo();
+                renderizarOpciones();
+                if (typeof onSelect === 'function') {
+                    onSelect(Array.from(valoresSeleccionados));
+                }
+            }
+
+            function seleccionarSimple(nuevoValor) {
+                valorSeleccionado = nuevoValor;
+                actualizarTextoGatillo();
+                cerrar();
+                if (typeof onSelect === 'function') {
+                    onSelect(valorSeleccionado);
+                }
+            }
+
             function abrir() {
                 // Cerrar cualquier otro menú abierto
-                document.querySelectorAll('[id^="menu-dropdown-eps-"]').forEach(m => {
+                document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => {
                     if (m !== menu) m.classList.add('hidden');
                 });
-                document.querySelectorAll('[id^="arrow-trigger-eps-"]').forEach(a => {
+                document.querySelectorAll('[id^="arrow-trigger-"]').forEach(a => {
                     if (a !== arrow) a.classList.remove('rotate-180');
                 });
 
@@ -1092,15 +1245,6 @@
                     abrir();
                 } else {
                     cerrar();
-                }
-            }
-
-            function seleccionar(nuevoValor) {
-                valorSeleccionado = nuevoValor;
-                actualizarTextoGatillo();
-                cerrar();
-                if (typeof onSelect === 'function') {
-                    onSelect(valorSeleccionado);
                 }
             }
 
@@ -1133,7 +1277,12 @@
                     e.preventDefault();
                     const primeraOpcion = listaEl.querySelector('.opcion-pbi');
                     if (primeraOpcion) {
-                        seleccionar(primeraOpcion.getAttribute('data-val'));
+                        const val = primeraOpcion.getAttribute('data-val');
+                        if (esMultiple) {
+                            toggleMultiple(val);
+                        } else {
+                            seleccionarSimple(val === "__TODAS__" ? "" : val);
+                        }
                     }
                 } else if (e.key === 'Escape') {
                     cerrar();
@@ -1141,7 +1290,8 @@
             });
 
             if (btnLimpiar) {
-                btnLimpiar.addEventListener('click', () => {
+                btnLimpiar.addEventListener('click', (e) => {
+                    e.stopPropagation();
                     inputBuscar.value = '';
                     filtroQuery = '';
                     btnLimpiar.classList.add('hidden');
@@ -1161,11 +1311,23 @@
 
             return {
                 setValor: (val) => {
-                    valorSeleccionado = val;
+                    if (esMultiple) {
+                        valoresSeleccionados = new Set(Array.isArray(val) ? val : (val ? [val] : []));
+                    } else {
+                        valorSeleccionado = val;
+                    }
                     actualizarTextoGatillo();
                     renderizarOpciones();
                 },
-                getValor: () => valorSeleccionado
+                getValor: () => esMultiple ? Array.from(valoresSeleccionados) : valorSeleccionado,
+                getValores: () => Array.from(valoresSeleccionados),
+                getQuery: () => filtroQuery,
+                limpiar: () => {
+                    if (esMultiple) valoresSeleccionados.clear();
+                    else valorSeleccionado = "";
+                    actualizarTextoGatillo();
+                    renderizarOpciones();
+                }
             };
         }
 
@@ -1214,7 +1376,7 @@
                 renderizarTablero();
             };
 
-            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES
+            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES (Selección individual)
             const opcionesTablero = epsOrdenadasNombre.map(eps => ({
                 value: eps.full,
                 label: eps.nombre,
@@ -1234,6 +1396,7 @@
                 idBtnLimpiar: 'btn-limpiar-eps-tablero',
                 idLista: 'lista-opciones-eps-tablero',
                 opciones: opcionesTablero,
+                esMultiple: false,
                 permitirTodas: false,
                 valorInicial: epsInicial,
                 onSelect: (val) => {
@@ -1242,8 +1405,8 @@
                 }
             });
 
-            // 2. DROPDOWN EPS PARA CREADOR DE REPORTES
-            const opcionesReportes = epsOrdenadasNombre.map(eps => ({
+            // 2. DROPDOWN EPS PARA CREADOR DE REPORTES (Selección múltiple con buscador)
+            const opcionesReportesEps = epsOrdenadasNombre.map(eps => ({
                 value: eps.nombre,
                 label: eps.nombre,
                 searchText: `${eps.cod} ${eps.nombre}`
@@ -1258,13 +1421,88 @@
                 idInput: 'input-buscar-eps-reportes',
                 idBtnLimpiar: 'btn-limpiar-eps-reportes',
                 idLista: 'lista-opciones-eps-reportes',
-                opciones: opcionesReportes,
+                opciones: opcionesReportesEps,
+                esMultiple: true,
                 permitirTodas: true,
                 textoTodas: "Todas",
-                valorInicial: "",
-                onSelect: (val) => {
-                    const inputHiddenRep = document.getElementById('rep-buscar-eps');
-                    if (inputHiddenRep) inputHiddenRep.value = val;
+                valorInicial: [],
+                onSelect: () => {
+                    generarReporte();
+                }
+            });
+
+            // 3. DROPDOWN DEPARTAMENTO PARA CREADOR DE REPORTES (Selección múltiple con buscador)
+            const setDeptosUnicos = new Set();
+            db_global.forEach(item => {
+                const dep = String(item.Departamento || '').trim();
+                if (dep) setDeptosUnicos.add(dep);
+            });
+            const deptosOrdenados = Array.from(setDeptosUnicos).sort((a, b) => 
+                a.localeCompare(b, 'es', { sensitivity: 'base' })
+            );
+            const opcionesReportesDepto = deptosOrdenados.map(dep => ({
+                value: dep,
+                label: dep,
+                searchText: dep
+            }));
+
+            dropdownDeptoReportesInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-depto-reportes',
+                idTrigger: 'btn-trigger-depto-reportes',
+                idLabel: 'lbl-trigger-depto-reportes',
+                idArrow: 'arrow-trigger-depto-reportes',
+                idMenu: 'menu-dropdown-depto-reportes',
+                idInput: 'input-buscar-depto-reportes',
+                idBtnLimpiar: 'btn-limpiar-depto-reportes',
+                idLista: 'lista-opciones-depto-reportes',
+                opciones: opcionesReportesDepto,
+                esMultiple: true,
+                permitirTodas: true,
+                textoTodas: "Todos",
+                valorInicial: [],
+                onSelect: () => {
+                    generarReporte();
+                }
+            });
+
+            // 4. DROPDOWN BUSCAR META / INDICADOR PARA REPORTES (Selección múltiple con buscador)
+            const mapMetasUnicas = new Map();
+            db_global.forEach(item => {
+                const desc = String(item.Descripcion_Especifica || '').trim();
+                const idM = String(item.ID_Meta_General || '').trim();
+                const princ = String(item.Meta_Principal || '').trim();
+                if (desc && !mapMetasUnicas.has(desc)) {
+                    mapMetasUnicas.set(desc, {
+                        desc: desc,
+                        id: (idM && idM !== 'null') ? idM : '',
+                        princ: (princ && princ !== 'null') ? princ : ''
+                    });
+                }
+            });
+            const metasOrdenadas = Array.from(mapMetasUnicas.values()).sort((a, b) => 
+                a.desc.localeCompare(b.desc, 'es', { sensitivity: 'base' })
+            );
+            const opcionesReportesMeta = metasOrdenadas.map(m => ({
+                value: m.desc,
+                label: m.desc,
+                searchText: `${m.id} ${m.princ} ${m.desc}`
+            }));
+
+            dropdownMetaReportesInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-meta-reportes',
+                idTrigger: 'btn-trigger-meta-reportes',
+                idLabel: 'lbl-trigger-meta-reportes',
+                idArrow: 'arrow-trigger-meta-reportes',
+                idMenu: 'menu-dropdown-meta-reportes',
+                idInput: 'input-buscar-meta-reportes',
+                idBtnLimpiar: 'btn-limpiar-meta-reportes',
+                idLista: 'lista-opciones-meta-reportes',
+                opciones: opcionesReportesMeta,
+                esMultiple: true,
+                permitirTodas: true,
+                textoTodas: "Todas",
+                valorInicial: [],
+                onSelect: () => {
                     generarReporte();
                 }
             });
@@ -1345,6 +1583,15 @@
             return "ici-red";
         }
 
+        function obtenerColorIcg(valor) {
+            if (valor === null || valor === undefined || valor === "" || valor === "-") return "";
+            const v = parseFloat(valor);
+            if (isNaN(v)) return "";
+            if (v >= 100) return "ici-green";
+            if (v >= 85) return "ici-yellow";
+            return "ici-red";
+        }
+
         function renderizarTablero() {
             const epsSelect = document.getElementById('filtro-eps').value;
             if (!epsSelect) return;
@@ -1361,7 +1608,7 @@
             if (lblMatrizEps) lblMatrizEps.innerText = epsSelect;
             if (lblMatrizPeriodo) lblMatrizPeriodo.innerText = periodoSelect;
 
-            // Datos generales de la EPS para Badges
+            // Datos generales de la EPS para Badges y Tarjeta Resumen
             const datosEps = db_global.filter(item => 
                 String(item.Cod_EP) === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
@@ -1371,6 +1618,35 @@
             const badgeTamano = document.getElementById('badge-tamano');
             const badgeMatrizDepto = document.getElementById('badge-matriz-depto');
             const badgeMatrizTamano = document.getElementById('badge-matriz-tamano');
+
+            // Actualizar datos de la EPS en la tarjeta / recuadro de Evaluación
+            const cardEpsNombre = document.getElementById('card-eps-nombre');
+            const cardEpsCodigo = document.getElementById('card-eps-codigo');
+            const cardEpsTamano = document.getElementById('card-eps-tamano');
+            const cardEpsRegion = document.getElementById('card-eps-region');
+
+            const partesEps = epsSelect.split(' | ');
+            const codEpsFallback = partesEps[0] || '-';
+            const nombreEpsFallback = partesEps[1] || epsSelect;
+
+            const datoReferencia = datosEps.length > 0 ? datosEps[0] : (db_global.find(item => String(item.Cod_EP) === codEps) || null);
+
+            if (cardEpsNombre) {
+                const nombreMostrar = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : nombreEpsFallback;
+                cardEpsNombre.innerText = nombreMostrar;
+                cardEpsNombre.title = nombreMostrar;
+            }
+            if (cardEpsCodigo) {
+                cardEpsCodigo.innerText = (datoReferencia && datoReferencia.Cod_EP) ? datoReferencia.Cod_EP : codEpsFallback;
+            }
+            if (cardEpsTamano) {
+                cardEpsTamano.innerText = (datoReferencia && datoReferencia.Tamano_EPS) ? ('EPS ' + datoReferencia.Tamano_EPS) : '-';
+            }
+            if (cardEpsRegion) {
+                const regionMostrar = (datoReferencia && datoReferencia.Departamento) ? datoReferencia.Departamento : '-';
+                cardEpsRegion.innerText = regionMostrar;
+                cardEpsRegion.title = regionMostrar;
+            }
 
             if (datosEps.length > 0) {
                 const primerDato = datosEps[0];
@@ -1540,7 +1816,7 @@
                 for (let i = 1; i <= 5; i++) {
                     let val = filaIcg.ici[i];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
-                        let claseColor = obtenerColorIci(val);
+                        let claseColor = obtenerColorIcg(val);
                         htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
@@ -1668,7 +1944,7 @@
                         let num = parseFloat(val);
                         valores[i-1] = num;
                         if (num >= 100) coloresPuntos.push('#00b050'); 
-                        else if (num >= 80) coloresPuntos.push('#eab308'); 
+                        else if (num >= 85) coloresPuntos.push('#eab308'); 
                         else coloresPuntos.push('#ff0000'); 
                     } else {
                         coloresPuntos.push('#cbd5e1'); 
@@ -1740,32 +2016,52 @@
             }
         }
 
-        function generarReporte() {
-            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase().trim();
-            const filtroDepto = (document.getElementById('rep-buscar-depto')?.value || '').toLowerCase().trim();
-            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase().trim();
-            const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
+        function obtenerDatosFiltradosReporte() {
+            const epsSeleccionadas = dropdownEpsReportesInstance ? dropdownEpsReportesInstance.getValores() : [];
+            const deptosSeleccionados = dropdownDeptoReportesInstance ? dropdownDeptoReportesInstance.getValores() : [];
+            const metasSeleccionadas = dropdownMetaReportesInstance ? dropdownMetaReportesInstance.getValores() : [];
+            const queryMetaTexto = dropdownMetaReportesInstance ? dropdownMetaReportesInstance.getQuery().toLowerCase().trim() : "";
+            const filtroEtapa = document.getElementById('rep-filtro-etapa') ? document.getElementById('rep-filtro-etapa').value : "TODAS";
 
-            const dataFiltrada = db_global.filter(fila => {
-                const nombreEpsCompleto = (String(fila.Cod_EP || '') + " " + String(fila.Nombre_EPS || '')).toLowerCase();
-                const nombreDepto = String(fila.Departamento || '').toLowerCase();
-                const nombreMetaCompleto = (String(fila.ID_Meta_General || '') + " " + String(fila.Descripcion_Especifica || '')).toLowerCase();
-                
-                const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
-                const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
-                
-                let cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
-                if (!cumpleMeta && filtroMeta !== "") {
-                    // Permitir buscar también por número o código de informe/resolución
-                    const docsAnio = obtenerInformesDelAnio(fila);
-                    cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(filtroMeta));
+            const setEps = new Set(epsSeleccionadas);
+            const setDeptos = new Set(deptosSeleccionados.map(d => d.toLowerCase()));
+            const setMetas = new Set(metasSeleccionadas.map(m => m.toLowerCase()));
+
+            return db_global.filter(fila => {
+                const nombreEps = String(fila.Nombre_EPS || '').trim();
+                const depto = String(fila.Departamento || '').toLowerCase().trim();
+                const descMeta = String(fila.Descripcion_Especifica || '').toLowerCase().trim();
+                const idMeta = String(fila.ID_Meta_General || '').toLowerCase().trim();
+                const metaPrinc = String(fila.Meta_Principal || '').toLowerCase().trim();
+                const nombreMetaCompleto = (idMeta + " " + metaPrinc + " " + descMeta).toLowerCase();
+
+                // 1. Filtro Empresa Prestadora (si no hay seleccionadas, coincide con todas)
+                const cumpleEps = setEps.size === 0 || setEps.has(nombreEps);
+
+                // 2. Filtro Departamento (si no hay seleccionados, coincide con todos)
+                const cumpleDepto = setDeptos.size === 0 || setDeptos.has(depto);
+
+                // 3. Filtro Meta / Indicador
+                let cumpleMeta = true;
+                if (setMetas.size > 0) {
+                    cumpleMeta = setMetas.has(descMeta);
+                } else if (queryMetaTexto !== "") {
+                    cumpleMeta = nombreMetaCompleto.includes(queryMetaTexto);
+                    if (!cumpleMeta) {
+                        const docsAnio = obtenerInformesDelAnio(fila);
+                        cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(queryMetaTexto));
+                    }
                 }
 
+                // 4. Filtro Etapa
                 const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
 
                 return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
             });
+        }
 
+        function generarReporte() {
+            const dataFiltrada = obtenerDatosFiltradosReporte();
             const colsActivas = TODAS_LAS_COLUMNAS.filter(c => c.activa);
 
             const thead = document.getElementById('rep-tabla-head');
@@ -1849,29 +2145,7 @@
         }
 
         function exportarCSV() {
-            const filtroEps = document.getElementById('rep-buscar-eps').value.toLowerCase().trim();
-            const filtroDepto = (document.getElementById('rep-buscar-depto')?.value || '').toLowerCase().trim();
-            const filtroMeta = document.getElementById('rep-buscar-meta').value.toLowerCase().trim();
-            const filtroEtapa = document.getElementById('rep-filtro-etapa').value;
-
-            const dataExportar = db_global.filter(fila => {
-                const nombreEpsCompleto = (String(fila.Cod_EP || '') + " " + String(fila.Nombre_EPS || '')).toLowerCase();
-                const nombreDepto = String(fila.Departamento || '').toLowerCase();
-                const nombreMetaCompleto = (String(fila.ID_Meta_General || '') + " " + String(fila.Descripcion_Especifica || '')).toLowerCase();
-                
-                const cumpleEps = filtroEps === "" || nombreEpsCompleto.includes(filtroEps);
-                const cumpleDepto = filtroDepto === "" || nombreDepto.includes(filtroDepto);
-                
-                let cumpleMeta = filtroMeta === "" || nombreMetaCompleto.includes(filtroMeta);
-                if (!cumpleMeta && filtroMeta !== "") {
-                    const docsAnio = obtenerInformesDelAnio(fila);
-                    cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(filtroMeta));
-                }
-
-                const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
-
-                return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
-            });
+            const dataExportar = obtenerDatosFiltradosReporte();
 
             if (dataExportar.length === 0) {
                 const mensajeError = document.getElementById('rep-contador');

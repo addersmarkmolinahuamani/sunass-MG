@@ -574,8 +574,8 @@
                                 <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
                             </h3>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="A partir de 85% no es pasible de sanción">
-                                    <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Frontera 85%
+                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="Un ICG menor a 85% es pasible de sanción">
+                                    <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Pasible de sanción
                                 </span>
                                 <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
                             </div>
@@ -587,15 +587,10 @@
                 </div>
 
                 <!-- FILTRO HORIZONTAL DE ETAPAS (ENCIMA DE LA TABLA) -->
-                <div class="mb-4 bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 flex-wrap">
-                        <span class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Seleccionar Etapa:</span>
-                        <div id="contenedor-botones-etapa" class="flex items-center gap-2 flex-wrap">
-                            <!-- Generado dinámicamente por JS: [Resultado Actual] [Fiscalización] [Instrucción] [Decisión] -->
-                        </div>
-                    </div>
-                    <div class="text-xs text-gray-500 font-medium">
-                        Etapa mostrada: <span id="lbl-etapa-activa" class="px-2.5 py-1 bg-blue-100 text-blue-800 rounded font-bold text-xs uppercase">-</span>
+                <div class="mb-4 bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 flex-wrap">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider px-1">Seleccionar Etapa:</span>
+                    <div id="contenedor-botones-etapa" class="flex items-center gap-2 flex-wrap">
+                        <!-- Generado dinámicamente por JS: [Resultado Actual] [Fiscalización] [Instrucción] [Decisión] -->
                     </div>
                 </div>
 
@@ -617,9 +612,9 @@
                             <!-- Fila 2 (Inferior): Leyenda ICG -->
                             <div class="flex items-center gap-3 pt-1 border-t border-slate-100">
                                 <span class="font-bold text-blue-900 text-[10px] uppercase w-8 tracking-wider">ICG:</span>
-                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> &ge; 100%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> = 100%</span>
                                 <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ffff00] rounded-xs border border-slate-300"></div> 85% - 99%</span>
-                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ff0000] rounded-xs"></div> &lt; 85%</span>
+                                <span class="flex items-center gap-1" title="Pasible de sanción"><div class="w-2.5 h-2.5 bg-[#ff0000] rounded-xs"></div> &lt; 85%</span>
                             </div>
                         </div>
                     </div>
@@ -1554,8 +1549,6 @@
                 `;
             }).join('');
 
-            const lblEtapa = document.getElementById('lbl-etapa-activa');
-            if (lblEtapa) lblEtapa.innerText = etapaSeleccionadaGlobal.replace('_', ' ');
             const lblEtapaCabecera = document.getElementById('lbl-etapa');
             if (lblEtapaCabecera) lblEtapaCabecera.innerText = etapaSeleccionadaGlobal.replace('_', ' ');
         }
@@ -1715,8 +1708,6 @@
 
             const lblEtapa = document.getElementById('lbl-etapa');
             if (lblEtapa) lblEtapa.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
-            const lblEtapaActiva = document.getElementById('lbl-etapa-activa');
-            if (lblEtapaActiva) lblEtapaActiva.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
 
             const datosFiltrados = db_global.filter(item => 
                 String(item.Cod_EP).padStart(3, '0') === codEps && 
@@ -2003,7 +1994,7 @@
                             order: 1
                         },
                         {
-                            label: 'Frontera 85% (Sin sanción ≥ 85%)',
+                            label: 'Pasible de sanción (< 85%)',
                             data: [85, 85, 85, 85, 85],
                             borderColor: '#e11d48',
                             borderWidth: 2,
@@ -2025,7 +2016,7 @@
                             callbacks: {
                                 label: function(context) {
                                     if (context.datasetIndex === 1) {
-                                        return ' Frontera 85% (No sancionable ≥ 85%)';
+                                        return ' Pasible de sanción (< 85%)';
                                     }
                                     const v = context.parsed.y;
                                     return ` ICG: ${v !== null && v !== undefined ? v + '%' : 'S/D'}`;
@@ -2039,7 +2030,7 @@
                     }
                 },
                 plugins: [{
-                    id: 'fronteraLabelPlugin',
+                    id: 'sancionLabelPlugin',
                     afterDatasetsDraw(chart) {
                         const { ctx: c, chartArea, scales: { y } } = chart;
                         if (!chartArea || !y) return;
@@ -2051,7 +2042,7 @@
                         c.fillStyle = '#e11d48';
                         c.textAlign = 'right';
                         c.textBaseline = 'bottom';
-                        c.fillText('Frontera 85%', chartArea.right - 6, yPos - 3);
+                        c.fillText('Pasible de sanción', chartArea.right - 6, yPos - 3);
                         c.restore();
                     }
                 }]

@@ -76,23 +76,26 @@
         .toggle-checkbox:checked { right: 0; border-color: #3b82f6; }
         .toggle-checkbox:checked + .toggle-label { background-color: #3b82f6; }
 
-        /* Portada de Inicio Estilo Power BI */
+        /* Portada de Inicio Fija Estilo Power BI */
         #pantalla-portada {
             background-image: url('fondo_portada.jpg');
             background-size: cover;
             background-position: center bottom;
             background-repeat: no-repeat;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden !important;
             transition: opacity 0.4s ease, visibility 0.4s ease;
         }
         .tarjeta-portada {
             background: #ffffff;
-            border-radius: 1.25rem;
+            border-radius: 1.15rem;
             box-shadow: 0 10px 25px -5px rgba(0, 30, 80, 0.25), 0 8px 10px -6px rgba(0, 30, 80, 0.2);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .tarjeta-portada:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 30px -10px rgba(0, 60, 160, 0.35);
+            transform: translateY(-5px);
+            box-shadow: 0 18px 28px -10px rgba(0, 60, 160, 0.35);
         }
         @media print {
             #pantalla-portada { display: none !important; }
@@ -102,90 +105,90 @@
 <body class="flex h-screen overflow-hidden">
 
     <!-- ======================================================== -->
-    <!-- PORTADA DE INICIO (ESTILO EXECUTIVE DASHBOARD POWER BI) -->
+    <!-- PORTADA DE INICIO FIJA (SIN SCROLL / POWER BI CANVAS)    -->
     <!-- ======================================================== -->
-    <div id="pantalla-portada" class="fixed inset-0 z-50 flex flex-col justify-between overflow-y-auto overflow-x-hidden text-white transition-opacity duration-500 opacity-100 pointer-events-auto min-h-screen">
+    <div id="pantalla-portada" class="fixed inset-0 z-50 flex flex-col justify-between overflow-hidden text-white transition-opacity duration-500 opacity-100 pointer-events-auto h-screen w-screen select-none">
         
         <!-- SECCIÓN SUPERIOR: TÍTULOS Y CÁPSULAS DE MÉTRICAS -->
-        <div class="relative z-10 w-full pt-6 sm:pt-8 pb-2 px-4 flex flex-col items-center">
+        <div class="relative z-10 w-full pt-4 sm:pt-6 pb-1 px-4 flex flex-col items-center flex-shrink-0">
             <!-- Título Principal -->
-            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-wide text-center drop-shadow-md">
+            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-wide text-center drop-shadow-md leading-tight">
                 Metas de Gestión
             </h1>
-            <h2 class="text-base sm:text-xl lg:text-2xl text-blue-100 font-light tracking-widest text-center mt-1 drop-shadow-sm">
+            <h2 class="text-xs sm:text-sm lg:text-base text-blue-100 font-light tracking-widest text-center mt-0.5 drop-shadow-sm">
                 Empresas Prestadoras
             </h2>
 
             <!-- Cápsulas Ejecutivas de Métricas -->
-            <div class="mt-5 w-full max-w-3xl bg-[#002456]/70 backdrop-blur-md border border-blue-400/35 rounded-2xl py-2.5 px-4 sm:px-8 shadow-xl flex items-center justify-around gap-2 sm:gap-6">
+            <div class="mt-3 w-full max-w-2xl lg:max-w-3xl bg-[#002456]/70 backdrop-blur-md border border-blue-400/35 rounded-2xl py-1.5 px-4 sm:px-6 shadow-xl flex items-center justify-around gap-2 sm:gap-4">
                 <!-- Cápsula 1 -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-lg shadow-inner">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
                         📄
                     </div>
                     <div>
-                        <div id="portada-kpi-pr" class="text-2xl sm:text-3xl font-extrabold text-white leading-none">148</div>
-                        <div class="text-[10px] sm:text-xs text-blue-200 font-medium mt-0.5 leading-tight">Periodos<br class="hidden sm:inline"> Regulatorios</div>
+                        <div id="portada-kpi-pr" class="text-xl sm:text-2xl font-extrabold text-white leading-none">148</div>
+                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Periodos<br class="hidden sm:inline"> Regulatorios</div>
                     </div>
                 </div>
 
-                <div class="h-8 w-px bg-blue-400/30"></div>
+                <div class="h-6 w-px bg-blue-400/30"></div>
 
                 <!-- Cápsula 2 -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-lg shadow-inner">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
                         📑
                     </div>
                     <div>
-                        <div id="portada-kpi-inf" class="text-2xl sm:text-3xl font-extrabold text-white leading-none">916</div>
-                        <div class="text-[10px] sm:text-xs text-blue-200 font-medium mt-0.5 leading-tight">Informes y<br class="hidden sm:inline"> Resoluciones</div>
+                        <div id="portada-kpi-inf" class="text-xl sm:text-2xl font-extrabold text-white leading-none">916</div>
+                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Informes y<br class="hidden sm:inline"> Resoluciones</div>
                     </div>
                 </div>
 
-                <div class="h-8 w-px bg-blue-400/30"></div>
+                <div class="h-6 w-px bg-blue-400/30"></div>
 
                 <!-- Cápsula 3 -->
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-lg shadow-inner">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-blue-500/25 border border-blue-300/40 flex items-center justify-center text-blue-200 text-sm sm:text-base shadow-inner">
                         💧
                     </div>
                     <div>
-                        <div id="portada-kpi-eps" class="text-2xl sm:text-3xl font-extrabold text-white leading-none">50</div>
-                        <div class="text-[10px] sm:text-xs text-blue-200 font-medium mt-0.5 leading-tight">Empresas<br class="hidden sm:inline"> Prestadoras</div>
+                        <div id="portada-kpi-eps" class="text-xl sm:text-2xl font-extrabold text-white leading-none">50</div>
+                        <div class="text-[9px] sm:text-[10px] text-blue-200 font-medium mt-0.5 leading-tight">Empresas<br class="hidden sm:inline"> Prestadoras</div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- SECCIÓN CENTRAL: PERSONAJE SUNASS + 3 TARJETAS DE INGRESO -->
-        <div class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 my-auto py-2 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8">
+        <div class="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-8 my-auto flex-1 flex items-center justify-center gap-4 lg:gap-8 min-h-0 py-1">
             
-            <!-- Personaje Oficial SUNASS (Transparente y en alta definición) -->
-            <div class="flex-shrink-0 flex items-end justify-center">
+            <!-- Personaje Oficial SUNASS (Proporcionado a la altura de las tarjetas, sin invadir el pie) -->
+            <div class="flex-shrink-0 flex items-center justify-center">
                 <img src="personaje_sunass.png" 
                      alt="Personaje SUNASS Fiscalización" 
-                     class="h-64 sm:h-72 md:h-80 lg:h-[390px] w-auto object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-300 pointer-events-none select-none">
+                     class="h-[42vh] max-h-[350px] min-h-[190px] w-auto object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.45)] transform hover:scale-105 transition-transform duration-300 pointer-events-none select-none">
             </div>
 
             <!-- Grid de las 3 Tarjetas de Ingreso solicitadas -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 flex-1 w-full max-w-3xl lg:max-w-4xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 lg:gap-5 flex-1 w-full max-w-3xl lg:max-w-4xl h-[42vh] max-h-[350px] min-h-[200px]">
                 
                 <!-- TARJETA 1: RESULTADOS DE EVALUACIÓN -->
                 <div onclick="navegarDesdePortada('tablero')" 
-                     class="tarjeta-portada p-6 sm:p-7 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative">
+                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
                     <div>
-                        <div class="w-12 h-12 rounded-full bg-[#0060b8] text-white flex items-center justify-center text-xl shadow-md mb-4 group-hover:bg-blue-600 group-hover:scale-105 transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-blue-600 group-hover:scale-105 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-[#002f6c] leading-snug group-hover:text-blue-600 transition-colors">
+                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-blue-600 transition-colors">
                             Resultados de evaluación
                         </h3>
-                        <p class="text-xs text-gray-500 mt-2.5 leading-relaxed font-normal">
+                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
                             Consulta interactiva del cumplimiento de metas, niveles de ICG, indicadores ICI y semaforización oficial por EPS.
                         </p>
                     </div>
-                    <div class="flex justify-end mt-6">
-                        <span class="w-8 h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-base group-hover:bg-blue-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <div class="flex justify-end mt-2">
+                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-blue-600 group-hover:translate-x-1 transition-all shadow-sm">
                             &rarr;
                         </span>
                     </div>
@@ -193,20 +196,20 @@
 
                 <!-- TARJETA 2: MATRIZ DE INFORMES Y RESOLUCIONES -->
                 <div onclick="navegarDesdePortada('matriz')" 
-                     class="tarjeta-portada p-6 sm:p-7 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative">
+                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
                     <div>
-                        <div class="w-12 h-12 rounded-full bg-[#0060b8] text-white flex items-center justify-center text-xl shadow-md mb-4 group-hover:bg-emerald-600 group-hover:scale-105 transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-emerald-600 group-hover:scale-105 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-[#002f6c] leading-snug group-hover:text-emerald-600 transition-colors">
+                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-emerald-600 transition-colors">
                             Matriz de informes y resoluciones
                         </h3>
-                        <p class="text-xs text-gray-500 mt-2.5 leading-relaxed font-normal">
+                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
                             Accede a la matriz de informes iniciales, finales, de instrucción y resoluciones oficiales con enlaces directos en la nube.
                         </p>
                     </div>
-                    <div class="flex justify-end mt-6">
-                        <span class="w-8 h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-base group-hover:bg-emerald-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <div class="flex justify-end mt-2">
+                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-emerald-600 group-hover:translate-x-1 transition-all shadow-sm">
                             &rarr;
                         </span>
                     </div>
@@ -214,20 +217,20 @@
 
                 <!-- TARJETA 3: CREADOR DE REPORTES -->
                 <div onclick="navegarDesdePortada('reportes')" 
-                     class="tarjeta-portada p-6 sm:p-7 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative">
+                     class="tarjeta-portada p-4 sm:p-5 flex flex-col justify-between cursor-pointer border border-blue-100/40 group relative h-full">
                     <div>
-                        <div class="w-12 h-12 rounded-full bg-[#0060b8] text-white flex items-center justify-center text-xl shadow-md mb-4 group-hover:bg-indigo-600 group-hover:scale-105 transition-all">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#0060b8] text-white flex items-center justify-center shadow-md mb-2 sm:mb-3 group-hover:bg-indigo-600 group-hover:scale-105 transition-all">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         </div>
-                        <h3 class="text-lg sm:text-xl font-bold text-[#002f6c] leading-snug group-hover:text-indigo-600 transition-colors">
+                        <h3 class="text-sm sm:text-base lg:text-lg font-bold text-[#002f6c] leading-snug group-hover:text-indigo-600 transition-colors">
                             Creador de reportes
                         </h3>
-                        <p class="text-xs text-gray-500 mt-2.5 leading-relaxed font-normal">
+                        <p class="text-[11px] sm:text-xs text-gray-500 mt-1 sm:mt-1.5 leading-snug font-normal line-clamp-3">
                             Genera consultas dinámicas personalizadas a nivel nacional, selecciona campos y exporta tablas estructuradas a Excel (CSV).
                         </p>
                     </div>
-                    <div class="flex justify-end mt-6">
-                        <span class="w-8 h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-base group-hover:bg-indigo-600 group-hover:translate-x-1 transition-all shadow-sm">
+                    <div class="flex justify-end mt-2">
+                        <span class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#0060b8] text-white flex items-center justify-center font-bold text-xs sm:text-sm group-hover:bg-indigo-600 group-hover:translate-x-1 transition-all shadow-sm">
                             &rarr;
                         </span>
                     </div>
@@ -236,37 +239,37 @@
             </div>
         </div>
 
-        <!-- PIE DE PÁGINA (CON LOGO OFICIAL EN ESQUINA INFERIOR IZQUIERDA) -->
-        <footer class="relative z-10 w-full py-2.5 px-4 sm:px-10 text-white flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
-            <!-- Esquina inferior izquierda: Logo oficial SUNASS -->
+        <!-- PIE DE PÁGINA FIJO (CON LOGO EN ESQUINA INFERIOR IZQUIERDA) -->
+        <footer class="relative z-10 w-full py-2 px-4 sm:px-10 text-white flex flex-col md:flex-row items-center justify-between gap-2 sm:gap-4 text-xs flex-shrink-0">
+            <!-- Esquina inferior izquierda: Logo oficial SUNASS en la curva blanca -->
             <div class="flex items-center">
                 <img src="logo_sunass.png" 
                      alt="SUNASS - El regulador del agua potable" 
-                     class="h-10 sm:h-12 md:h-14 w-auto object-contain drop-shadow-sm">
+                     class="h-8 sm:h-10 lg:h-12 w-auto object-contain drop-shadow-sm">
             </div>
 
-            <div class="hidden md:block h-8 w-px bg-blue-300/30"></div>
+            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
 
             <!-- Dirección de Fiscalización -->
             <div class="text-center md:text-left">
-                <span class="font-bold text-white text-xs sm:text-sm tracking-wide block">SUNASS - Dirección de Fiscalización</span>
-                <span class="text-blue-200 text-[11px] block">Centro de Consulta Normativa y Evaluación de MG</span>
+                <span class="font-bold text-white text-[11px] sm:text-xs tracking-wide block">SUNASS - Dirección de Fiscalización</span>
+                <span class="text-blue-200 text-[10px] block">Centro de Consulta Normativa y Evaluación de MG</span>
             </div>
 
-            <div class="hidden md:block h-8 w-px bg-blue-300/30"></div>
+            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
 
             <!-- Fecha de Actualización -->
             <div class="text-center md:text-left">
-                <span class="text-blue-300 text-[10px] uppercase font-bold tracking-wider block">Fecha de actualización</span>
-                <span class="text-white font-bold text-xs sm:text-sm block">Octubre 2026</span>
+                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-wider block">Fecha de actualización</span>
+                <span class="text-white font-bold text-[11px] sm:text-xs block">Octubre 2026</span>
             </div>
 
-            <div class="hidden md:block h-8 w-px bg-blue-300/30"></div>
+            <div class="hidden md:block h-7 w-px bg-blue-300/30"></div>
 
             <!-- Versión Oficial -->
             <div class="text-center md:text-right">
-                <span class="text-blue-300 text-[10px] uppercase font-bold tracking-wider block">Versión Oficial</span>
-                <span class="text-white font-bold text-xs sm:text-sm block">Versión 2.0 (2026.V2)</span>
+                <span class="text-blue-300 text-[9px] uppercase font-bold tracking-wider block">Versión Oficial</span>
+                <span class="text-white font-bold text-[11px] sm:text-xs block">Versión 2.0 (2026.V2)</span>
             </div>
         </footer>
 

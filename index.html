@@ -369,11 +369,42 @@
                         <option value="">Cargando empresas...</option>
                     </select>
                 </div>
-                <div class="mb-4">
+                <!-- Selector de Periodo para Evaluación (Simple) -->
+                <div class="mb-4" id="contenedor-filtro-periodo-tablero">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
                     <select id="filtro-periodo" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="">Cargando periodos...</option>
                     </select>
+                </div>
+
+                <!-- Selector de Periodo para Informes (Múltiple con buscador estilo Power BI) -->
+                <div class="mb-4 hidden relative" id="contenedor-filtro-periodo-matriz">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
+                    <div class="relative" id="dropdown-periodo-matriz">
+                        <!-- Botón Gatillo (Trigger) -->
+                        <button type="button" id="btn-trigger-periodo-matriz"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-periodo-matriz">Todos</span>
+                            <svg id="arrow-trigger-periodo-matriz" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Menú Desplegable Flotante (Popup) -->
+                        <div id="menu-dropdown-periodo-matriz" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-periodo-matriz" placeholder="Buscar periodo" autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-periodo-matriz" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <div id="lista-opciones-periodo-matriz" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -710,6 +741,7 @@
                         <table class="tabla-sunass w-full text-xs">
                             <thead>
                                 <tr>
+                                    <th rowspan="2" class="w-24 bg-[#002244]">Periodo<br>Regulatorio</th>
                                     <th rowspan="2" class="w-24 bg-[#002244]">Año<br>Regulatorio</th>
                                     <th colspan="5" class="bg-[#003366] text-white">Etapa de Fiscalización</th>
                                     <th colspan="3" class="bg-[#002244] text-white">Procedimiento Sancionador (PAS)</th>
@@ -729,7 +761,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-informes-cuerpo">
-                                <tr><td colspan="11" class="text-center py-6 text-gray-400 italic">Cargando informes de la EPS...</td></tr>
+                                <tr><td colspan="12" class="text-center py-6 text-gray-400 italic">Cargando informes de la EPS...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -992,7 +1024,11 @@
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
                 if (panelReportes) panelReportes.classList.add('hidden');
-                if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center";
+                const contPerTablero = document.getElementById('contenedor-filtro-periodo-tablero');
+                const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
+                if (contPerTablero) contPerTablero.classList.remove('hidden');
+                if (contPerMatriz) contPerMatriz.classList.add('hidden');
+                if (btnTablero) btnTablero.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate";
             } else if (modulo === 'matriz') {
                 if (modMatriz) {
                     modMatriz.classList.replace('opacity-0', 'opacity-100');
@@ -1001,7 +1037,11 @@
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
                 if (panelReportes) panelReportes.classList.add('hidden');
-                if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center";
+                const contPerTablero = document.getElementById('contenedor-filtro-periodo-tablero');
+                const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
+                if (contPerTablero) contPerTablero.classList.add('hidden');
+                if (contPerMatriz) contPerMatriz.classList.remove('hidden');
+                if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
                 renderizarMatrizInformes();
             } else if (modulo === 'reportes') {
                 if (modReportes) {
@@ -1011,11 +1051,12 @@
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
                 if (panelTablero) panelTablero.classList.add('hidden');
-                if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center";
+                if (btnReportes) btnReportes.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate";
             }
         }
 
         let dropdownEpsTableroInstance = null;
+        let dropdownPeriodoMatrizInstance = null;
         let dropdownEpsReportesInstance = null;
         let dropdownDeptoReportesInstance = null;
         let dropdownMetaReportesInstance = null;
@@ -1294,6 +1335,23 @@
                     actualizarTextoGatillo();
                     renderizarOpciones();
                 },
+                actualizarOpciones: (nuevasOpciones, nuevoValor = null) => {
+                    opciones = nuevasOpciones || [];
+                    if (nuevoValor !== null) {
+                        if (esMultiple) {
+                            valoresSeleccionados = new Set(Array.isArray(nuevoValor) ? nuevoValor : (nuevoValor ? [nuevoValor] : []));
+                        } else {
+                            valorSeleccionado = nuevoValor;
+                        }
+                    } else if (!esMultiple && !opciones.some(o => o.value === valorSeleccionado)) {
+                        valorSeleccionado = opciones.length > 0 ? opciones[0].value : "";
+                    }
+                    filtroQuery = "";
+                    if (inputBuscar) inputBuscar.value = "";
+                    if (btnLimpiar) btnLimpiar.classList.add('hidden');
+                    actualizarTextoGatillo();
+                    renderizarOpciones();
+                },
                 getValor: () => esMultiple ? Array.from(valoresSeleccionados) : valorSeleccionado,
                 getValores: () => Array.from(valoresSeleccionados),
                 getQuery: () => filtroQuery,
@@ -1349,6 +1407,45 @@
                 });
                 selectPeriodo.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
                 
+                // Periodos para el módulo de Informes (de db_informes y db_global)
+                const periodosInformes = [...new Set([
+                    ...datosEps.map(item => item.Periodo_Regulatorio),
+                    ...(db_informes ? db_informes.filter(item => String(item.Cod_EP).padStart(3, '0') === codEps).map(item => item.Periodo_Regulatorio) : [])
+                ])].filter(Boolean).sort((a, b) => {
+                    const idxA = ordenRomanos.indexOf(a);
+                    const idxB = ordenRomanos.indexOf(b);
+                    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+                });
+
+                const opcionesPeriodoMatriz = periodosInformes.map(p => ({
+                    value: p,
+                    label: p,
+                    searchText: p
+                }));
+
+                if (dropdownPeriodoMatrizInstance) {
+                    dropdownPeriodoMatrizInstance.actualizarOpciones(opcionesPeriodoMatriz, []);
+                } else {
+                    dropdownPeriodoMatrizInstance = crearDropdownPowerBI({
+                        idContenedor: 'contenedor-filtro-periodo-matriz',
+                        idTrigger: 'btn-trigger-periodo-matriz',
+                        idLabel: 'lbl-trigger-periodo-matriz',
+                        idArrow: 'arrow-trigger-periodo-matriz',
+                        idMenu: 'menu-dropdown-periodo-matriz',
+                        idInput: 'input-buscar-periodo-matriz',
+                        idBtnLimpiar: 'btn-limpiar-periodo-matriz',
+                        idLista: 'lista-opciones-periodo-matriz',
+                        opciones: opcionesPeriodoMatriz,
+                        esMultiple: true,
+                        permitirTodas: true,
+                        textoTodas: "Todos",
+                        valorInicial: [],
+                        onSelect: () => {
+                            renderizarMatrizInformes();
+                        }
+                    });
+                }
+
                 actualizarBotonesEtapa();
                 renderizarTablero();
             };
@@ -1908,36 +2005,44 @@
 
         function renderizarMatrizInformes() {
             const epsSelect = document.getElementById('filtro-eps').value;
-            const periodoSelect = document.getElementById('filtro-periodo').value;
             const tbody = document.getElementById('tabla-informes-cuerpo');
-            if (!tbody || !epsSelect || !periodoSelect) return;
+            if (!tbody || !epsSelect) return;
 
             const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
 
             if (!db_informes || db_informes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="11" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
                 return;
             }
 
-            const informesEps = db_informes.filter(item => 
-                String(item.Cod_EP).padStart(3, '0') === codEps && 
-                item.Periodo_Regulatorio === periodoSelect
-            );
+            // Lista ordenada de periodos de la EPS
+            const ordenRomanos = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR'];
+            const todosLosPeriodosEps = [...new Set(
+                db_informes
+                    .filter(item => String(item.Cod_EP).padStart(3, '0') === codEps)
+                    .map(item => item.Periodo_Regulatorio)
+                    .filter(Boolean)
+            )].sort((a, b) => {
+                const idxA = ordenRomanos.indexOf(a);
+                const idxB = ordenRomanos.indexOf(b);
+                return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+            });
 
-            const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
-            const ptYears = [...new Set(informesEps.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
-                const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
-                const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
-                return na - nb;
-            });
-            const aniosOrdenados = [...aniosBase, ...ptYears];
-            const mapPorAnio = new Map();
-            informesEps.forEach(inf => {
-                const a = inf.Año_Regulatorio;
-                if (a) {
-                    mapPorAnio.set(a, inf);
-                }
-            });
+            // Determinar qué periodos están seleccionados en el filtro múltiple
+            let periodosSeleccionados = [];
+            if (dropdownPeriodoMatrizInstance) {
+                periodosSeleccionados = dropdownPeriodoMatrizInstance.getValores();
+            }
+
+            // Si está vacío (significa "Todos"), mostramos todos los periodos disponibles
+            const periodosAMostrar = (periodosSeleccionados && periodosSeleccionados.length > 0)
+                ? todosLosPeriodosEps.filter(p => periodosSeleccionados.includes(p))
+                : todosLosPeriodosEps;
+
+            if (periodosAMostrar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-gray-400 italic">No hay periodos seleccionados para mostrar.</td></tr>';
+                return;
+            }
 
             const columnasDoc = [
                 { txtKey: 'Inf_Fisc_Inicial', linkKey: 'Inf_Fisc_Inicial_Link' },
@@ -1954,60 +2059,74 @@
 
             let html = '';
 
-            aniosOrdenados.forEach(anio => {
-                const docObj = mapPorAnio.get(anio);
-                html += '<tr>';
-                html += `<td class="text-center font-bold bg-slate-50 text-slate-800 border-r border-slate-200">${anio}</td>`;
+            periodosAMostrar.forEach((periodo, pIdx) => {
+                const informesPeriodo = db_informes.filter(item => 
+                    String(item.Cod_EP).padStart(3, '0') === codEps && 
+                    item.Periodo_Regulatorio === periodo
+                );
 
-                columnasDoc.forEach(col => {
-                    const texto = docObj ? docObj[col.txtKey] : null;
-                    const link = docObj ? docObj[col.linkKey] : null;
-
-                    if (texto && texto !== '-' && String(texto).trim() !== '') {
-                        if (link && link.startsWith('http')) {
-                            html += `
-                                <td class="text-center p-2 bg-blue-50/20">
-                                    <a href="${link}" target="_blank" rel="noopener noreferrer" 
-                                       class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-xs font-bold transition shadow-xs max-w-[180px] text-left leading-tight" 
-                                       title="${texto}">
-                                        <span class="text-sm">📄</span>
-                                        <span class="truncate">${texto}</span>
-                                        <span class="text-[10px] text-blue-400">↗</span>
-                                    </a>
-                                </td>
-                            `;
-                        } else {
-                            html += `
-                                <td class="text-center p-2 text-slate-600 text-xs font-medium">
-                                    ${texto}
-                                </td>
-                            `;
-                        }
-                    } else {
-                        html += `<td class="text-center text-gray-300">-</td>`;
+                const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
+                    const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                    const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                    return na - nb;
+                });
+                const aniosOrdenados = [...aniosBase, ...ptYears];
+                const mapPorAnio = new Map();
+                informesPeriodo.forEach(inf => {
+                    const a = inf.Año_Regulatorio;
+                    if (a) {
+                        mapPorAnio.set(a, inf);
                     }
                 });
 
-                html += '</tr>';
+                aniosOrdenados.forEach((anio, aIdx) => {
+                    const esUltimoAnioDelPeriodo = (aIdx === aniosOrdenados.length - 1);
+                    const claseBordePeriodo = (esUltimoAnioDelPeriodo && pIdx < periodosAMostrar.length - 1) ? 'border-b-2 border-slate-300' : '';
+                    const docObj = mapPorAnio.get(anio);
+
+                    html += `<tr class="${claseBordePeriodo}">`;
+                    
+                    // Columna 1: Periodo Regulatorio
+                    html += `<td class="text-center font-bold bg-slate-100 text-[#003366] border-r border-slate-200 select-none">${periodo}</td>`;
+
+                    // Columna 2: Año Regulatorio
+                    html += `<td class="text-center font-bold bg-slate-50 text-slate-800 border-r border-slate-200 select-none">${anio}</td>`;
+
+                    columnasDoc.forEach(col => {
+                        const texto = docObj ? docObj[col.txtKey] : null;
+                        const link = docObj ? docObj[col.linkKey] : null;
+
+                        if (texto && texto !== '-' && String(texto).trim() !== '') {
+                            if (link && link.startsWith('http')) {
+                                html += `
+                                    <td class="text-center p-2 bg-blue-50/20">
+                                        <a href="${link}" target="_blank" rel="noopener noreferrer" 
+                                           class="inline-flex items-center gap-1 px-2.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-xs font-bold transition shadow-xs max-w-[180px] text-left leading-tight" 
+                                           title="${texto}">
+                                            <span class="text-sm">📄</span>
+                                            <span class="truncate">${texto}</span>
+                                            <span class="text-[10px] text-blue-400">↗</span>
+                                        </a>
+                                    </td>
+                                `;
+                            } else {
+                                html += `
+                                    <td class="text-center p-2 text-slate-600 text-xs font-medium">
+                                        ${texto}
+                                    </td>
+                                `;
+                            }
+                        } else {
+                            html += `<td class="text-center text-gray-300">-</td>`;
+                        }
+                    });
+
+                    html += '</tr>';
+                });
             });
 
             tbody.innerHTML = html;
-
-            // Actualizar contador total de informes registrados en este periodo
-            let totalInformesRegistrados = 0;
-            aniosOrdenados.forEach(anio => {
-                const docObj = mapPorAnio.get(anio);
-                if (docObj) {
-                    columnasDoc.forEach(col => {
-                        const texto = docObj[col.txtKey];
-                        if (texto && texto !== '-' && String(texto).trim() !== '') {
-                            totalInformesRegistrados++;
-                        }
-                    });
-                }
-            });
-            const kpiTotalEl = document.getElementById('kpi-matriz-total');
-            if (kpiTotalEl) kpiTotalEl.innerText = totalInformesRegistrados;
         }
 
         function dibujarGrafico(datosIcg, ptColumns = []) {

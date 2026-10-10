@@ -2087,8 +2087,10 @@
 
                     html += `<tr class="${claseBordePeriodo}">`;
                     
-                    // Columna 1: Periodo Regulatorio
-                    html += `<td class="text-center font-bold bg-slate-100 text-[#003366] border-r border-slate-200 select-none">${periodo}</td>`;
+                    // Columna 1: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
+                    if (aIdx === 0) {
+                        html += `<td rowspan="${aniosOrdenados.length}" class="text-center font-black bg-slate-100 text-[#003366] border-r border-slate-300 align-middle select-none text-xs px-2">${periodo}</td>`;
+                    }
 
                     // Columna 2: Año Regulatorio
                     html += `<td class="text-center font-bold bg-slate-50 text-slate-800 border-r border-slate-200 select-none">${anio}</td>`;

@@ -610,8 +610,12 @@
                                 <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
                             </h3>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="Un ICG menor a 85% es pasible de sanción">
-                                    <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Pasible de sanción
+                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1.5 shadow-2xs" title="Un ICG menor a 85% es pasible de sanción">
+                                    <span class="inline-flex items-center gap-1">
+                                        <span class="w-2 h-0.5 bg-rose-500"></span>
+                                        <span class="w-2 h-0.5 bg-rose-500"></span>
+                                    </span>
+                                    <span>Pasible de sanción</span>
                                 </span>
                                 <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
                             </div>
@@ -697,8 +701,12 @@
                         </div>
                         <div class="flex items-center gap-3 flex-wrap">
                             <!-- Línea discontinua roja de 80% -->
-                            <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 flex items-center gap-1.5 shadow-2xs" title="Línea de referencia mínima aceptable (80%)">
-                                <span class="inline-block w-3.5 border-t-2 border-dashed border-rose-500"></span> Límite mínimo (80%)
+                            <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 flex items-center gap-1.5 shadow-2xs" title="Un ICI menor a 80% es pasible de sanción">
+                                <span class="inline-flex items-center gap-1">
+                                    <span class="w-2 h-0.5 bg-rose-500"></span>
+                                    <span class="w-2 h-0.5 bg-rose-500"></span>
+                                </span>
+                                <span>Pasible de sanción</span>
                             </span>
                             <!-- Semáforo ICI -->
                             <div class="flex items-center gap-2 text-[10px] font-semibold text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200">
@@ -2326,7 +2334,7 @@
                         c.fillStyle = '#e11d48';
                         c.textAlign = 'right';
                         c.textBaseline = 'bottom';
-                        c.fillText('Pasible de sanción', chartArea.right - 6, yPos - 3);
+                        c.fillText('85%', chartArea.right - 6, yPos - 3);
                         c.restore();
                     }
                 }]
@@ -2494,7 +2502,7 @@
                                 order: 1
                             },
                             {
-                                label: 'Línea límite (80%)',
+                                label: 'Pasible de sanción (< 80%)',
                                 data: new Array(etiquetas.length).fill(80),
                                 borderColor: '#ef4444',
                                 borderWidth: 1.5,
@@ -2516,7 +2524,7 @@
                                 callbacks: {
                                     label: function(context) {
                                         if (context.datasetIndex === 1) {
-                                            return ' Línea límite: 80%';
+                                            return ' Pasible de sanción (< 80%)';
                                         }
                                         const v = context.parsed.y;
                                         return ` ICI: ${v !== null && v !== undefined ? v + '%' : 'S/D'}`;

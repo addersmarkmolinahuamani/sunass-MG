@@ -620,7 +620,7 @@
                     </div>
                     <div class="table-container p-0">
                         <table class="tabla-sunass">
-                            <thead>
+                            <thead id="tabla-cabecera">
                                 <tr>
                                     <th rowspan="2" class="w-10">N°</th>
                                     <th rowspan="2" class="w-1/4 min-w-[280px]">Metas de gestión / Localidad</th>
@@ -1715,23 +1715,69 @@
             const lblEtapa = document.getElementById('lbl-etapa');
             if (lblEtapa) lblEtapa.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
 
-            const datosFiltrados = db_global.filter(item => 
+            // Detectar todos los años transitorios (PT) asociados a esta EPS y Periodo
+            const datosPeriodo = db_global.filter(item => 
                 String(item.Cod_EP).padStart(3, '0') === codEps && 
-                item.Periodo_Regulatorio === periodoSelect && 
-                item.Etapa === etapaActual
+                item.Periodo_Regulatorio === periodoSelect
             );
+            const ptSet = new Set();
+            datosPeriodo.forEach(item => {
+                const a = String(item.Año_Regulatorio || '').trim();
+                const m = a.match(/^PT\s*(\d+)/i);
+                if (m) ptSet.add('PT ' + m[1]);
+            });
+            const ptColumns = Array.from(ptSet).sort((a, b) => {
+                const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                return na - nb;
+            });
+
+            // Actualizar dinámicamente la cabecera de la tabla
+            const thead = document.getElementById('tabla-cabecera') || document.querySelector('.tabla-sunass thead');
+            if (thead) {
+                let thPtObtenido = '';
+                let thPtIci = '';
+                ptColumns.forEach(pt => {
+                    thPtObtenido += `<th class="w-12 bg-[#001833] text-amber-200" title="Año Transitorio ${pt}">${pt}</th>`;
+                    thPtIci += `<th class="w-12 bg-[#001833] text-amber-200" title="Año Transitorio ${pt}">${pt}</th>`;
+                });
+
+                thead.innerHTML = `
+                    <tr>
+                        <th rowspan="2" class="w-10">N°</th>
+                        <th rowspan="2" class="w-1/4 min-w-[280px]">Metas de gestión / Localidad</th>
+                        <th rowspan="2" class="w-20">Unidad<br>medida</th>
+                        <th colspan="7">Valor meta</th>
+                        <th colspan="${6 + ptColumns.length}">Valor obtenido</th>
+                        <th colspan="${5 + ptColumns.length}">Índice de Cumplimiento (ICI)</th>
+                    </tr>
+                    <tr class="text-[11px] uppercase tracking-wider bg-[#002244]">
+                        <th class="w-14 bg-[#001833]">Año Base</th>
+                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        <th class="w-14 bg-[#001833]">Acum.</th>
+                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        ${thPtObtenido}
+                        <th class="w-14 bg-[#001833]">Acum.</th>
+                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        ${thPtIci}
+                    </tr>
+                `;
+            }
+
+            const datosFiltrados = datosPeriodo.filter(item => item.Etapa === etapaActual);
 
             const tbody = document.getElementById('tabla-cuerpo');
             tbody.innerHTML = '';
 
+            const totalCols = 21 + (ptColumns.length * 2);
             if (datosFiltrados.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="21" class="text-center py-10 text-amber-600 font-bold">No hay metas registradas en la etapa '${etapaActual.replace('_', ' ')}' para este periodo.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="${totalCols}" class="text-center py-10 text-amber-600 font-bold">No hay metas registradas en la etapa '${etapaActual.replace('_', ' ')}' para este periodo.</td></tr>`;
                 document.getElementById('kpi-total-metas').innerText = "0";
                 if (miGraficoICG) miGraficoICG.destroy();
                 return;
             }
 
-            // Construir Pivot con Año Base y Acumulado
+            // Construir Pivot con Año Base, Años 1..5, PT y Acumulado
             const metasPivot = new Map();
             datosFiltrados.forEach(fila => {
                 const clave = fila.ID_Meta_General + "|" + fila.Descripcion_Especifica;
@@ -1746,11 +1792,13 @@
                         meta_acum: null,
                         ejec: {1:null, 2:null, 3:null, 4:null, 5:null},
                         ejec_acum: null,
-                        ici:  {1:null, 2:null, 3:null, 4:null, 5:null}
+                        ici:  {1:null, 2:null, 3:null, 4:null, 5:null},
+                        ejec_pt: {},
+                        ici_pt: {}
                     });
                 }
 
-                const strAnio = String(fila.Año_Regulatorio || '').toUpperCase();
+                const strAnio = String(fila.Año_Regulatorio || '').trim().toUpperCase();
                 const obj = metasPivot.get(clave);
 
                 if (strAnio.includes('BASE')) {
@@ -1758,18 +1806,20 @@
                 } else if (strAnio.includes('ACUM')) {
                     obj.meta_acum = fila.Valor_Exigido;
                     obj.ejec_acum = fila.Valor_Ejecutado;
+                } else if (/^PT\s*(\d+)/i.test(strAnio)) {
+                    const match = strAnio.match(/^PT\s*(\d+)/i);
+                    const ptKey = 'PT ' + match[1];
+                    obj.ejec_pt[ptKey] = fila.Valor_Ejecutado;
+                    obj.ici_pt[ptKey] = fila.ICI;
                 } else {
-                    let numAnio = null;
-                    if (strAnio.includes('1')) numAnio = 1;
-                    else if (strAnio.includes('2')) numAnio = 2;
-                    else if (strAnio.includes('3')) numAnio = 3;
-                    else if (strAnio.includes('4')) numAnio = 4;
-                    else if (strAnio.includes('5')) numAnio = 5;
-
-                    if (numAnio) {
-                        obj.meta[numAnio] = fila.Valor_Exigido;
-                        obj.ejec[numAnio] = fila.Valor_Ejecutado;
-                        obj.ici[numAnio] = fila.ICI;
+                    const match = strAnio.match(/(?:AÑO|A\u00d1O)?\s*(\d+)/i);
+                    if (match) {
+                        const numAnio = parseInt(match[1], 10);
+                        if (numAnio >= 1 && numAnio <= 5) {
+                            obj.meta[numAnio] = fila.Valor_Exigido;
+                            obj.ejec[numAnio] = fila.Valor_Ejecutado;
+                            obj.ici[numAnio] = fila.ICI;
+                        }
                     }
                 }
             });
@@ -1804,11 +1854,15 @@
                 for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.meta[i])}</td>`;
                 html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.meta_acum)}</td>`;
 
-                // 2. Valor Obtenido: Años 1..5 + Acumulado
+                // 2. Valor Obtenido: Años 1..5 + PTs + Acumulado
                 for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+                ptColumns.forEach(pt => {
+                    const valPt = fila.ejec_pt[pt];
+                    html += `<td class="text-center bg-slate-50/50">${formNum(valPt)}</td>`;
+                });
                 html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.ejec_acum)}</td>`;
 
-                // 3. ICI: Años 1..5
+                // 3. ICI: Años 1..5 + PTs
                 for (let i = 1; i <= 5; i++) {
                     let iciVal = fila.ici[i];
                     if (iciVal !== null && iciVal !== undefined && iciVal !== "" && iciVal !== "-") {
@@ -1818,6 +1872,15 @@
                         html += `<td class="text-center text-gray-300">-</td>`;
                     }
                 }
+                ptColumns.forEach(pt => {
+                    let iciVal = fila.ici_pt[pt];
+                    if (iciVal !== null && iciVal !== undefined && iciVal !== "" && iciVal !== "-") {
+                        const claseColor = obtenerColorIci(iciVal);
+                        html += `<td class="text-center ${claseColor}">${formNum(iciVal)}</td>`;
+                    } else {
+                        html += `<td class="text-center text-gray-300">-</td>`;
+                    }
+                });
 
                 tr.innerHTML = html;
                 tbody.appendChild(tr);
@@ -1832,9 +1895,12 @@
                 
                 // Meta: 7 celdas
                 for (let i = 1; i <= 7; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
-                // Obtenido: 6 celdas
-                for (let i = 1; i <= 6; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
-                // ICI: 5 celdas
+                
+                // Obtenido: 5 (Años 1..5) + PTs + 1 (Acum)
+                const celdasObt = 6 + ptColumns.length;
+                for (let i = 1; i <= celdasObt; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                
+                // ICI: Años 1..5
                 for (let i = 1; i <= 5; i++) {
                     let val = filaIcg.ici[i];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
@@ -1844,11 +1910,23 @@
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }
                 }
+
+                // ICI: PTs
+                ptColumns.forEach(pt => {
+                    let val = filaIcg.ici_pt[pt];
+                    if (val !== null && val !== undefined && val !== "" && val !== "-") {
+                        let claseColor = obtenerColorIcg(val);
+                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
+                    } else {
+                        htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
+                    }
+                });
+
                 trIcg.innerHTML = htmlIcg;
                 tbody.appendChild(trIcg);
             }
 
-            dibujarGrafico(filaIcg);
+            dibujarGrafico(filaIcg, ptColumns);
         }
 
         function renderizarMatrizInformes() {
@@ -1869,11 +1947,17 @@
                 item.Periodo_Regulatorio === periodoSelect
             );
 
-            const aniosOrdenados = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+            const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+            const ptYears = [...new Set(informesEps.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
+                const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                return na - nb;
+            });
+            const aniosOrdenados = [...aniosBase, ...ptYears];
             const mapPorAnio = new Map();
             informesEps.forEach(inf => {
                 const a = inf.Año_Regulatorio;
-                if (a && a.startsWith('Año ')) {
+                if (a) {
                     mapPorAnio.set(a, inf);
                 }
             });
@@ -1949,7 +2033,7 @@
             if (kpiTotalEl) kpiTotalEl.innerText = totalInformesRegistrados;
         }
 
-        function dibujarGrafico(datosIcg) {
+        function dibujarGrafico(datosIcg, ptColumns = []) {
             const canvasEl = document.getElementById('graficoICG');
             if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
@@ -1971,6 +2055,23 @@
                     } else {
                         coloresPuntos.push('#cbd5e1'); 
                     }
+                }
+
+                if (ptColumns && ptColumns.length > 0) {
+                    ptColumns.forEach(pt => {
+                        etiquetas.push(pt);
+                        let val = datosIcg.ici_pt ? datosIcg.ici_pt[pt] : null;
+                        if (val !== null && val !== undefined && val !== "" && val !== "-") {
+                            let num = parseFloat(val);
+                            valores.push(num);
+                            if (num >= 100) coloresPuntos.push('#00b050'); 
+                            else if (num >= 85) coloresPuntos.push('#eab308'); 
+                            else coloresPuntos.push('#ff0000'); 
+                        } else {
+                            valores.push(null);
+                            coloresPuntos.push('#cbd5e1');
+                        }
+                    });
                 }
             }
 
@@ -2001,7 +2102,7 @@
                         },
                         {
                             label: 'Pasible de sanción (< 85%)',
-                            data: [85, 85, 85, 85, 85],
+                            data: new Array(etiquetas.length).fill(85),
                             borderColor: '#e11d48',
                             borderWidth: 2,
                             borderDash: [6, 4],

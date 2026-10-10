@@ -28,7 +28,10 @@ def norm_anio(a):
         return 'Año Base'
     if 'ACUM' in s:
         return 'Acumulado'
-    m = re.search(r'([1-5])', s)
+    m_pt = re.search(r'PT\s*(\d+)', s)
+    if m_pt:
+        return f"PT {m_pt.group(1)}"
+    m = re.search(r'([1-9])', s)
     return f"Año {m.group(1)}" if m else s
 
 def limpiar_link(target):
@@ -52,9 +55,12 @@ def limpiar_valor(valor, unidad_medida, es_ici=False):
     if isinstance(valor, pd.Timestamp) or type(valor).__name__ == 'datetime':
         return float(f"{valor.day}.{valor.month}")
         
+    val_str = str(valor).strip()
     if es_ici or (unidad_medida and str(unidad_medida).strip() == '%'):
+        if val_str.endswith('%'):
+            val_str = val_str[:-1].strip()
         try:
-            val_float = float(valor)
+            val_float = float(val_str)
             if 0 <= val_float <= 1.5:
                 return round(val_float * 100, 2)
             else:
@@ -224,7 +230,7 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
     # 2. Buscar la fila donde están los encabezados de Años ('Año 1', 'Año 2'...)
     r_anios = None
     for r in range(r_ban + 1, min(r_ban + 6, len(df))):
-        for c in range(4, min(25, len(df.columns))):
+        for c in range(4, min(35, len(df.columns))):
             t = str(df.iloc[r, c]).strip().upper()
             if 'AÑO 1' in t or t == '1' or 'ANO 1' in t:
                 r_anios = r
@@ -239,8 +245,20 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
     columnas_metricas = {}
     
     if es_historico:
-        # Tabla histórica única compartida para FISCALIZACIÓN y RESULTADO_ACTUAL
-        metricas_comun = {
+        etapas_a_procesar = [('FISCALIZACIÓN', 4, len(df.columns)), ('RESULTADO_ACTUAL', 4, len(df.columns))]
+    else:
+        etapas_ordenadas = sorted(mapa_etapas.items(), key=lambda x: x[1])
+        etapas_a_procesar = []
+        for idx_e, (etapa, col_inicio_etapa) in enumerate(etapas_ordenadas):
+            col_fin_etapa = etapas_ordenadas[idx_e + 1][1] if idx_e + 1 < len(etapas_ordenadas) else len(df.columns)
+            etapas_a_procesar.append((etapa, col_inicio_etapa, col_fin_etapa))
+
+    for etapa, col_start, col_end in etapas_a_procesar:
+        if es_historico and etapa == 'RESULTADO_ACTUAL' and 'FISCALIZACIÓN' in columnas_metricas:
+            columnas_metricas['RESULTADO_ACTUAL'] = columnas_metricas['FISCALIZACIÓN']
+            continue
+            
+        metricas = {
             'Base': None,
             'Meta': {},
             'Ejecutado': {},
@@ -249,105 +267,88 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
             'Acumulado_Ejecutado': None
         }
         
-        # Buscar columna Base
-        for c in range(2, 7):
+        # Buscar Base
+        for c in range(max(0, col_start - 3), min(col_start + 4, len(df.columns))):
             for r in range(max(0, r_anios - 2), r_anios + 1):
-                if 'BASE' in str(df.iloc[r, c]).upper():
-                    metricas_comun['Base'] = c
+                if 'BASE' in str(df.iloc[r, c] or '').upper():
+                    metricas['Base'] = c
                     break
-            if metricas_comun['Base'] is not None:
+            if metricas['Base'] is not None:
                 break
                 
-        # Buscar Años 1..5 y Acumulado
-        contadores_anio = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-        acums_encontrados = []
-        for col_idx in range(4, min(25, len(df.columns))):
-            texto_anio = str(df.iloc[r_anios, col_idx]).upper().strip()
-            if not texto_anio.startswith("AÑO") and not texto_anio.isdigit() and 'ACUM' not in texto_anio:
-                if r_anios + 1 < len(df):
-                    texto_anio = str(df.iloc[r_anios + 1, col_idx]).upper().strip()
+        # Detectar secciones en filas r_anios - 2 hasta r_anios
+        sec_row = [None] * len(df.columns)
+        for r_sec in range(max(0, r_anios - 2), r_anios):
+            for c in range(col_start, col_end):
+                val = str(df.iloc[r_sec, c] or '').strip().upper()
+                if 'META' in val and 'BASE' not in val and 'UNIDAD' not in val:
+                    sec_row[c] = 'Meta'
+                elif 'EJEC' in val or 'OBTENIDO' in val:
+                    sec_row[c] = 'Ejecutado'
+                elif 'ICI' in val or 'CUMPLIMIENTO' in val:
+                    sec_row[c] = 'ICI'
                     
-            if 'ACUM' in texto_anio or 'ACUM' in str(df.iloc[r_anios - 1, col_idx]).upper():
-                acums_encontrados.append(col_idx)
-                continue
-                
-            anio_num = None
-            if "AÑO 1" in texto_anio or texto_anio == "1": anio_num = 1
-            elif "AÑO 2" in texto_anio or texto_anio == "2": anio_num = 2
-            elif "AÑO 3" in texto_anio or texto_anio == "3": anio_num = 3
-            elif "AÑO 4" in texto_anio or texto_anio == "4": anio_num = 4
-            elif "AÑO 5" in texto_anio or texto_anio == "5": anio_num = 5
-            
-            if anio_num:
-                contadores_anio[anio_num] += 1
-                aparicion = contadores_anio[anio_num]
-                if aparicion == 1:
-                    metricas_comun['Meta'][anio_num] = col_idx
-                elif aparicion == 2:
-                    metricas_comun['Ejecutado'][anio_num] = col_idx
-                elif aparicion == 3:
-                    metricas_comun['ICI'][anio_num] = col_idx
-                    
-        if len(acums_encontrados) >= 1: metricas_comun['Acumulado_Meta'] = acums_encontrados[0]
-        if len(acums_encontrados) >= 2: metricas_comun['Acumulado_Ejecutado'] = acums_encontrados[1]
+        has_sec = any(sec_row[c] is not None for c in range(col_start, col_end))
         
-        columnas_metricas['FISCALIZACIÓN'] = metricas_comun
-        columnas_metricas['RESULTADO_ACTUAL'] = metricas_comun
-    else:
-        # Bloque contemporáneo multi-etapa horizontal
-        etapas_ordenadas = sorted(mapa_etapas.items(), key=lambda x: x[1])
-        for idx_e, (etapa, col_inicio_etapa) in enumerate(etapas_ordenadas):
-            col_fin_etapa = etapas_ordenadas[idx_e + 1][1] if idx_e + 1 < len(etapas_ordenadas) else min(col_inicio_etapa + 30, len(df.columns))
-            
-            columnas_metricas[etapa] = {
-                'Base': None,
-                'Meta': {},
-                'Ejecutado': {},
-                'ICI': {},
-                'Acumulado_Meta': None,
-                'Acumulado_Ejecutado': None
-            }
-            
-            col_base = None
-            for c in range(max(0, col_inicio_etapa - 3), col_inicio_etapa + 2):
-                for r in range(max(0, r_anios - 2), r_anios + 1):
-                    if 'BASE' in str(df.iloc[r, c]).upper():
-                        col_base = c
-                        break
-                if col_base is not None: break
-            columnas_metricas[etapa]['Base'] = col_base
-            
-            contadores_anio = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-            acums_encontrados = []
-            for col_idx in range(col_inicio_etapa, col_fin_etapa):
-                texto_anio = str(df.iloc[r_anios, col_idx]).upper().strip()
-                if not texto_anio.startswith("AÑO") and not texto_anio.isdigit() and 'ACUM' not in texto_anio:
-                    if r_anios + 1 < len(df):
-                        texto_anio = str(df.iloc[r_anios + 1, col_idx]).upper().strip()
-                        
-                if 'ACUM' in texto_anio or 'ACUM' in str(df.iloc[r_anios - 1, col_idx]).upper():
-                    acums_encontrados.append(col_idx)
-                    continue
-                    
-                anio_num = None
-                if "AÑO 1" in texto_anio or texto_anio == "1": anio_num = 1
-                elif "AÑO 2" in texto_anio or texto_anio == "2": anio_num = 2
-                elif "AÑO 3" in texto_anio or texto_anio == "3": anio_num = 3
-                elif "AÑO 4" in texto_anio or texto_anio == "4": anio_num = 4
-                elif "AÑO 5" in texto_anio or texto_anio == "5": anio_num = 5
+        if has_sec:
+            curr_sec = None
+            for c in range(col_start, col_end):
+                if sec_row[c]: curr_sec = sec_row[c]
+                else: sec_row[c] = curr_sec
                 
-                if anio_num:
-                    contadores_anio[anio_num] += 1
-                    aparicion = contadores_anio[anio_num]
-                    if aparicion == 1:
-                        columnas_metricas[etapa]['Meta'][anio_num] = col_idx
-                    elif aparicion == 2:
-                        columnas_metricas[etapa]['Ejecutado'][anio_num] = col_idx
-                    elif aparicion == 3:
-                        columnas_metricas[etapa]['ICI'][anio_num] = col_idx
-                        
-            if len(acums_encontrados) >= 1: columnas_metricas[etapa]['Acumulado_Meta'] = acums_encontrados[0]
-            if len(acums_encontrados) >= 2: columnas_metricas[etapa]['Acumulado_Ejecutado'] = acums_encontrados[1]
+            for c in range(col_start, col_end):
+                sec = sec_row[c]
+                if not sec: continue
+                t = str(df.iloc[r_anios, c] or '').strip().upper()
+                if not t or t == 'NAN':
+                    if r_anios + 1 < len(df):
+                        t = str(df.iloc[r_anios + 1, c] or '').strip().upper()
+                if not t or t == 'NAN': continue
+                
+                m_pt = re.search(r'PT\s*(\d+)', t)
+                m_a = re.search(r'(?:AÑO|ANO)?\s*([1-9])\b', t)
+                if 'ACUM' in t or 'ACUM' in str(df.iloc[r_anios - 1, c] or '').upper():
+                    if sec == 'Meta' and metricas['Acumulado_Meta'] is None:
+                        metricas['Acumulado_Meta'] = c
+                    elif sec in ('Ejecutado', 'ICI') and metricas['Acumulado_Ejecutado'] is None:
+                        metricas['Acumulado_Ejecutado'] = c
+                elif m_pt:
+                    metricas[sec][f'PT {m_pt.group(1)}'] = c
+                elif m_a:
+                    metricas[sec][int(m_a.group(1))] = c
+        else:
+            # Fallback counting
+            contadores_anio = {i: 0 for i in range(1, 10)}
+            contadores_pt = {}
+            for c in range(col_start, col_end):
+                t = str(df.iloc[r_anios, c] or '').strip().upper()
+                if not t or t == 'NAN':
+                    if r_anios + 1 < len(df):
+                        t = str(df.iloc[r_anios + 1, c] or '').strip().upper()
+                if not t or t == 'NAN': continue
+                
+                m_pt = re.search(r'PT\s*(\d+)', t)
+                m_a = re.search(r'(?:AÑO|ANO)?\s*([1-9])\b', t)
+                if 'ACUM' in t or 'ACUM' in str(df.iloc[r_anios - 1, c] or '').upper():
+                    if metricas['Acumulado_Meta'] is None:
+                        metricas['Acumulado_Meta'] = c
+                    elif metricas['Acumulado_Ejecutado'] is None:
+                        metricas['Acumulado_Ejecutado'] = c
+                elif m_pt:
+                    pt_k = f"PT {m_pt.group(1)}"
+                    contadores_pt[pt_k] = contadores_pt.get(pt_k, 0) + 1
+                    ap = contadores_pt[pt_k]
+                    if ap == 1: metricas['Ejecutado'][pt_k] = c
+                    elif ap == 2: metricas['ICI'][pt_k] = c
+                elif m_a:
+                    a_num = int(m_a.group(1))
+                    contadores_anio[a_num] += 1
+                    ap = contadores_anio[a_num]
+                    if ap == 1: metricas['Meta'][a_num] = c
+                    elif ap == 2: metricas['Ejecutado'][a_num] = c
+                    elif ap == 3: metricas['ICI'][a_num] = c
+
+        columnas_metricas[etapa] = metricas
 
     # Determinar fila de inicio de metas
     r_start_metas = r_anios + 1
@@ -525,11 +526,36 @@ def extraer_todas_las_eps_dinamico():
                         val_base = limpiar_valor(df.iloc[row_idx, metricas['Base']], unidad_medida_cruda)
                         agregar_registro('Año Base', val_base, None, None)
                         
-                    # 2. AÑOS 1 al 5
-                    for anio in list(metricas['Meta'].keys()):
-                        idx_meta = metricas['Meta'].get(anio)
-                        idx_ejec = metricas['Ejecutado'].get(anio)
-                        idx_ici = metricas['ICI'].get(anio)
+                    # 2. AÑOS REGULATORIOS (1..5) Y AÑOS TRANSITORIOS (PT 1..N)
+                    anios_nums = set()
+                    for s in ('Meta', 'Ejecutado', 'ICI'):
+                        for k in metricas[s].keys():
+                            if isinstance(k, int):
+                                anios_nums.add(k)
+                    anios_ordenados = [f"Año {a}" for a in sorted(anios_nums)]
+                    
+                    pts_encontrados = set()
+                    for s in ('Meta', 'Ejecutado', 'ICI'):
+                        for k in metricas[s].keys():
+                            if isinstance(k, str) and k.startswith('PT'):
+                                pts_encontrados.add(k)
+                                
+                    def orden_pt(pt_str):
+                        m = re.search(r'\d+', pt_str)
+                        return int(m.group()) if m else 99
+                        
+                    for pt in sorted(pts_encontrados, key=orden_pt):
+                        anios_ordenados.append(pt)
+                        
+                    for etiqueta_anio in anios_ordenados:
+                        if etiqueta_anio.startswith("Año "):
+                            clave_k = int(etiqueta_anio.replace("Año ", ""))
+                        else:
+                            clave_k = etiqueta_anio
+                            
+                        idx_meta = metricas['Meta'].get(clave_k)
+                        idx_ejec = metricas['Ejecutado'].get(clave_k)
+                        idx_ici = metricas['ICI'].get(clave_k)
                         
                         if es_fila_icg:
                             val_meta = None
@@ -540,7 +566,7 @@ def extraer_todas_las_eps_dinamico():
                             val_ejec = limpiar_valor(df.iloc[row_idx, idx_ejec], unidad_medida_cruda) if idx_ejec else None
                             val_ici = limpiar_valor(df.iloc[row_idx, idx_ici], unidad_medida_cruda, es_ici=True) if idx_ici else None
                             
-                        agregar_registro(f"Año {anio}", val_meta, val_ejec, val_ici)
+                        agregar_registro(etiqueta_anio, val_meta, val_ejec, val_ici)
                         
                     # 3. ACUMULADO
                     if not es_fila_icg:

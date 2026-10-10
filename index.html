@@ -543,17 +543,19 @@
             </header>
 
             <main class="flex-1 p-8 overflow-y-auto">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- KPI Total Metas y Ficha Resumen EPS -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between relative overflow-hidden group">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Ficha Consolidada EPS: Datos, Periodo, Años Regulatorios y Metas -->
+                    <div class="lg:col-span-1 bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between relative overflow-hidden group">
                         <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500"></div>
                         
-                        <!-- Datos de la Empresa Prestadora -->
+                        <!-- Datos de la Empresa Prestadora y Vigencia -->
                         <div class="space-y-3">
-                            <div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block mb-1">Empresa Prestadora</span>
-                                <h3 id="card-eps-nombre" class="text-sm font-bold text-slate-800 leading-snug line-clamp-2" title="-">-</h3>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block">Empresa Prestadora</span>
+                                <span id="card-eps-quinquenio-badge" class="text-[10.5px] font-extrabold text-blue-900 bg-blue-100/80 px-2.5 py-0.5 rounded-full border border-blue-200 shadow-2xs" title="Vigencia quinquenal oficial">-</span>
                             </div>
+
+                            <h3 id="card-eps-nombre" class="text-sm font-bold text-slate-800 leading-snug line-clamp-2" title="-">-</h3>
 
                             <div class="grid grid-cols-4 gap-1.5 py-2 px-2.5 bg-slate-50 rounded-lg border border-slate-100 text-[11px]">
                                 <div>
@@ -573,10 +575,23 @@
                                     <span id="card-eps-region" class="font-bold text-slate-700 truncate block" title="-">-</span>
                                 </div>
                             </div>
+
+                            <!-- Sección de Años Regulatorios que conforman el periodo -->
+                            <div class="pt-2.5 border-t border-slate-100">
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <span class="text-[9.5px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+                                        <span>📅</span> Años regulatorios:
+                                    </span>
+                                    <span id="card-anios-conteo" class="text-[9.5px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">5 años</span>
+                                </div>
+                                <div id="card-anios-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-0.5">
+                                    <!-- Chips de los años: [Año 1 | Nov 21 - Oct 22] -->
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Cantidad de Metas de Gestión Aprobadas por Resolución -->
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-3">
                             <div class="pr-3">
                                 <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight leading-tight">
                                     Cantidad de metas de gestión aprobadas por resolución
@@ -588,74 +603,20 @@
                         </div>
                     </div>
 
-                    <!-- Ficha Periodo Regulatorio y Años (Vigencia y Temporalidad) -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between relative overflow-hidden group">
-                        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-500"></div>
-                        
-                        <div>
-                            <!-- Encabezado con badge y quinquenio -->
-                            <div class="flex items-center justify-between gap-2 mb-2">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded border border-emerald-200/80 inline-flex items-center gap-1 shadow-2xs">
-                                    <span>📅</span> Periodo y Temporalidad
-                                </span>
-                                <span id="card-periodo-quinquenio-badge" class="text-[11px] font-extrabold text-emerald-800 bg-emerald-100/90 px-2.5 py-0.5 rounded-full border border-emerald-300 shadow-2xs">
-                                    -
-                                </span>
-                            </div>
-
-                            <!-- Periodo seleccionado y quinquenio -->
-                            <div class="flex items-baseline justify-between gap-2 pb-2 border-b border-slate-100">
-                                <div>
-                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Periodo Regulatorio</span>
-                                    <h3 id="card-periodo-titulo" class="text-base font-black text-[#003366] leading-none mt-0.5">
-                                        -
-                                    </h3>
-                                </div>
-                                <div class="text-right">
-                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Vigencia Quinquenal</span>
-                                    <span id="card-periodo-rango-texto" class="text-xs font-bold text-slate-700">
-                                        -
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Grilla de Años Regulatorios -->
-                            <div class="mt-2.5">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
-                                    Años Regulatorios que lo conforman:
-                                </span>
-                                <div id="card-anios-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 max-h-[140px] overflow-y-auto pr-0.5">
-                                    <!-- Se llena dinámicamente -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Pie informativo con conteo de años -->
-                        <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400 mt-2">
-                            <span class="flex items-center gap-1.5">
-                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                                Horizontes oficiales de evaluación
-                            </span>
-                            <span id="card-anios-conteo" class="font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">5 años</span>
-                        </div>
-                    </div>
-
                     <!-- Gráfico Evolución ICG -->
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 relative flex flex-col justify-between">
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-sm font-bold text-gray-700 flex items-center gap-2">
-                                    <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
-                                </h3>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="Un ICG menor a 85% es pasible de sanción">
-                                        <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Pasible de sanción
-                                    </span>
-                                    <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
-                                </div>
+                    <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-200 p-5 relative flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-sm font-bold text-gray-700 flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-[#003366]"></span> Evolución del ICG Oficial
+                            </h3>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200 flex items-center gap-1 shadow-2xs" title="Un ICG menor a 85% es pasible de sanción">
+                                    <span class="inline-block w-3 border-t-2 border-dashed border-rose-500"></span> Pasible de sanción
+                                </span>
+                                <span class="text-[10px] text-gray-400 font-bold uppercase bg-gray-100 px-2 py-1 rounded">Histórico</span>
                             </div>
                         </div>
-                        <div class="flex-1 relative w-full min-h-[160px] flex items-center">
+                        <div class="flex-1 relative w-full min-h-[190px] flex items-center">
                             <canvas id="graficoICG"></canvas>
                         </div>
                     </div>
@@ -1833,19 +1794,22 @@
         }
 
         function actualizarTarjetaTemporalidad(codEps, periodo, ptColumns = []) {
-            const cardPeriodoTitulo = document.getElementById('card-periodo-titulo');
-            const cardPeriodoQuinquenioBadge = document.getElementById('card-periodo-quinquenio-badge');
-            const cardPeriodoRangoTexto = document.getElementById('card-periodo-rango-texto');
+            const cardEpsQuinquenioBadge = document.getElementById('card-eps-quinquenio-badge');
             const cardAniosGrid = document.getElementById('card-anios-grid');
             const cardAniosConteo = document.getElementById('card-anios-conteo');
 
             const clavePR = `${codEps}_${periodo}`;
             const quinquenioActual = (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePR] : '')
-                || ((db_informes ? (db_informes.find(i => String(i.Cod_EP).padStart(3, '0') === codEps && i.Periodo_Regulatorio === periodo && i.Quinquenio) || {}).Quinquenio : '') || '-');
+                || ((db_informes ? (db_informes.find(i => String(i.Cod_EP).padStart(3, '0') === codEps && i.Periodo_Regulatorio === periodo && i.Quinquenio) || {}).Quinquenio : '') || '');
 
-            if (cardPeriodoTitulo) cardPeriodoTitulo.innerText = periodo || '-';
-            if (cardPeriodoQuinquenioBadge) cardPeriodoQuinquenioBadge.innerText = quinquenioActual !== '-' ? quinquenioActual : 'Vigencia oficial';
-            if (cardPeriodoRangoTexto) cardPeriodoRangoTexto.innerText = quinquenioActual || '-';
+            if (cardEpsQuinquenioBadge) {
+                if (quinquenioActual) {
+                    cardEpsQuinquenioBadge.innerText = quinquenioActual;
+                    cardEpsQuinquenioBadge.classList.remove('hidden');
+                } else {
+                    cardEpsQuinquenioBadge.innerText = '-';
+                }
+            }
 
             if (cardAniosGrid) {
                 const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];

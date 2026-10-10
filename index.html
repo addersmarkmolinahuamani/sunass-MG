@@ -1502,14 +1502,20 @@
                 }
             });
 
-            if (uniqueEpsCod.length > 0) updateSubFilters();
+            if (epsOrdenadasCodigo.length > 0) updateSubFilters();
 
-            selectPeriodo.onchange = () => {
+            selectPeriodo.addEventListener('change', () => {
                 actualizarBotonesEtapa();
                 renderizarTablero();
-            };
+            });
             
-            document.getElementById('btn-aplicar').addEventListener('click', renderizarTablero);
+            const btnAplicar = document.getElementById('btn-aplicar');
+            if (btnAplicar) {
+                btnAplicar.addEventListener('click', () => {
+                    actualizarBotonesEtapa();
+                    renderizarTablero();
+                });
+            }
         }
 
         function actualizarBotonesEtapa() {

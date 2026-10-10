@@ -321,11 +321,9 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
-            <div class="grid grid-cols-3 gap-1">
-                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center">📊 Evaluación</button>
-                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">📑 Informes</button>
-                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">🛠️ Reportes</button>
-            </div>
+            <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/40 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/40 shadow-sm cursor-pointer">
+                🛠️ Reportes
+            </button>
         </div>
         
         <div class="p-6 flex-1 overflow-y-auto">
@@ -369,17 +367,12 @@
                         <option value="">Cargando empresas...</option>
                     </select>
                 </div>
-                <div class="mb-6">
+                <div class="mb-4">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
                     <select id="filtro-periodo" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
                         <option value="">Cargando periodos...</option>
                     </select>
                 </div>
-                
-                <button id="btn-aplicar" class="w-full py-3 bg-blue-600 hover:bg-blue-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Actualizar Datos
-                </button>
             </div>
 
             <!-- PANEL DE FILTROS: REPORTES (Módulo 2) -->
@@ -490,11 +483,6 @@
                         <!-- Generado dinámicamente por JS -->
                     </div>
                 </div>
-
-                <button onclick="generarReporte()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold transition flex items-center justify-center gap-2 shadow-lg mt-3">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    Actualizar Tabla
-                </button>
             </div>
         </div>
     </div>
@@ -605,7 +593,7 @@
                             <!-- Fila 1: Leyenda ICI -->
                             <div class="flex items-center gap-3">
                                 <span class="font-bold text-slate-800 text-[10px] uppercase w-8 tracking-wider">ICI:</span>
-                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> &ge; 100%</span>
+                                <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#00b050] rounded-xs"></div> = 100%</span>
                                 <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ffff00] rounded-xs border border-slate-300"></div> 80% - 99%</span>
                                 <span class="flex items-center gap-1"><div class="w-2.5 h-2.5 bg-[#ff0000] rounded-xs"></div> &lt; 80%</span>
                             </div>
@@ -788,7 +776,7 @@
                                 <!-- Cabeceras generadas por JS -->
                             </thead>
                             <tbody id="rep-tabla-body">
-                                <tr><td class="text-center py-10 text-gray-500">Haz clic en "Actualizar Tabla" para ver los datos.</td></tr>
+                                <tr><td class="text-center py-10 text-gray-500 font-medium">Cargando datos del reporte...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -996,7 +984,7 @@
             // Resetear estilos de los botones del menú lateral
             if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
             if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
-            if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+            if (btnReportes) btnReportes.className = "w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/40 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/40 shadow-sm cursor-pointer";
 
             // Cerrar cualquier dropdown abierto
             document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
@@ -1029,7 +1017,7 @@
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
                 if (panelTablero) panelTablero.classList.add('hidden');
-                if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center";
+                if (btnReportes) btnReportes.className = "w-full py-2 px-3 text-xs font-bold rounded bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center justify-center gap-2 shadow-md border border-indigo-400 cursor-pointer";
             }
         }
 
@@ -1508,14 +1496,6 @@
                 actualizarBotonesEtapa();
                 renderizarTablero();
             });
-            
-            const btnAplicar = document.getElementById('btn-aplicar');
-            if (btnAplicar) {
-                btnAplicar.addEventListener('click', () => {
-                    actualizarBotonesEtapa();
-                    renderizarTablero();
-                });
-            }
         }
 
         function actualizarBotonesEtapa() {
@@ -2182,6 +2162,7 @@
             } else {
                 dot.classList.remove('translate-x-3');
             }
+            generarReporte();
         }
 
         function obtenerDatosFiltradosReporte() {

@@ -321,9 +321,11 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
-            <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/40 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/40 shadow-sm cursor-pointer">
-                🛠️ Reportes
-            </button>
+            <div class="grid grid-cols-3 gap-1">
+                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center">📊 Evaluación</button>
+                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">📑 Informes</button>
+                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">🛠️ Reportes</button>
+            </div>
         </div>
         
         <div class="p-6 flex-1 overflow-y-auto">
@@ -984,7 +986,7 @@
             // Resetear estilos de los botones del menú lateral
             if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
             if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
-            if (btnReportes) btnReportes.className = "w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/40 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/40 shadow-sm cursor-pointer";
+            if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
 
             // Cerrar cualquier dropdown abierto
             document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
@@ -1017,7 +1019,7 @@
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
                 if (panelTablero) panelTablero.classList.add('hidden');
-                if (btnReportes) btnReportes.className = "w-full py-2 px-3 text-xs font-bold rounded bg-indigo-600 hover:bg-indigo-500 text-white transition flex items-center justify-center gap-2 shadow-md border border-indigo-400 cursor-pointer";
+                if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center";
             }
         }
 

@@ -811,8 +811,9 @@
 
     </div>
 
-    <!-- Importar la base de datos JS -->
-    <script src="datos_sunass.js"></script>
+    <!-- Importar la base de datos JS y mapeos oficiales -->
+    <script src="fechas_informes.js?v=20261010_1355"></script>
+    <script src="datos_sunass.js?v=20261010_1355"></script>
 
     <script>
         let db_global = [];
@@ -2080,13 +2081,20 @@
                     }
                 });
 
-                const quinquenioPeriodo = (informesPeriodo.find(inf => inf.Quinquenio) || {}).Quinquenio || '';
+                const clavePeriodo = `${codEps}_${periodo}`;
+                const quinquenioPeriodo = (informesPeriodo.find(inf => inf.Quinquenio && inf.Quinquenio !== '') || {}).Quinquenio
+                    || (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePeriodo] : '')
+                    || '';
 
                 aniosOrdenados.forEach((anio, aIdx) => {
                     const esUltimoAnioDelPeriodo = (aIdx === aniosOrdenados.length - 1);
                     const claseBordePeriodo = (esUltimoAnioDelPeriodo && pIdx < periodosAMostrar.length - 1) ? 'border-b-2 border-slate-300' : '';
                     const docObj = mapPorAnio.get(anio);
-                    const rangoAnio = docObj && docObj.Rango_Anio ? docObj.Rango_Anio : '';
+                    
+                    const claveAnio = `${codEps}_${periodo}_${anio}`;
+                    const rangoAnio = (docObj && docObj.Rango_Anio) 
+                        ? docObj.Rango_Anio 
+                        : ((typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAnio] : '') || '');
 
                     html += `<tr class="${claseBordePeriodo}">`;
                     

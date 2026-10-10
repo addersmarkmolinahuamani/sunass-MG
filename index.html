@@ -309,10 +309,10 @@
     </div>
 
     <!-- Panel Lateral Izquierdo -->
-    <div class="w-80 bg-[#002244] text-white flex flex-col shadow-xl z-20 transition-all duration-300">
-        <div class="p-4 border-b border-blue-900 bg-[#001c38]">
-            <div class="bg-white rounded-xl py-2.5 px-3.5 shadow-md flex items-center justify-center">
-                <img src="logo_sunass_sidebar.png" alt="SUNASS - El regulador del agua potable" class="h-10 w-auto max-w-full object-contain">
+    <div class="w-72 bg-[#002244] text-white flex flex-col shadow-xl z-20 transition-all duration-300 shrink-0">
+        <div class="p-3.5 border-b border-blue-900 bg-[#001c38]">
+            <div class="bg-white rounded-xl py-2 px-3 shadow-md flex items-center justify-center">
+                <img src="logo_sunass_sidebar.png" alt="SUNASS - El regulador del agua potable" class="h-9 w-auto max-w-full object-contain">
             </div>
         </div>
 
@@ -322,13 +322,13 @@
                 🏠 Portada de Inicio
             </button>
             <div class="grid grid-cols-3 gap-1">
-                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center">📊 Evaluación</button>
-                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">📑 Informes</button>
-                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center">🛠️ Reportes</button>
+                <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate">📊 Evaluación</button>
+                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">📑 Informes</button>
+                <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">🛠️ Reportes</button>
             </div>
         </div>
         
-        <div class="p-6 flex-1 overflow-y-auto">
+        <div class="px-4 py-5 flex-1 overflow-y-auto">
             
             <!-- PANEL DE FILTROS: TABLERO (Módulo 1) -->
             <div id="panel-filtros-tablero" class="block">

@@ -130,11 +130,36 @@ def cargar_informes_totales(file_path):
             rec_rec_txt, rec_rec_lnk = get_cell_data(26)
             rec_ape_txt, rec_ape_lnk = get_cell_data(27)
             
+            c_quinq = ws.cell(r, 7).value
+            c_rango_an = ws.cell(r, 11).value
+            
+            def limpiar_mes_3l(m):
+                return m.strip()[:3].capitalize()
+
+            def fmt_rango_an(val):
+                if not val: return None
+                s = str(val).strip()
+                m = re.match(r'^([a-zA-ZáéíóúÁÉÍÓÚ]{3,})\s*(\d{2,4})\s*[-–/]\s*([a-zA-ZáéíóúÁÉÍÓÚ]{3,})\s*(\d{2,4})$', s)
+                if m:
+                    m1, a1, m2, a2 = m.groups()
+                    return f'{limpiar_mes_3l(m1)} {a1} - {limpiar_mes_3l(m2)} {a2}'
+                return s
+
+            def fmt_quinq(val):
+                if not val: return None
+                s = str(val).strip()
+                m = re.match(r'^(\d{4})\s*[-–/]\s*(\d{4})$', s)
+                if m:
+                    return f'{m.group(1)} - {m.group(2)}'
+                return s
+
             dict_inf[key] = {
                 'Departamento': str(c_dep).strip() if c_dep else None,
                 'Empresa_Informes': str(c_nom).strip() if c_nom else None,
                 'Tamano_EPS': str(c_tam).strip() if c_tam else None,
                 'Estado_Evaluacion': str(c_est).strip() if c_est else None,
+                'Quinquenio': fmt_quinq(c_quinq),
+                'Rango_Anio': fmt_rango_an(c_rango_an),
                 'Inf_Fisc_Inicial': fisc_ini_txt,
                 'Inf_Fisc_Inicial_Link': fisc_ini_lnk,
                 'Inf_Fisc_Final': fisc_fin_txt,
@@ -487,6 +512,8 @@ def extraer_todas_las_eps_dinamico():
                             'Departamento': info_cruce.get('Departamento') or departamento_val,
                             'Tamano_EPS': info_cruce.get('Tamano_EPS') or tamano_val,
                             'Estado_Evaluacion': info_cruce.get('Estado_Evaluacion'),
+                            'Quinquenio': info_cruce.get('Quinquenio'),
+                            'Rango_Anio': info_cruce.get('Rango_Anio'),
                             'ID_Meta_General': id_meta_crudo,
                             'Meta_Principal': memoria_meta_principal,
                             'Nivel_Evaluacion': nivel,

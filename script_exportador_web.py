@@ -24,6 +24,7 @@ def exportar_base_web():
         # 2. Matriz Consolidada de Informes por Año y Etapa
         cols_informes = [
             'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Año_Regulatorio', 'Estado_Evaluacion',
+            'Quinquenio', 'Rango_Anio',
             'Inf_Fisc_Inicial', 'Inf_Fisc_Inicial_Link',
             'Inf_Fisc_Final', 'Inf_Fisc_Final_Link',
             'Inf_Fiscalizacion', 'Inf_Fiscalizacion_Link',

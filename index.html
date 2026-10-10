@@ -700,33 +700,48 @@
             </header>
 
             <main class="flex-1 p-8 overflow-y-auto">
-                <!-- Tarjetas de Información Rápida de la Matriz -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold shadow-inner">
-                            📑
+                <!-- KPI Total Informes y Resoluciones y Ficha Resumen EPS -->
+                <div class="mb-6 max-w-md">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col justify-between relative overflow-hidden group">
+                        <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-blue-700 via-blue-600 to-cyan-500"></div>
+                        
+                        <!-- Datos de la Empresa Prestadora -->
+                        <div class="space-y-3">
+                            <div>
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block mb-1">Empresa Prestadora</span>
+                                <h3 id="card-matriz-eps-nombre" class="text-sm font-bold text-slate-800 leading-snug line-clamp-2" title="-">-</h3>
+                            </div>
+
+                            <div class="grid grid-cols-4 gap-1.5 py-2 px-2.5 bg-slate-50 rounded-lg border border-slate-100 text-[11px]">
+                                <div>
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Cód. EPS</span>
+                                    <span id="card-matriz-eps-codigo" class="font-bold text-blue-900 truncate block">-</span>
+                                </div>
+                                <div class="border-l border-slate-200 pl-1.5">
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Periodo</span>
+                                    <span id="card-matriz-eps-periodo" class="font-bold text-blue-900 truncate block">-</span>
+                                </div>
+                                <div class="border-l border-slate-200 pl-1.5">
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Tamaño</span>
+                                    <span id="card-matriz-eps-tamano" class="font-bold text-slate-700 truncate block" title="-">-</span>
+                                </div>
+                                <div class="border-l border-slate-200 pl-1.5">
+                                    <span class="text-[9px] font-semibold text-slate-400 uppercase tracking-wider block">Región</span>
+                                    <span id="card-matriz-eps-region" class="font-bold text-slate-700 truncate block" title="-">-</span>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <div id="kpi-matriz-total" class="text-2xl font-black text-[#003366]">0</div>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Informes en este Periodo</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold shadow-inner">
-                            ⚖️
-                        </div>
-                        <div>
-                            <div class="text-sm font-black text-emerald-800">Fiscalización y PAS</div>
-                            <p class="text-xs text-gray-500 font-bold uppercase tracking-wider">Etapas Oficiales Cubiertas</p>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex items-center gap-4">
-                        <div class="w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl font-bold shadow-inner">
-                            ☁️
-                        </div>
-                        <div>
-                            <div class="text-sm font-black text-indigo-700">Repositorio Oficial</div>
-                            <p class="text-[11px] text-gray-500 font-medium">Haz clic en cada código para abrir el PDF oficial en OneDrive/SharePoint.</p>
+
+                        <!-- Cantidad de Informes y Resoluciones -->
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between mt-2">
+                            <div class="pr-3">
+                                <p class="text-[11px] font-bold text-slate-600 uppercase tracking-tight leading-tight">
+                                    Cantidad de informes y resoluciones
+                                </p>
+                            </div>
+                            <div class="shrink-0 flex items-center justify-center px-3.5 py-1.5 bg-blue-50 border border-blue-200/80 rounded-xl shadow-2xs">
+                                <span id="kpi-matriz-total" class="text-3xl sm:text-4xl font-black text-[#003366] tracking-tight">0</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -737,7 +752,7 @@
                         <div>
                             <h2 class="font-bold text-gray-800 flex items-center gap-2 text-base">
                                 <div class="w-3 h-3 bg-emerald-600 rounded-full"></div>
-                                Matriz de Informes y Resoluciones Oficiales Linkeados
+                                Informes y Resoluciones
                             </h2>
                             <p class="text-xs text-gray-500 mt-0.5">Accede a la trazabilidad completa de informes por año regulatorio y etapa.</p>
                         </div>
@@ -1654,6 +1669,13 @@
             const cardEpsTamano = document.getElementById('card-eps-tamano');
             const cardEpsRegion = document.getElementById('card-eps-region');
 
+            // Actualizar datos de la EPS en la tarjeta / recuadro de Informes
+            const cardMatrizEpsNombre = document.getElementById('card-matriz-eps-nombre');
+            const cardMatrizEpsCodigo = document.getElementById('card-matriz-eps-codigo');
+            const cardMatrizEpsPeriodo = document.getElementById('card-matriz-eps-periodo');
+            const cardMatrizEpsTamano = document.getElementById('card-matriz-eps-tamano');
+            const cardMatrizEpsRegion = document.getElementById('card-matriz-eps-region');
+
             const partesEps = epsSelect.split(/[.|]/);
             const codEpsFallback = (partesEps[0] || '').trim().padStart(3, '0');
             const nombreEpsFallback = epsSelect.replace(/^\d+[\.\s\|]+/, '').trim();
@@ -1664,23 +1686,41 @@
                 const nombreMostrar = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : nombreEpsFallback;
                 cardEpsNombre.innerText = nombreMostrar;
                 cardEpsNombre.title = nombreMostrar;
+                if (cardMatrizEpsNombre) {
+                    cardMatrizEpsNombre.innerText = nombreMostrar;
+                    cardMatrizEpsNombre.title = nombreMostrar;
+                }
             }
             if (cardEpsCodigo) {
-                cardEpsCodigo.innerText = (datoReferencia && datoReferencia.Cod_EP) ? datoReferencia.Cod_EP : codEpsFallback;
+                const codMostrar = (datoReferencia && datoReferencia.Cod_EP) ? datoReferencia.Cod_EP : codEpsFallback;
+                cardEpsCodigo.innerText = codMostrar;
+                if (cardMatrizEpsCodigo) cardMatrizEpsCodigo.innerText = codMostrar;
             }
             if (cardEpsPeriodo) {
                 cardEpsPeriodo.innerText = periodoSelect || '-';
                 cardEpsPeriodo.title = periodoSelect || '-';
+                if (cardMatrizEpsPeriodo) {
+                    cardMatrizEpsPeriodo.innerText = periodoSelect || '-';
+                    cardMatrizEpsPeriodo.title = periodoSelect || '-';
+                }
             }
             if (cardEpsTamano) {
                 const tamanoTexto = (datoReferencia && datoReferencia.Tamano_EPS) ? obtenerTextoTamano(datoReferencia.Tamano_EPS) : '-';
                 cardEpsTamano.innerText = tamanoTexto;
                 cardEpsTamano.title = tamanoTexto;
+                if (cardMatrizEpsTamano) {
+                    cardMatrizEpsTamano.innerText = tamanoTexto;
+                    cardMatrizEpsTamano.title = tamanoTexto;
+                }
             }
             if (cardEpsRegion) {
                 const regionMostrar = (datoReferencia && datoReferencia.Departamento) ? datoReferencia.Departamento : '-';
                 cardEpsRegion.innerText = regionMostrar;
                 cardEpsRegion.title = regionMostrar;
+                if (cardMatrizEpsRegion) {
+                    cardMatrizEpsRegion.innerText = regionMostrar;
+                    cardMatrizEpsRegion.title = regionMostrar;
+                }
             }
 
             if (datosEps.length > 0) {

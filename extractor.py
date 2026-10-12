@@ -227,6 +227,19 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
     """
     mapa_etapas = {}
     
+    # 0. Buscar si hay etiquetas en fila 0 (Excel fila 1, ej: celdas de texto blanco F1)
+    if len(df) > 0:
+        for idx_col, valor in enumerate(df.iloc[0, :]):
+            valor_str = str(valor).strip().upper()
+            if 'RESULTADO' in valor_str and 'RESULTADO_ACTUAL' not in mapa_etapas:
+                mapa_etapas['RESULTADO_ACTUAL'] = idx_col
+            elif 'FISC' in valor_str and 'FISCALIZACIÓN' not in mapa_etapas:
+                mapa_etapas['FISCALIZACIÓN'] = idx_col
+            elif 'INSTRU' in valor_str and 'INSTRUCCIÓN' not in mapa_etapas:
+                mapa_etapas['INSTRUCCIÓN'] = idx_col
+            elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
+                mapa_etapas['DECISIÓN'] = idx_col
+
     # 1. Buscar si hay etapas en filas cercanas al banner
     for num_fila in range(max(0, r_ban - 1), min(r_ban + 4, len(df))):
         fila_etapas = df.iloc[num_fila, :]
@@ -242,6 +255,13 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
                 mapa_etapas['INSTRUCCIÓN'] = idx_col
             elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
                 mapa_etapas['DECISIÓN'] = idx_col
+
+    # Detección automática para bloques multi-etapa:
+    # Si se detectaron etapas (como FISCALIZACIÓN, INSTRUCCIÓN, DECISIÓN) pero no 'RESULTADO_ACTUAL'
+    # (porque la primera tabla a la izquierda tiene el título general del quinquenio en lugar del rótulo de etapa),
+    # se asigna automáticamente RESULTADO_ACTUAL a la primera tabla a la izquierda (columna 4).
+    if len(mapa_etapas) > 0 and 'RESULTADO_ACTUAL' not in mapa_etapas:
+        mapa_etapas['RESULTADO_ACTUAL'] = 4
 
     es_historico = len(mapa_etapas) <= 1
     if es_historico:

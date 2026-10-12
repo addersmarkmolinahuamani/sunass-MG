@@ -2370,7 +2370,9 @@
                         const texto = docObj ? docObj[col.txtKey] : null;
                         const link = docObj ? docObj[col.linkKey] : null;
 
-                        if (texto && texto !== '-' && String(texto).trim() !== '' && !String(texto).toUpperCase().includes('TENTATIV')) {
+                        if (texto && texto !== '-' && String(texto).trim() !== '') {
+                            const esTentativa = String(texto).toUpperCase().includes('TENTATIV');
+
                             if (link && link.startsWith('http')) {
                                 html += `
                                     <td class="text-center p-2 bg-blue-50/20">
@@ -2381,6 +2383,14 @@
                                             <span class="truncate">${texto}</span>
                                             <span class="text-xs text-blue-400 font-bold">↗</span>
                                         </a>
+                                    </td>
+                                `;
+                            } else if (esTentativa) {
+                                html += `
+                                    <td class="text-center p-2">
+                                        <span class="inline-block px-2.5 py-1 bg-amber-50/80 text-amber-800 border border-amber-200 rounded text-xs font-semibold tracking-wide" title="${texto}">
+                                            ⏳ ${texto}
+                                        </span>
                                     </td>
                                 `;
                             } else {

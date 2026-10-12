@@ -115,9 +115,8 @@ def cargar_informes_totales(file_path):
                 txt = cell.value
                 if txt is not None:
                     txt = str(txt).strip()
-                    if txt in ('-', '', 'None', 'nan') or 'TENTATIV' in txt.upper():
-                        txt = None
-                link = limpiar_link(cell.hyperlink.target if cell.hyperlink else None) if txt else None
+                    if txt in ('-', '', 'None', 'nan'): txt = None
+                link = limpiar_link(cell.hyperlink.target if cell.hyperlink else None)
                 return txt, link
             
             fisc_ini_txt, fisc_ini_lnk = get_cell_data(18)

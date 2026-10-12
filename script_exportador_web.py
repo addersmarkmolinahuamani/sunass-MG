@@ -37,13 +37,6 @@ def exportar_base_web():
             'Recurso_Apelacion', 'Recurso_Apelacion_Link'
         ]
         cols_inf_presentes = [c for c in cols_informes if c in df.columns]
-        
-        # Excluir explícitamente cualquier valor que contenga 'FECHA TENTATIVA' (no son informes reales)
-        for col in cols_inf_presentes:
-            if col in df.columns:
-                mask_tentativa = df[col].astype(str).str.contains('TENTATIV', case=False, na=False)
-                df.loc[mask_tentativa, col] = None
-
         df_inf = df[cols_inf_presentes].drop_duplicates(subset=['Cod_EP', 'Periodo_Regulatorio', 'Año_Regulatorio'])
         registros_informes = df_inf.to_dict(orient='records')
         

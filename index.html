@@ -69,9 +69,17 @@
             border-collapse: separate;
             border-spacing: 0;
         }
-        .tabla-matriz-informes .col-matriz-periodo {
+        .tabla-matriz-informes .col-matriz-eps {
             position: sticky !important;
             left: 0 !important;
+            width: 170px !important;
+            min-width: 170px !important;
+            max-width: 170px !important;
+            box-sizing: border-box;
+        }
+        .tabla-matriz-informes .col-matriz-periodo {
+            position: sticky !important;
+            left: 170px !important;
             width: 115px !important;
             min-width: 115px !important;
             max-width: 115px !important;
@@ -79,13 +87,19 @@
         }
         .tabla-matriz-informes .col-matriz-anio {
             position: sticky !important;
-            left: 115px !important;
+            left: 285px !important;
             width: 115px !important;
             min-width: 115px !important;
             max-width: 115px !important;
             box-sizing: border-box;
         }
         /* Cabeceras congeladas en ambas dimensiones (X y Y) */
+        .tabla-matriz-informes thead th.col-matriz-eps {
+            top: 0 !important;
+            z-index: 35 !important;
+            background-color: #002244 !important;
+            border-right: 1px solid #1a4c80 !important;
+        }
         .tabla-matriz-informes thead th.col-matriz-periodo {
             top: 0 !important;
             z-index: 35 !important;
@@ -101,6 +115,12 @@
             box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.25);
         }
         /* Celdas del cuerpo congeladas horizontalmente */
+        .tabla-matriz-informes tbody td.col-matriz-eps {
+            z-index: 20 !important;
+            background-color: #f8fafc !important;
+            border-left: 1px solid #cbd5e1 !important;
+            border-right: 1px solid #cbd5e1 !important;
+        }
         .tabla-matriz-informes tbody td.col-matriz-periodo {
             z-index: 20 !important;
             background-color: #f1f5f9 !important;
@@ -115,10 +135,14 @@
             box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.08);
         }
 
-        /* Divisoria sutilmente acentuada (de izquierda a derecha) entre periodos regulatorios */
+        /* Divisoria acentuada entre periodos regulatorios y entre EPS */
         .tabla-matriz-informes tbody tr.fila-fin-periodo > td,
         .tabla-matriz-informes tbody td.col-matriz-periodo.fin-de-periodo {
             border-bottom: 2px solid #94a3b8 !important;
+        }
+        .tabla-matriz-informes tbody tr.fila-fin-eps > td,
+        .tabla-matriz-informes tbody td.col-matriz-eps.fin-de-eps {
+            border-bottom: 3px solid #475569 !important;
         }
 
         /* Estilos para Años Regulatorios con Evaluación Suspendida (Sin Evaluación) */
@@ -495,6 +519,37 @@
                         <option value="">Cargando empresas...</option>
                     </select>
                 </div>
+
+                <!-- Selector de Empresa Prestadora para Informes (Múltiple con buscador estilo Power BI) -->
+                <div class="mb-5 hidden relative" id="contenedor-filtro-eps-matriz">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Empresa Prestadora</label>
+                    <div class="relative" id="dropdown-eps-matriz">
+                        <!-- Botón Gatillo (Trigger) -->
+                        <button type="button" id="btn-trigger-eps-matriz"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-eps-matriz">Todas</span>
+                            <svg id="arrow-trigger-eps-matriz" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Menú Desplegable Flotante (Popup) -->
+                        <div id="menu-dropdown-eps-matriz" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-eps-matriz" placeholder="Buscar empresa..." autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-eps-matriz" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
+                            </div>
+                            <div id="lista-opciones-eps-matriz" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
+                                <!-- Generado dinámicamente por JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Selector de Periodo para Evaluación (Simple) -->
                 <div class="mb-4" id="contenedor-filtro-periodo-tablero">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
@@ -954,6 +1009,7 @@
                         <table id="tabla-informes-matriz" class="tabla-sunass tabla-matriz-informes w-full text-sm">
                             <thead>
                                 <tr>
+                                    <th rowspan="2" class="col-matriz-eps bg-[#002244]">Empresa<br>Prestadora</th>
                                     <th rowspan="2" class="col-matriz-periodo bg-[#002244]">Periodo<br>Regulatorio</th>
                                     <th rowspan="2" class="col-matriz-anio bg-[#002244]">Año<br>Regulatorio</th>
                                     <th colspan="5" class="bg-[#003366] text-white">Etapa de Fiscalización</th>
@@ -974,7 +1030,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tabla-informes-cuerpo">
-                                <tr><td colspan="12" class="text-center py-6 text-gray-400 italic">Cargando informes de la EPS...</td></tr>
+                                <tr><td colspan="13" class="text-center py-6 text-gray-400 italic">Cargando informes de la EPS...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -1297,6 +1353,10 @@
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
                 if (panelReportes) panelReportes.classList.add('hidden');
+                const contEpsTablero = document.getElementById('contenedor-filtro-eps');
+                const contEpsMatriz = document.getElementById('contenedor-filtro-eps-matriz');
+                if (contEpsTablero) contEpsTablero.classList.remove('hidden');
+                if (contEpsMatriz) contEpsMatriz.classList.add('hidden');
                 const contPerTablero = document.getElementById('contenedor-filtro-periodo-tablero');
                 const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
                 if (contPerTablero) contPerTablero.classList.remove('hidden');
@@ -1310,11 +1370,18 @@
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
                 if (panelReportes) panelReportes.classList.add('hidden');
+                const contEpsTablero = document.getElementById('contenedor-filtro-eps');
+                const contEpsMatriz = document.getElementById('contenedor-filtro-eps-matriz');
+                if (contEpsTablero) contEpsTablero.classList.add('hidden');
+                if (contEpsMatriz) contEpsMatriz.classList.remove('hidden');
                 const contPerTablero = document.getElementById('contenedor-filtro-periodo-tablero');
                 const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
                 if (contPerTablero) contPerTablero.classList.add('hidden');
                 if (contPerMatriz) contPerMatriz.classList.remove('hidden');
                 if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
+                if (typeof actualizarPeriodosMatriz === 'function') {
+                    actualizarPeriodosMatriz();
+                }
                 renderizarMatrizInformes();
             } else if (modulo === 'reportes') {
                 if (modReportes) {
@@ -1329,6 +1396,7 @@
         }
 
         let dropdownEpsTableroInstance = null;
+        let dropdownEpsMatrizInstance = null;
         let dropdownPeriodoMatrizInstance = null;
         let dropdownEpsReportesInstance = null;
         let dropdownDeptoReportesInstance = null;
@@ -1637,6 +1705,43 @@
             };
         }
 
+        function actualizarPeriodosMatriz() {
+            if (!dropdownPeriodoMatrizInstance) return;
+
+            let codsEps = [];
+            if (dropdownEpsMatrizInstance) {
+                const vals = dropdownEpsMatrizInstance.getValores();
+                codsEps = vals.map(e => normalizarCodigoEps(e));
+            } else {
+                const epsVal = document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "";
+                if (epsVal) codsEps = [normalizarCodigoEps(epsVal)];
+            }
+
+            const codsSet = new Set(codsEps);
+            const informesFiltrados = (codsSet.size > 0)
+                ? db_informes.filter(item => codsSet.has(normalizarCodigoEps(item.Cod_EP)))
+                : db_informes;
+
+            const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
+            const periodosInformes = [...new Set(
+                (informesFiltrados || []).map(item => item.Periodo_Regulatorio).filter(Boolean)
+            )].sort((a, b) => {
+                const idxA = ordenRomanosCreciente.indexOf(a);
+                const idxB = ordenRomanosCreciente.indexOf(b);
+                return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+            });
+
+            const opcionesPeriodoMatriz = periodosInformes.map(p => ({
+                value: p,
+                label: p,
+                searchText: p
+            }));
+
+            const periodosPrevios = dropdownPeriodoMatrizInstance.getValores();
+            const periodosValidos = periodosPrevios.filter(p => periodosInformes.includes(p));
+            dropdownPeriodoMatrizInstance.actualizarOpciones(opcionesPeriodoMatriz, periodosValidos);
+        }
+
         function llenarFiltrosTablero() {
             const selectEps = document.getElementById('filtro-eps');
             const selectPeriodo = document.getElementById('filtro-periodo');
@@ -1682,52 +1787,13 @@
                     return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
                 });
                 selectPeriodo.innerHTML = periodos.map(p => `<option value="${p}">${p}</option>`).join('');
-                
-                // Periodos para el módulo de Informes (de db_informes y db_global) en orden creciente
-                const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
-                const periodosInformes = [...new Set([
-                    ...datosEps.map(item => item.Periodo_Regulatorio),
-                    ...(db_informes ? db_informes.filter(item => normalizarCodigoEps(item.Cod_EP) === codEps).map(item => item.Periodo_Regulatorio) : [])
-                ])].filter(Boolean).sort((a, b) => {
-                    const idxA = ordenRomanosCreciente.indexOf(a);
-                    const idxB = ordenRomanosCreciente.indexOf(b);
-                    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
-                });
 
-                const opcionesPeriodoMatriz = periodosInformes.map(p => ({
-                    value: p,
-                    label: p,
-                    searchText: p
-                }));
-
-                if (dropdownPeriodoMatrizInstance) {
-                    dropdownPeriodoMatrizInstance.actualizarOpciones(opcionesPeriodoMatriz, []);
-                } else {
-                    dropdownPeriodoMatrizInstance = crearDropdownPowerBI({
-                        idContenedor: 'contenedor-filtro-periodo-matriz',
-                        idTrigger: 'btn-trigger-periodo-matriz',
-                        idLabel: 'lbl-trigger-periodo-matriz',
-                        idArrow: 'arrow-trigger-periodo-matriz',
-                        idMenu: 'menu-dropdown-periodo-matriz',
-                        idInput: 'input-buscar-periodo-matriz',
-                        idBtnLimpiar: 'btn-limpiar-periodo-matriz',
-                        idLista: 'lista-opciones-periodo-matriz',
-                        opciones: opcionesPeriodoMatriz,
-                        esMultiple: true,
-                        permitirTodas: true,
-                        textoTodas: "Todos",
-                        valorInicial: [],
-                        onSelect: () => {
-                            renderizarMatrizInformes();
-                        }
-                    });
-                }
-
+                actualizarPeriodosMatriz();
                 actualizarBotonesEtapa();
                 renderizarTablero();
             };
 
-            // 1. DROPDOWN EPS PARA RESULTADOS Y MATRIZ DE INFORMES (Evaluación e Informes)
+            // 1. DROPDOWN EPS PARA TABLERO DE EVALUACIÓN (Selección simple)
             const opcionesTablero = epsOrdenadasCodigo.map(eps => ({
                 value: eps.etiqueta,
                 label: eps.etiqueta,
@@ -1752,9 +1818,64 @@
                 valorInicial: epsInicial,
                 onSelect: (val) => {
                     selectEps.value = val;
+                    if (dropdownEpsMatrizInstance) {
+                        const valsMatriz = dropdownEpsMatrizInstance.getValores();
+                        if (valsMatriz.length <= 1) {
+                            dropdownEpsMatrizInstance.setValor([val]);
+                        }
+                    }
                     updateSubFilters();
                 }
             });
+
+            // 2. DROPDOWN EPS PARA MATRIZ DE INFORMES (Selección múltiple estilo Power BI)
+            const opcionesMatrizEps = epsOrdenadasCodigo.map(eps => ({
+                value: eps.etiqueta,
+                label: eps.etiqueta,
+                searchText: `${eps.codPadded} ${eps.nombre}`
+            }));
+
+            dropdownEpsMatrizInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-eps-matriz',
+                idTrigger: 'btn-trigger-eps-matriz',
+                idLabel: 'lbl-trigger-eps-matriz',
+                idArrow: 'arrow-trigger-eps-matriz',
+                idMenu: 'menu-dropdown-eps-matriz',
+                idInput: 'input-buscar-eps-matriz',
+                idBtnLimpiar: 'btn-limpiar-eps-matriz',
+                idLista: 'lista-opciones-eps-matriz',
+                opciones: opcionesMatrizEps,
+                esMultiple: true,
+                permitirTodas: true,
+                textoTodas: "Todas",
+                valorInicial: epsInicial ? [epsInicial] : [],
+                onSelect: () => {
+                    actualizarPeriodosMatriz();
+                    renderizarMatrizInformes();
+                }
+            });
+
+            // 3. DROPDOWN PERIODO PARA MATRIZ DE INFORMES (Selección múltiple estilo Power BI)
+            dropdownPeriodoMatrizInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-periodo-matriz',
+                idTrigger: 'btn-trigger-periodo-matriz',
+                idLabel: 'lbl-trigger-periodo-matriz',
+                idArrow: 'arrow-trigger-periodo-matriz',
+                idMenu: 'menu-dropdown-periodo-matriz',
+                idInput: 'input-buscar-periodo-matriz',
+                idBtnLimpiar: 'btn-limpiar-periodo-matriz',
+                idLista: 'lista-opciones-periodo-matriz',
+                opciones: [],
+                esMultiple: true,
+                permitirTodas: true,
+                textoTodas: "Todos",
+                valorInicial: [],
+                onSelect: () => {
+                    renderizarMatrizInformes();
+                }
+            });
+
+            actualizarPeriodosMatriz();
 
             // 2. DROPDOWN EPS PARA CREADOR DE REPORTES (Selección múltiple en orden creciente de código)
             const opcionesReportesEps = epsOrdenadasCodigo.map(eps => ({
@@ -2311,7 +2432,6 @@
                     let val = filaIcg.ici_pt[pt];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIcg(val);
-                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }
@@ -2326,57 +2446,83 @@
         }
 
         function renderizarMatrizInformes() {
-            const epsSelect = document.getElementById('filtro-eps').value;
             const tbody = document.getElementById('tabla-informes-cuerpo');
-            if (!tbody || !epsSelect) return;
-
-            const codEps = normalizarCodigoEps(epsSelect);
-
-            // Actualizar título sobre la matriz con el nombre de la Empresa Prestadora
-            const nombreEpsFallback = epsSelect.replace(/^\d+[\.\s\|]+/, '').trim();
-            const datoReferencia = (db_global && db_global.find(item => normalizarCodigoEps(item.Cod_EP) === codEps))
-                                || (db_informes && db_informes.find(item => normalizarCodigoEps(item.Cod_EP) === codEps))
-                                || null;
-            const nombreEpsVisualizada = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : (nombreEpsFallback || epsSelect);
-            const tituloMatrizEps = document.getElementById('titulo-matriz-nombre-eps');
-            if (tituloMatrizEps) {
-                tituloMatrizEps.textContent = nombreEpsVisualizada;
-                tituloMatrizEps.title = nombreEpsVisualizada;
-            }
+            if (!tbody) return;
 
             if (!db_informes || db_informes.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
                 return;
             }
 
-            // Lista ordenada de periodos de la EPS en orden CRECIENTE (I PR, II PR, III PR, IV PR, V PR...)
-            const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
-            const todosLosPeriodosEps = [...new Set(
-                db_informes
-                    .filter(item => normalizarCodigoEps(item.Cod_EP) === codEps)
-                    .map(item => item.Periodo_Regulatorio)
-                    .filter(Boolean)
-            )].sort((a, b) => {
-                const idxA = ordenRomanosCreciente.indexOf(a);
-                const idxB = ordenRomanosCreciente.indexOf(b);
-                return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+            // 1. Obtener EPS seleccionadas en el filtro múltiple de Matriz
+            let epsSeleccionadas = [];
+            if (dropdownEpsMatrizInstance) {
+                epsSeleccionadas = dropdownEpsMatrizInstance.getValores();
+            } else {
+                const valTablero = document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "";
+                if (valTablero) epsSeleccionadas = [valTablero];
+            }
+
+            // Construir lista de todas las EPS disponibles en db_informes con códigos y etiquetas
+            const mapTodasEps = new Map();
+            db_informes.forEach(item => {
+                const rawCod = String(item.Cod_EP || '').trim();
+                if (!rawCod) return;
+                const codPadded = normalizarCodigoEps(rawCod);
+                let nombre = String(item.Nombre_EPS || '').trim();
+                if (codPadded === '008') nombre = 'UE AGUA TUMBES';
+                const numCod = parseInt(codPadded, 10);
+                const etiqueta = `${codPadded}. ${nombre}`;
+                if (!mapTodasEps.has(codPadded)) {
+                    mapTodasEps.set(codPadded, {
+                        cod: codPadded,
+                        codPadded: codPadded,
+                        num: isNaN(numCod) ? 9999 : numCod,
+                        nombre: nombre,
+                        etiqueta: etiqueta
+                    });
+                }
             });
 
-            // Determinar qué periodos están seleccionados en el filtro múltiple
-            let periodosSeleccionados = [];
-            if (dropdownPeriodoMatrizInstance) {
-                periodosSeleccionados = dropdownPeriodoMatrizInstance.getValores();
-            }
+            const todasEpsOrdenadas = Array.from(mapTodasEps.values()).sort((a, b) => a.num - b.num);
 
-            // Si está vacío (significa "Todos"), mostramos todos los periodos disponibles
-            const periodosAMostrar = (periodosSeleccionados && periodosSeleccionados.length > 0)
-                ? todosLosPeriodosEps.filter(p => periodosSeleccionados.includes(p))
-                : todosLosPeriodosEps;
+            // Si epsSeleccionadas está vacío (significa "Todas"), mostramos todas las EPS
+            const codigosSeleccionadosSet = new Set(
+                (epsSeleccionadas && epsSeleccionadas.length > 0)
+                    ? epsSeleccionadas.map(e => normalizarCodigoEps(e))
+                    : []
+            );
 
-            if (periodosAMostrar.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="12" class="text-center py-6 text-gray-400 italic">No hay periodos seleccionados para mostrar.</td></tr>';
+            const epsAMostrar = (codigosSeleccionadosSet.size > 0)
+                ? todasEpsOrdenadas.filter(e => codigosSeleccionadosSet.has(e.codPadded))
+                : todasEpsOrdenadas;
+
+            if (epsAMostrar.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No hay Empresas Prestadoras seleccionadas para mostrar.</td></tr>';
                 return;
             }
+
+            // Actualizar título sobre la matriz con el nombre / conteo de las Empresas Prestadoras
+            const tituloMatrizEps = document.getElementById('titulo-matriz-nombre-eps');
+            if (tituloMatrizEps) {
+                if (epsAMostrar.length === 1) {
+                    tituloMatrizEps.textContent = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}`;
+                    tituloMatrizEps.title = epsAMostrar[0].nombre;
+                } else if (epsAMostrar.length === todasEpsOrdenadas.length) {
+                    tituloMatrizEps.textContent = `Todas las Empresas Prestadoras (${epsAMostrar.length})`;
+                    tituloMatrizEps.title = "Todas las Empresas Prestadoras";
+                } else {
+                    tituloMatrizEps.textContent = `${epsAMostrar.length} Empresas Prestadoras Seleccionadas`;
+                    tituloMatrizEps.title = epsAMostrar.map(e => e.nombre).join(', ');
+                }
+            }
+
+            // Periodos seleccionados en el filtro múltiple de periodo
+            let periodosFiltro = [];
+            if (dropdownPeriodoMatrizInstance) {
+                periodosFiltro = dropdownPeriodoMatrizInstance.getValores();
+            }
+            const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
 
             const columnasDoc = [
                 { txtKey: 'Inf_Fisc_Inicial', linkKey: 'Inf_Fisc_Inicial_Link' },
@@ -2392,122 +2538,188 @@
             ];
 
             let html = '';
+            let totalFilasGeneradas = 0;
 
-            periodosAMostrar.forEach((periodo, pIdx) => {
-                const informesPeriodo = db_informes.filter(item => 
-                    normalizarCodigoEps(item.Cod_EP) === codEps && 
-                    item.Periodo_Regulatorio === periodo
-                );
+            epsAMostrar.forEach((epsItem, eIdx) => {
+                const codEps = epsItem.codPadded;
+                const nombreEps = epsItem.nombre;
+                const esUltimaEps = (eIdx === epsAMostrar.length - 1);
 
-                const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
-                const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
-                    const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
-                    const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
-                    return na - nb;
-                });
-                const aniosOrdenados = [...aniosBase, ...ptYears];
-                const mapPorAnio = new Map();
-                informesPeriodo.forEach(inf => {
-                    const a = inf.Año_Regulatorio;
-                    if (a) {
-                        mapPorAnio.set(a, inf);
-                    }
+                // Periodos de esta EPS presentes en db_informes
+                const todosPeriodosEps = [...new Set(
+                    db_informes
+                        .filter(item => normalizarCodigoEps(item.Cod_EP) === codEps)
+                        .map(item => item.Periodo_Regulatorio)
+                        .filter(Boolean)
+                )].sort((a, b) => {
+                    const idxA = ordenRomanosCreciente.indexOf(a);
+                    const idxB = ordenRomanosCreciente.indexOf(b);
+                    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
                 });
 
-                const clavePeriodo = `${codEps}_${periodo}`;
-                const quinquenioPeriodo = (informesPeriodo.find(inf => inf.Quinquenio && inf.Quinquenio !== '') || {}).Quinquenio
-                    || (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePeriodo] : '')
-                    || '';
+                const periodosEpsAMostrar = (periodosFiltro && periodosFiltro.length > 0)
+                    ? todosPeriodosEps.filter(p => periodosFiltro.includes(p))
+                    : todosPeriodosEps;
 
-                aniosOrdenados.forEach((anio, aIdx) => {
-                    const esUltimoAnioDelPeriodo = (aIdx === aniosOrdenados.length - 1);
-                    const esFinDePeriodo = (esUltimoAnioDelPeriodo && pIdx < periodosAMostrar.length - 1);
-                    const claseBordePeriodo = esFinDePeriodo ? 'fila-fin-periodo' : '';
-                    const docObj = mapPorAnio.get(anio);
-                    
-                    const claveAnio = `${codEps}_${periodo}_${anio}`;
-                    const rangoAnio = (docObj && docObj.Rango_Anio) 
-                        ? docObj.Rango_Anio 
-                        : ((typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAnio] : '') || '');
+                if (periodosEpsAMostrar.length === 0) return;
 
-                    const estadoEval = (docObj && docObj.Estado_Evaluacion) ? String(docObj.Estado_Evaluacion).trim() : '';
-                    const esSuspendido = estadoEval.toLowerCase().includes('suspend');
-                    const claseFilaSuspendida = esSuspendido ? 'fila-suspendida' : '';
+                // Precalcular filas por periodo y total de filas de la EPS para el rowspan
+                const periodosData = periodosEpsAMostrar.map(periodo => {
+                    const informesPeriodo = db_informes.filter(item => 
+                        normalizarCodigoEps(item.Cod_EP) === codEps && 
+                        item.Periodo_Regulatorio === periodo
+                    );
+                    const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                    const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
+                        const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                        const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                        return na - nb;
+                    });
+                    const aniosOrdenados = [...aniosBase, ...ptYears];
+                    const mapPorAnio = new Map();
+                    informesPeriodo.forEach(inf => {
+                        const a = inf.Año_Regulatorio;
+                        if (a) mapPorAnio.set(a, inf);
+                    });
+                    const clavePeriodo = `${codEps}_${periodo}`;
+                    const quinquenioPeriodo = (informesPeriodo.find(inf => inf.Quinquenio && inf.Quinquenio !== '') || {}).Quinquenio
+                        || (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePeriodo] : '')
+                        || '';
 
-                    html += `<tr class="${claseBordePeriodo} ${claseFilaSuspendida}" ${esSuspendido ? 'title="Evaluación suspendida: No hubo evaluación de metas de gestión para este año regulatorio"' : ''}>`;
-                    
-                    // Columna 1: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
-                    if (aIdx === 0) {
-                        const clasePeriodoFin = (pIdx < periodosAMostrar.length - 1) ? 'fin-de-periodo' : '';
+                    return {
+                        periodo,
+                        aniosOrdenados,
+                        mapPorAnio,
+                        quinquenioPeriodo
+                    };
+                });
+
+                const totalFilasEps = periodosData.reduce((acc, pd) => acc + pd.aniosOrdenados.length, 0);
+                if (totalFilasEps === 0) return;
+
+                let filaRelativaEps = 0;
+
+                periodosData.forEach((pData, pIdx) => {
+                    const { periodo, aniosOrdenados, mapPorAnio, quinquenioPeriodo } = pData;
+                    const esUltimoPeriodoEps = (pIdx === periodosData.length - 1);
+
+                    aniosOrdenados.forEach((anio, aIdx) => {
+                        const esUltimoAnioDelPeriodo = (aIdx === aniosOrdenados.length - 1);
+                        const esFinDePeriodo = esUltimoAnioDelPeriodo && !esUltimoPeriodoEps;
+                        const esFinDeEps = esUltimoPeriodoEps && esUltimoAnioDelPeriodo && !esUltimaEps;
+
+                        let claseBorde = '';
+                        if (esFinDeEps) claseBorde = 'fila-fin-eps';
+                        else if (esFinDePeriodo) claseBorde = 'fila-fin-periodo';
+
+                        const docObj = mapPorAnio.get(anio);
+                        const claveAnio = `${codEps}_${periodo}_${anio}`;
+                        const rangoAnio = (docObj && docObj.Rango_Anio) 
+                            ? docObj.Rango_Anio 
+                            : ((typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAnio] : '') || '');
+
+                        const estadoEval = (docObj && docObj.Estado_Evaluacion) ? String(docObj.Estado_Evaluacion).trim() : '';
+                        const esSuspendido = estadoEval.toLowerCase().includes('suspend');
+                        const claseFilaSuspendida = esSuspendido ? 'fila-suspendida' : '';
+
+                        html += `<tr class="${claseBorde} ${claseFilaSuspendida}" ${esSuspendido ? 'title="Evaluación suspendida: No hubo evaluación de metas de gestión para este año regulatorio"' : ''}>`;
+
+                        // Columna 1: Empresa Prestadora (celda unida con rowspan para todos los periodos y años de esta EPS)
+                        if (filaRelativaEps === 0) {
+                            const claseEpsFin = (!esUltimaEps) ? 'fin-de-eps' : '';
+                            html += `
+                                <td rowspan="${totalFilasEps}" class="col-matriz-eps ${claseEpsFin} text-center bg-slate-50 border-r border-slate-300 align-middle select-none px-3 py-3">
+                                    <span class="inline-block px-1.5 py-0.5 rounded bg-blue-100 text-[#003366] text-[10px] font-black uppercase mb-1 tracking-wider border border-blue-200">
+                                        ${codEps}
+                                    </span>
+                                    <span class="block font-bold text-xs text-slate-800 leading-snug break-words">
+                                        ${escaparHtml(nombreEps)}
+                                    </span>
+                                </td>
+                            `;
+                        }
+
+                        // Columna 2: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
+                        if (aIdx === 0) {
+                            const clasePeriodoFin = (esFinDePeriodo || esFinDeEps) ? 'fin-de-periodo' : '';
+                            html += `
+                                <td rowspan="${aniosOrdenados.length}" class="col-matriz-periodo ${clasePeriodoFin} text-center bg-slate-100 border-r border-slate-300 align-middle select-none px-2 py-3">
+                                    <span class="block font-black text-sm text-[#003366]">${periodo}</span>
+                                    ${quinquenioPeriodo ? `<span class="block text-xs text-slate-500 font-semibold tracking-tight mt-0.5 whitespace-nowrap">${quinquenioPeriodo}</span>` : ''}
+                                </td>
+                            `;
+                        }
+
+                        // Columna 3: Año Regulatorio
+                        const badgeSuspendido = esSuspendido 
+                            ? `<span class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-slate-300 text-slate-800 border border-slate-400 rounded text-[9.5px] font-black tracking-tight uppercase" title="Evaluación suspendida: No hubo evaluación de metas de gestión">
+                                   ⏸ SUSPENDIDO
+                               </span>`
+                            : '';
+
                         html += `
-                            <td rowspan="${aniosOrdenados.length}" class="col-matriz-periodo ${clasePeriodoFin} text-center bg-slate-100 border-r border-slate-300 align-middle select-none px-2 py-3">
-                                <span class="block font-black text-sm text-[#003366]">${periodo}</span>
-                                ${quinquenioPeriodo ? `<span class="block text-xs text-slate-500 font-semibold tracking-tight mt-0.5 whitespace-nowrap">${quinquenioPeriodo}</span>` : ''}
+                            <td class="col-matriz-anio text-center bg-slate-50 border-l border-r border-slate-300 select-none px-2 py-2">
+                                <span class="block font-bold text-sm text-slate-800">${anio}</span>
+                                ${rangoAnio ? `<span class="block text-xs text-slate-500 font-medium tracking-tight mt-0.5 whitespace-nowrap">${rangoAnio}</span>` : ''}
+                                ${badgeSuspendido}
                             </td>
                         `;
-                    }
 
-                    // Columna 2: Año Regulatorio
-                    const badgeSuspendido = esSuspendido 
-                        ? `<span class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-slate-300 text-slate-800 border border-slate-400 rounded text-[9.5px] font-black tracking-tight uppercase" title="Evaluación suspendida: No hubo evaluación de metas de gestión">
-                               ⏸ SUSPENDIDO
-                           </span>`
-                        : '';
+                        // Las 10 columnas de documentos
+                        columnasDoc.forEach(col => {
+                            const texto = docObj ? docObj[col.txtKey] : null;
+                            const link = docObj ? docObj[col.linkKey] : null;
 
-                    html += `
-                        <td class="col-matriz-anio text-center bg-slate-50 border-l border-r border-slate-300 select-none px-2 py-2">
-                            <span class="block font-bold text-sm text-slate-800">${anio}</span>
-                            ${rangoAnio ? `<span class="block text-xs text-slate-500 font-medium tracking-tight mt-0.5 whitespace-nowrap">${rangoAnio}</span>` : ''}
-                            ${badgeSuspendido}
-                        </td>
-                    `;
+                            if (texto && texto !== '-' && String(texto).trim() !== '') {
+                                const esTentativa = String(texto).toUpperCase().includes('TENTATIV');
 
-                    columnasDoc.forEach(col => {
-                        const texto = docObj ? docObj[col.txtKey] : null;
-                        const link = docObj ? docObj[col.linkKey] : null;
+                                if (link && link.startsWith('http')) {
+                                    const btnClass = esSuspendido
+                                        ? "inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 border border-slate-300 rounded text-[13px] font-medium transition shadow-xs max-w-[215px] text-left leading-tight"
+                                        : "inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-[13px] font-bold transition shadow-xs max-w-[215px] text-left leading-tight";
 
-                        if (texto && texto !== '-' && String(texto).trim() !== '') {
-                            const esTentativa = String(texto).toUpperCase().includes('TENTATIV');
-
-                            if (link && link.startsWith('http')) {
-                                const btnClass = esSuspendido
-                                    ? "inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 border border-slate-300 rounded text-[13px] font-medium transition shadow-xs max-w-[215px] text-left leading-tight"
-                                    : "inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-[13px] font-bold transition shadow-xs max-w-[215px] text-left leading-tight";
-
-                                html += `
-                                    <td class="text-center p-2 ${esSuspendido ? '' : 'bg-blue-50/20'}">
-                                        <a href="${link}" target="_blank" rel="noopener noreferrer" 
-                                           class="${btnClass}" 
-                                           title="${texto}">
-                                            <span class="text-sm">${esSuspendido ? '📁' : '📄'}</span>
-                                            <span class="truncate">${texto}</span>
-                                            <span class="text-xs ${esSuspendido ? 'text-slate-400' : 'text-blue-400'} font-bold">↗</span>
-                                        </a>
-                                    </td>
-                                `;
-                            } else if (esTentativa) {
-                                html += `
-                                    <td class="text-center p-2">
-                                        <span class="inline-block px-2.5 py-1 ${esSuspendido ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-amber-50/80 text-amber-800 border-amber-200'} border rounded text-xs font-semibold tracking-wide" title="${texto}">
-                                            ⏳ ${texto}
-                                        </span>
-                                    </td>
-                                `;
+                                    html += `
+                                        <td class="text-center p-2 ${esSuspendido ? '' : 'bg-blue-50/20'}">
+                                            <a href="${link}" target="_blank" rel="noopener noreferrer" 
+                                               class="${btnClass}" 
+                                               title="${escaparHtml(texto)}">
+                                                <span class="text-sm">${esSuspendido ? '📁' : '📄'}</span>
+                                                <span class="truncate">${escaparHtml(texto)}</span>
+                                                <span class="text-xs ${esSuspendido ? 'text-slate-400' : 'text-blue-400'} font-bold">↗</span>
+                                            </a>
+                                        </td>
+                                    `;
+                                } else if (esTentativa) {
+                                    html += `
+                                        <td class="text-center p-2">
+                                            <span class="inline-block px-2.5 py-1 ${esSuspendido ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-amber-50/80 text-amber-800 border-amber-200'} border rounded text-xs font-semibold tracking-wide" title="${escaparHtml(texto)}">
+                                                ⏳ ${escaparHtml(texto)}
+                                            </span>
+                                        </td>
+                                    `;
+                                } else {
+                                    html += `
+                                        <td class="text-center p-2 ${esSuspendido ? 'text-slate-500 font-medium' : 'text-slate-700 font-semibold'} text-[13px]">
+                                            ${escaparHtml(texto)}
+                                        </td>
+                                    `;
+                                }
                             } else {
-                                html += `
-                                    <td class="text-center p-2 ${esSuspendido ? 'text-slate-500 font-medium' : 'text-slate-700 font-semibold'} text-[13px]">
-                                        ${texto}
-                                    </td>
-                                `;
+                                html += `<td class="text-center ${esSuspendido ? 'text-slate-400 font-semibold' : 'text-gray-300'} text-xs">${esSuspendido ? '—' : '-'}</td>`;
                             }
-                        } else {
-                            html += `<td class="text-center ${esSuspendido ? 'text-slate-400 font-semibold' : 'text-gray-300'} text-xs">${esSuspendido ? '—' : '-'}</td>`;
-                        }
-                    });
+                        });
 
-                    html += '</tr>';
+                        html += '</tr>';
+                        filaRelativaEps++;
+                        totalFilasGeneradas++;
+                    });
                 });
             });
+
+            if (totalFilasGeneradas === 0) {
+                tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No se encontraron informes para la selección indicada.</td></tr>';
+                return;
+            }
 
             tbody.innerHTML = html;
         }

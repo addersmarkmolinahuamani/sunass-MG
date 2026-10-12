@@ -823,18 +823,21 @@
                     </div>
                 </div>
 
-                <!-- ======================================================== -->
-                <!-- SECCIÓN: EVOLUCIÓN DEL ICI POR META DE GESTIÓN           -->
-                <!-- ======================================================== -->
-                <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <!-- ========================================================================= -->
+                <!-- SECCIÓN 1: EVOLUCIÓN DEL ICI - NIVEL EMPRESA PRESTADORA                    -->
+                <!-- ========================================================================= -->
+                <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="seccion-ici-eps">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-gray-200">
                         <div>
-                            <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2.5">
-                                <span class="w-3.5 h-3.5 rounded-full bg-[#003366]"></span>
-                                Evolución del ICI por Meta de Gestión
-                            </h2>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2.5">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-[#003366]"></span>
+                                    Evolución del ICI por Meta de Gestión &mdash; Nivel Empresa Prestadora
+                                </h2>
+                                <span id="badge-conteo-eps-metas" class="text-xs font-semibold px-2 py-0.5 bg-blue-50 text-blue-800 rounded-md border border-blue-200"></span>
+                            </div>
                             <p class="text-xs text-gray-500 mt-0.5">
-                                Seguimiento individual del Índice de Cumplimiento (ICI) para cada meta aprobada en la etapa evaluada.
+                                Seguimiento individual del Índice de Cumplimiento (ICI) consolidado a nivel de la Empresa Prestadora.
                             </p>
                         </div>
                         <div class="flex items-center gap-3 flex-wrap">
@@ -855,8 +858,49 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor dinámico de gráficos de ICI -->
-                    <div id="contenedor-graficos-ici" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+                    <!-- Contenedor dinámico de gráficos de ICI - Nivel Empresa Prestadora -->
+                    <div id="contenedor-graficos-ici-eps" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
+                        <!-- Generado dinámicamente por JS -->
+                    </div>
+                </div>
+
+                <!-- ========================================================================= -->
+                <!-- SECCIÓN 2: EVOLUCIÓN DEL ICI - NIVEL LOCALIDAD                             -->
+                <!-- ========================================================================= -->
+                <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6" id="seccion-ici-localidad">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-gray-200">
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h2 class="text-base sm:text-lg font-bold text-gray-800 flex items-center gap-2.5">
+                                    <span class="w-3.5 h-3.5 rounded-full bg-amber-500"></span>
+                                    Evolución del ICI por Meta de Gestión &mdash; Nivel Localidad
+                                </h2>
+                                <span id="badge-conteo-localidades" class="text-xs font-semibold px-2 py-0.5 bg-amber-50 text-amber-800 rounded-md border border-amber-200"></span>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-0.5">
+                                Seguimiento individual del Índice de Cumplimiento (ICI) desagregado por localidades atendidas por la Empresa Prestadora.
+                            </p>
+                        </div>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <!-- Línea discontinua roja de 80% -->
+                            <span class="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1 rounded-md border border-rose-200 flex items-center gap-1.5 shadow-2xs" title="Un ICI menor a 80% es pasible de sanción">
+                                <span class="inline-flex items-center gap-1">
+                                    <span class="w-2 h-0.5 bg-rose-500"></span>
+                                    <span class="w-2 h-0.5 bg-rose-500"></span>
+                                </span>
+                                <span>Pasible de sanción</span>
+                            </span>
+                            <!-- Semáforo ICI -->
+                            <div class="flex items-center gap-2 text-[10px] font-semibold text-gray-600 bg-gray-50 px-2.5 py-1 rounded-md border border-gray-200">
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-xs bg-[#00b050]"></span> = 100%</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-xs bg-[#ffff00] border border-gray-300"></span> 80% - 99%</span>
+                                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-xs bg-[#ff0000]"></span> &lt; 80%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor dinámico de gráficos de ICI - Nivel Localidad -->
+                    <div id="contenedor-graficos-ici-localidad" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
                         <!-- Generado dinámicamente por JS -->
                     </div>
                 </div>
@@ -2134,6 +2178,7 @@
                 if (!metasPivot.has(clave)) {
                     metasPivot.set(clave, {
                         id: fila.ID_Meta_General,
+                        meta_principal: fila.Meta_Principal || "",
                         descripcion: fila.Descripcion_Especifica,
                         unidad: fila.Unidad_Medida || "",
                         nivel: fila.Nivel_Evaluacion,
@@ -2591,8 +2636,9 @@
         }
 
         function dibujarGraficosIci(metasNormales, ptColumns = []) {
-            const contenedor = document.getElementById('contenedor-graficos-ici');
-            if (!contenedor) return;
+            const contenedorEps = document.getElementById('contenedor-graficos-ici-eps');
+            const contenedorLoc = document.getElementById('contenedor-graficos-ici-localidad');
+            if (!contenedorEps || !contenedorLoc) return;
 
             // Destruir instancias previas de gráficos para evitar colisiones y fugas de memoria
             if (misGraficosICI && misGraficosICI.length > 0) {
@@ -2602,16 +2648,36 @@
             }
             misGraficosICI = [];
 
-            if (!metasNormales || metasNormales.length === 0) {
-                contenedor.innerHTML = '<div class="col-span-full py-10 text-center text-gray-400 font-medium italic">No hay metas de gestión disponibles para graficar en esta etapa.</div>';
+            const metasEps = (metasNormales || []).filter(m => m.nivel !== 'Localidad');
+            const metasLocalidad = (metasNormales || []).filter(m => m.nivel === 'Localidad');
+
+            // Actualizar badges de conteo en cabeceras
+            const badgeEps = document.getElementById('badge-conteo-eps-metas');
+            if (badgeEps) badgeEps.innerText = `${metasEps.length} metas de EPS`;
+            
+            const badgeLoc = document.getElementById('badge-conteo-localidades');
+            if (badgeLoc) badgeLoc.innerText = `${metasLocalidad.length} metas por localidad`;
+
+            // 1. Renderizar Recuadro 1: Nivel Empresa Prestadora
+            renderizarGrupoGraficosIci(metasEps, contenedorEps, 'eps', ptColumns);
+
+            // 2. Renderizar Recuadro 2: Nivel Localidad
+            renderizarGrupoGraficosIci(metasLocalidad, contenedorLoc, 'loc', ptColumns);
+        }
+
+        function renderizarGrupoGraficosIci(metas, contenedor, prefijo, ptColumns = []) {
+            if (!metas || metas.length === 0) {
+                const mensaje = prefijo === 'loc'
+                    ? 'No se registran metas de gestión desagregadas a nivel de localidad para el periodo y etapa seleccionados.'
+                    : 'No hay metas de gestión disponibles a nivel de Empresa Prestadora en esta etapa.';
+                contenedor.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 font-medium italic bg-slate-50/70 rounded-lg border border-slate-200">${mensaje}</div>`;
                 return;
             }
 
-            // Construir tarjetas para cada meta
             let htmlTarjetas = '';
-            metasNormales.forEach((meta, idx) => {
+            metas.forEach((meta, idx) => {
                 const esLocalidad = meta.nivel === 'Localidad';
-                const idMostrar = esLocalidad ? (meta.id ? `Meta ${meta.id}` : 'Localidad') : (meta.id ? `Meta ${meta.id}` : 'Meta');
+                const idMostrar = meta.id ? `Meta ${meta.id}` : (esLocalidad ? 'Localidad' : 'Meta');
                 const badgeLocalidad = esLocalidad ? '<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 text-[10px] font-bold border border-amber-200">Localidad</span>' : '';
                 const badgeUnidad = (meta.unidad && meta.unidad !== '-') ? `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-semibold">${escaparHtml(meta.unidad)}</span>` : '';
 
@@ -2647,6 +2713,10 @@
                     badgeEstado = `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 shrink-0">S/D</span>`;
                 }
 
+                const subtituloMetaPrincipal = (esLocalidad && meta.meta_principal && meta.meta_principal !== meta.descripcion)
+                    ? `<div class="text-[11px] text-slate-500 font-semibold truncate mb-0.5" title="${escaparHtml(meta.meta_principal)}">${escaparHtml(meta.meta_principal)}</div>`
+                    : '';
+
                 htmlTarjetas += `
                     <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-2xs hover:shadow-md transition-shadow flex flex-col justify-between">
                         <div>
@@ -2660,12 +2730,13 @@
                                 </div>
                                 ${badgeEstado}
                             </div>
+                            ${subtituloMetaPrincipal}
                             <h3 class="text-xs font-bold text-slate-800 leading-snug line-clamp-2 min-h-[32px]" title="${escaparHtml(meta.descripcion)}">
                                 ${escaparHtml(meta.descripcion)}
                             </h3>
                         </div>
                         <div class="relative w-full h-44 mt-2">
-                            <canvas id="grafico-ici-${idx}"></canvas>
+                            <canvas id="grafico-ici-${prefijo}-${idx}"></canvas>
                         </div>
                     </div>
                 `;
@@ -2676,8 +2747,8 @@
             if (typeof Chart === 'undefined') return;
 
             // Instanciar gráficos individuales
-            metasNormales.forEach((meta, idx) => {
-                const canvasEl = document.getElementById(`grafico-ici-${idx}`);
+            metas.forEach((meta, idx) => {
+                const canvasEl = document.getElementById(`grafico-ici-${prefijo}-${idx}`);
                 if (!canvasEl) return;
                 const ctx = canvasEl.getContext('2d');
 
@@ -2737,8 +2808,8 @@
                             {
                                 label: 'ICI (%)',
                                 data: valores,
-                                borderColor: '#2563eb',
-                                backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                                borderColor: prefijo === 'loc' ? '#0284c7' : '#2563eb',
+                                backgroundColor: prefijo === 'loc' ? 'rgba(2, 132, 199, 0.08)' : 'rgba(37, 99, 235, 0.08)',
                                 borderWidth: 2.5,
                                 pointBackgroundColor: coloresPuntos,
                                 pointBorderColor: '#ffffff',
@@ -2798,7 +2869,7 @@
                         }
                     },
                     plugins: [{
-                        id: `limite80Plugin_${idx}`,
+                        id: `limite80Plugin_${prefijo}_${idx}`,
                         afterDatasetsDraw(cInstance) {
                             const { ctx: c, chartArea, scales: { y } } = cInstance;
                             if (!chartArea || !y) return;

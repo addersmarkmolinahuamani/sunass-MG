@@ -90,11 +90,13 @@
             top: 0 !important;
             z-index: 35 !important;
             background-color: #002244 !important;
+            border-right: 1px solid #1a4c80 !important;
         }
         .tabla-matriz-informes thead th.col-matriz-anio {
             top: 0 !important;
             z-index: 35 !important;
             background-color: #002244 !important;
+            border-left: 1px solid #1a4c80 !important;
             border-right: 2px solid #001833 !important;
             box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.25);
         }
@@ -102,12 +104,21 @@
         .tabla-matriz-informes tbody td.col-matriz-periodo {
             z-index: 20 !important;
             background-color: #f1f5f9 !important;
+            border-left: 1px solid #cbd5e1 !important;
+            border-right: 1px solid #cbd5e1 !important;
         }
         .tabla-matriz-informes tbody td.col-matriz-anio {
             z-index: 20 !important;
             background-color: #f8fafc !important;
+            border-left: 1px solid #cbd5e1 !important;
             border-right: 2px solid #cbd5e1 !important;
             box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Divisoria acentuada de alta visibilidad (de izquierda a derecha) entre periodos regulatorios */
+        .tabla-matriz-informes tbody tr.fila-fin-periodo > td,
+        .tabla-matriz-informes tbody td.col-matriz-periodo.fin-de-periodo {
+            border-bottom: 3px solid #003366 !important;
         }
 
         /* Transición y colapso del Panel Lateral Izquierdo (Franja de Filtros) */
@@ -2311,7 +2322,8 @@
 
                 aniosOrdenados.forEach((anio, aIdx) => {
                     const esUltimoAnioDelPeriodo = (aIdx === aniosOrdenados.length - 1);
-                    const claseBordePeriodo = (esUltimoAnioDelPeriodo && pIdx < periodosAMostrar.length - 1) ? 'border-b-2 border-slate-300' : '';
+                    const esFinDePeriodo = (esUltimoAnioDelPeriodo && pIdx < periodosAMostrar.length - 1);
+                    const claseBordePeriodo = esFinDePeriodo ? 'fila-fin-periodo' : '';
                     const docObj = mapPorAnio.get(anio);
                     
                     const claveAnio = `${codEps}_${periodo}_${anio}`;
@@ -2323,8 +2335,9 @@
                     
                     // Columna 1: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
                     if (aIdx === 0) {
+                        const clasePeriodoFin = (pIdx < periodosAMostrar.length - 1) ? 'fin-de-periodo' : '';
                         html += `
-                            <td rowspan="${aniosOrdenados.length}" class="col-matriz-periodo text-center bg-slate-100 border-r border-slate-300 align-middle select-none px-2 py-3">
+                            <td rowspan="${aniosOrdenados.length}" class="col-matriz-periodo ${clasePeriodoFin} text-center bg-slate-100 border-r border-slate-300 align-middle select-none px-2 py-3">
                                 <span class="block font-black text-xs text-[#003366]">${periodo}</span>
                                 ${quinquenioPeriodo ? `<span class="block text-[10px] text-slate-500 font-semibold tracking-tight mt-0.5 whitespace-nowrap">${quinquenioPeriodo}</span>` : ''}
                             </td>
@@ -2333,7 +2346,7 @@
 
                     // Columna 2: Año Regulatorio
                     html += `
-                        <td class="col-matriz-anio text-center bg-slate-50 border-r border-slate-200 select-none px-2 py-2">
+                        <td class="col-matriz-anio text-center bg-slate-50 border-l border-r border-slate-300 select-none px-2 py-2">
                             <span class="block font-bold text-xs text-slate-800">${anio}</span>
                             ${rangoAnio ? `<span class="block text-[10px] text-slate-500 font-medium tracking-tight mt-0.5 whitespace-nowrap">${rangoAnio}</span>` : ''}
                         </td>

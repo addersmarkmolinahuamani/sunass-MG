@@ -121,6 +121,24 @@
             border-bottom: 2px solid #94a3b8 !important;
         }
 
+        /* Estilos para Años Regulatorios con Evaluación Suspendida (Sin Evaluación) */
+        .tabla-matriz-informes tbody tr.fila-suspendida td {
+            background-color: #e2e8f0 !important;
+            color: #475569 !important;
+        }
+        .tabla-matriz-informes tbody tr.fila-suspendida td.col-matriz-periodo {
+            background-color: #f1f5f9 !important;
+        }
+        .tabla-matriz-informes tbody tr.fila-suspendida td.col-matriz-anio {
+            background-color: #cbd5e1 !important;
+        }
+        .tabla-matriz-informes tbody tr.fila-suspendida:hover td {
+            background-color: #cbd5e1 !important;
+        }
+        .tabla-matriz-informes tbody tr.fila-suspendida:hover td.col-matriz-anio {
+            background-color: #94a3b8 !important;
+        }
+
         /* Transición y colapso del Panel Lateral Izquierdo (Franja de Filtros) */
         #panel-lateral {
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -879,9 +897,14 @@
                             </h2>
                             <p class="text-xs text-gray-500 mt-0.5">Accede a la trazabilidad completa de informes por año regulatorio y etapa.</p>
                         </div>
-                        <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200">
-                            Documentos Digitales SUNASS
-                        </span>
+                        <div class="flex items-center gap-2.5 flex-wrap">
+                            <span class="text-xs bg-slate-100 text-slate-700 font-semibold px-2.5 py-1 rounded-full border border-slate-300 flex items-center gap-1.5 shadow-2xs" title="Indica que para esos años regulatorios no hubo evaluación de metas de gestión">
+                                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Fila Gris = Evaluación Suspendida
+                            </span>
+                            <span class="text-xs bg-emerald-50 text-emerald-700 font-bold px-3 py-1 rounded-full border border-emerald-200">
+                                Documentos Digitales SUNASS
+                            </span>
+                        </div>
                     </div>
                     <div class="table-container p-0">
                         <table id="tabla-informes-matriz" class="tabla-sunass tabla-matriz-informes w-full text-sm">
@@ -961,8 +984,8 @@
     </div>
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
-    <script src="fechas_informes.js?v=20261010_1355"></script>
-    <script src="datos_sunass.js?v=20261010_1355"></script>
+    <script src="fechas_informes.js?v=20261012_v5"></script>
+    <script src="datos_sunass.js?v=20261012_v5"></script>
 
     <script>
         let db_global = [];
@@ -1021,10 +1044,23 @@
                 .replace(/'/g, '&#039;');
         }
 
+        function normalizarCodigoEps(val) {
+            if (val === null || val === undefined) return '';
+            const str = String(val).trim();
+            if (str.toUpperCase().includes('TUMBES')) return '008';
+            const primerSegmento = str.split(/[.|-]/)[0].trim();
+            const digitos = primerSegmento.replace(/\D/g, '');
+            if (digitos !== '') {
+                const num = parseInt(digitos, 10);
+                if (num === 8052) return '008';
+                return String(num).padStart(3, '0');
+            }
+            return str;
+        }
+
         function generarClaveInforme(codEp, periodo, anio) {
-            const codClean = String(codEp || '').replace(/\D/g, '');
-            const codNum = codClean !== '' ? parseInt(codClean, 10) : String(codEp || '').trim();
-            return `${codNum}_${String(periodo || '').trim()}_${String(anio || '').trim()}`;
+            const codNorm = normalizarCodigoEps(codEp);
+            return `${codNorm}_${String(periodo || '').trim()}_${String(anio || '').trim()}`;
         }
 
         function construirMapaInformes() {
@@ -1565,16 +1601,19 @@
             const mapEps = new Map();
             db_global.forEach(item => {
                 const rawCod = String(item.Cod_EP || '').trim();
-                const nombre = String(item.Nombre_EPS || '').trim();
+                let nombre = String(item.Nombre_EPS || '').trim();
                 if (!rawCod || !nombre) return;
 
-                const numCod = parseInt(rawCod.replace(/\D/g, ''), 10);
-                const codPadded = isNaN(numCod) ? rawCod : String(numCod).padStart(3, '0');
+                const codPadded = normalizarCodigoEps(rawCod);
+                if (codPadded === '008') {
+                    nombre = 'UE AGUA TUMBES';
+                }
+                const numCod = parseInt(codPadded, 10);
                 const etiqueta = `${codPadded}. ${nombre}`;
 
-                if (!mapEps.has(rawCod)) {
-                    mapEps.set(rawCod, {
-                        cod: rawCod,
+                if (!mapEps.has(codPadded)) {
+                    mapEps.set(codPadded, {
+                        cod: codPadded,
                         codPadded: codPadded,
                         num: isNaN(numCod) ? 9999 : numCod,
                         nombre: nombre,
@@ -1589,8 +1628,8 @@
             selectEps.innerHTML = epsOrdenadasCodigo.map(eps => `<option value="${eps.etiqueta}">${eps.etiqueta}</option>`).join('');
 
             const updateSubFilters = () => {
-                const codEps = String(selectEps.value || '').split(/[.|]/)[0].trim().padStart(3, '0');
-                const datosEps = db_global.filter(item => String(item.Cod_EP).padStart(3, '0') === codEps);
+                const codEps = normalizarCodigoEps(selectEps.value);
+                const datosEps = db_global.filter(item => normalizarCodigoEps(item.Cod_EP) === codEps);
 
                 const ordenRomanos = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR'];
                 const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort((a, b) => {
@@ -1604,7 +1643,7 @@
                 const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
                 const periodosInformes = [...new Set([
                     ...datosEps.map(item => item.Periodo_Regulatorio),
-                    ...(db_informes ? db_informes.filter(item => String(item.Cod_EP).padStart(3, '0') === codEps).map(item => item.Periodo_Regulatorio) : [])
+                    ...(db_informes ? db_informes.filter(item => normalizarCodigoEps(item.Cod_EP) === codEps).map(item => item.Periodo_Regulatorio) : [])
                 ])].filter(Boolean).sort((a, b) => {
                     const idxA = ordenRomanosCreciente.indexOf(a);
                     const idxB = ordenRomanosCreciente.indexOf(b);
@@ -1788,9 +1827,9 @@
             const periodoSelect = document.getElementById('filtro-periodo').value;
             if (!epsSelect || !periodoSelect) return;
 
-            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
+            const codEps = normalizarCodigoEps(epsSelect);
             const datosEpsPeriodo = db_global.filter(item => 
-                String(item.Cod_EP).padStart(3, '0') === codEps && 
+                normalizarCodigoEps(item.Cod_EP) === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
 
@@ -1869,7 +1908,7 @@
         function renderizarTablero() {
             const epsSelect = document.getElementById('filtro-eps').value;
             if (!epsSelect) return;
-            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
+            const codEps = normalizarCodigoEps(epsSelect);
             const periodoSelect = document.getElementById('filtro-periodo').value;
 
             // Actualizar etiquetas en Módulo 1 (Evaluación) si existen
@@ -1886,7 +1925,7 @@
 
             // Datos generales de la EPS para Badges y Tarjeta Resumen
             const datosEps = db_global.filter(item => 
-                String(item.Cod_EP).padStart(3, '0') === codEps && 
+                normalizarCodigoEps(item.Cod_EP) === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
 
@@ -1903,10 +1942,10 @@
             const cardEpsRegion = document.getElementById('card-eps-region');
 
             const partesEps = epsSelect.split(/[.|]/);
-            const codEpsFallback = (partesEps[0] || '').trim().padStart(3, '0');
+            const codEpsFallback = normalizarCodigoEps(partesEps[0]);
             const nombreEpsFallback = epsSelect.replace(/^\d+[\.\s\|]+/, '').trim();
 
-            const datoReferencia = datosEps.length > 0 ? datosEps[0] : (db_global.find(item => String(item.Cod_EP).padStart(3, '0') === codEps) || null);
+            const datoReferencia = datosEps.length > 0 ? datosEps[0] : (db_global.find(item => normalizarCodigoEps(item.Cod_EP) === codEps) || null);
 
             if (cardEpsNombre) {
                 const nombreMostrar = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : nombreEpsFallback;
@@ -1971,14 +2010,15 @@
             renderizarMatrizInformes();
         }
 
-        function actualizarTarjetaTemporalidad(codEps, periodo, ptColumns = []) {
+        function actualizarTarjetaTemporalidad(codEpsParam, periodo, ptColumns = []) {
             const cardEpsQuinquenioBadge = document.getElementById('card-eps-quinquenio-badge');
             const cardAniosGrid = document.getElementById('card-anios-grid');
             const cardAniosConteo = document.getElementById('card-anios-conteo');
 
+            const codEps = normalizarCodigoEps(codEpsParam);
             const clavePR = `${codEps}_${periodo}`;
             const quinquenioActual = (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePR] : '')
-                || ((db_informes ? (db_informes.find(i => String(i.Cod_EP).padStart(3, '0') === codEps && i.Periodo_Regulatorio === periodo && i.Quinquenio) || {}).Quinquenio : '') || '');
+                || ((db_informes ? (db_informes.find(i => normalizarCodigoEps(i.Cod_EP) === codEps && i.Periodo_Regulatorio === periodo && i.Quinquenio) || {}).Quinquenio : '') || '');
 
             if (cardEpsQuinquenioBadge) {
                 if (quinquenioActual) {
@@ -1997,7 +2037,7 @@
                 aniosTotales.forEach(an => {
                     const claveAn = `${codEps}_${periodo}_${an}`;
                     const rangoAn = (typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAn] : '')
-                        || ((db_informes ? (db_informes.find(i => String(i.Cod_EP).padStart(3, '0') === codEps && i.Periodo_Regulatorio === periodo && i.Año_Regulatorio === an && i.Rango_Anio) || {}).Rango_Anio : '') || '-');
+                        || ((db_informes ? (db_informes.find(i => normalizarCodigoEps(i.Cod_EP) === codEps && i.Periodo_Regulatorio === periodo && i.Año_Regulatorio === an && i.Rango_Anio) || {}).Rango_Anio : '') || '-');
                     
                     htmlAnios += `
                         <div class="flex items-center justify-between gap-1 px-2 py-1 bg-slate-50 hover:bg-slate-100 rounded-md border border-slate-200/70 text-xs transition">
@@ -2014,7 +2054,7 @@
         function renderizarSoloTabla() {
             const epsSelect = document.getElementById('filtro-eps').value;
             if (!epsSelect) return;
-            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
+            const codEps = normalizarCodigoEps(epsSelect);
             const periodoSelect = document.getElementById('filtro-periodo').value;
             const etapaActual = etapaSeleccionadaGlobal;
 
@@ -2023,7 +2063,7 @@
 
             // Detectar todos los años transitorios (PT) asociados a esta EPS y Periodo
             const datosPeriodo = db_global.filter(item => 
-                String(item.Cod_EP).padStart(3, '0') === codEps && 
+                normalizarCodigoEps(item.Cod_EP) === codEps && 
                 item.Periodo_Regulatorio === periodoSelect
             );
             const ptSet = new Set();
@@ -2245,12 +2285,12 @@
             const tbody = document.getElementById('tabla-informes-cuerpo');
             if (!tbody || !epsSelect) return;
 
-            const codEps = String(epsSelect || '').split(/[.|]/)[0].trim().padStart(3, '0');
+            const codEps = normalizarCodigoEps(epsSelect);
 
             // Actualizar título sobre la matriz con el nombre de la Empresa Prestadora
             const nombreEpsFallback = epsSelect.replace(/^\d+[\.\s\|]+/, '').trim();
-            const datoReferencia = (db_global && db_global.find(item => String(item.Cod_EP).padStart(3, '0') === codEps))
-                                || (db_informes && db_informes.find(item => String(item.Cod_EP).padStart(3, '0') === codEps))
+            const datoReferencia = (db_global && db_global.find(item => normalizarCodigoEps(item.Cod_EP) === codEps))
+                                || (db_informes && db_informes.find(item => normalizarCodigoEps(item.Cod_EP) === codEps))
                                 || null;
             const nombreEpsVisualizada = (datoReferencia && datoReferencia.Nombre_EPS) ? datoReferencia.Nombre_EPS : (nombreEpsFallback || epsSelect);
             const tituloMatrizEps = document.getElementById('titulo-matriz-nombre-eps');
@@ -2268,7 +2308,7 @@
             const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
             const todosLosPeriodosEps = [...new Set(
                 db_informes
-                    .filter(item => String(item.Cod_EP).padStart(3, '0') === codEps)
+                    .filter(item => normalizarCodigoEps(item.Cod_EP) === codEps)
                     .map(item => item.Periodo_Regulatorio)
                     .filter(Boolean)
             )].sort((a, b) => {
@@ -2310,7 +2350,7 @@
 
             periodosAMostrar.forEach((periodo, pIdx) => {
                 const informesPeriodo = db_informes.filter(item => 
-                    String(item.Cod_EP).padStart(3, '0') === codEps && 
+                    normalizarCodigoEps(item.Cod_EP) === codEps && 
                     item.Periodo_Regulatorio === periodo
                 );
 
@@ -2345,7 +2385,11 @@
                         ? docObj.Rango_Anio 
                         : ((typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAnio] : '') || '');
 
-                    html += `<tr class="${claseBordePeriodo}">`;
+                    const estadoEval = (docObj && docObj.Estado_Evaluacion) ? String(docObj.Estado_Evaluacion).trim() : '';
+                    const esSuspendido = estadoEval.toLowerCase().includes('suspend');
+                    const claseFilaSuspendida = esSuspendido ? 'fila-suspendida' : '';
+
+                    html += `<tr class="${claseBordePeriodo} ${claseFilaSuspendida}" ${esSuspendido ? 'title="Evaluación suspendida: No hubo evaluación de metas de gestión para este año regulatorio"' : ''}>`;
                     
                     // Columna 1: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
                     if (aIdx === 0) {
@@ -2359,10 +2403,17 @@
                     }
 
                     // Columna 2: Año Regulatorio
+                    const badgeSuspendido = esSuspendido 
+                        ? `<span class="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 bg-slate-300 text-slate-800 border border-slate-400 rounded text-[9.5px] font-black tracking-tight uppercase" title="Evaluación suspendida: No hubo evaluación de metas de gestión">
+                               ⏸ SUSPENDIDO
+                           </span>`
+                        : '';
+
                     html += `
                         <td class="col-matriz-anio text-center bg-slate-50 border-l border-r border-slate-300 select-none px-2 py-2">
                             <span class="block font-bold text-sm text-slate-800">${anio}</span>
                             ${rangoAnio ? `<span class="block text-xs text-slate-500 font-medium tracking-tight mt-0.5 whitespace-nowrap">${rangoAnio}</span>` : ''}
+                            ${badgeSuspendido}
                         </td>
                     `;
 
@@ -2374,34 +2425,38 @@
                             const esTentativa = String(texto).toUpperCase().includes('TENTATIV');
 
                             if (link && link.startsWith('http')) {
+                                const btnClass = esSuspendido
+                                    ? "inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 hover:text-slate-900 border border-slate-300 rounded text-[13px] font-medium transition shadow-xs max-w-[215px] text-left leading-tight"
+                                    : "inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-[13px] font-bold transition shadow-xs max-w-[215px] text-left leading-tight";
+
                                 html += `
-                                    <td class="text-center p-2 bg-blue-50/20">
+                                    <td class="text-center p-2 ${esSuspendido ? '' : 'bg-blue-50/20'}">
                                         <a href="${link}" target="_blank" rel="noopener noreferrer" 
-                                           class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 hover:text-blue-900 border border-blue-200 rounded text-[13px] font-bold transition shadow-xs max-w-[215px] text-left leading-tight" 
+                                           class="${btnClass}" 
                                            title="${texto}">
-                                            <span class="text-sm">📄</span>
+                                            <span class="text-sm">${esSuspendido ? '📁' : '📄'}</span>
                                             <span class="truncate">${texto}</span>
-                                            <span class="text-xs text-blue-400 font-bold">↗</span>
+                                            <span class="text-xs ${esSuspendido ? 'text-slate-400' : 'text-blue-400'} font-bold">↗</span>
                                         </a>
                                     </td>
                                 `;
                             } else if (esTentativa) {
                                 html += `
                                     <td class="text-center p-2">
-                                        <span class="inline-block px-2.5 py-1 bg-amber-50/80 text-amber-800 border border-amber-200 rounded text-xs font-semibold tracking-wide" title="${texto}">
+                                        <span class="inline-block px-2.5 py-1 ${esSuspendido ? 'bg-slate-200 text-slate-600 border-slate-300' : 'bg-amber-50/80 text-amber-800 border-amber-200'} border rounded text-xs font-semibold tracking-wide" title="${texto}">
                                             ⏳ ${texto}
                                         </span>
                                     </td>
                                 `;
                             } else {
                                 html += `
-                                    <td class="text-center p-2 text-slate-700 text-[13px] font-semibold">
+                                    <td class="text-center p-2 ${esSuspendido ? 'text-slate-500 font-medium' : 'text-slate-700 font-semibold'} text-[13px]">
                                         ${texto}
                                     </td>
                                 `;
                             }
                         } else {
-                            html += `<td class="text-center text-gray-300">-</td>`;
+                            html += `<td class="text-center ${esSuspendido ? 'text-slate-400 font-semibold' : 'text-gray-300'} text-xs">${esSuspendido ? '—' : '-'}</td>`;
                         }
                     });
 
@@ -2807,7 +2862,7 @@
 
             return db_global.filter(fila => {
                 const nombreEps = String(fila.Nombre_EPS || '').trim();
-                const codFila = String(fila.Cod_EP || '').trim().padStart(3, '0');
+                const codFila = normalizarCodigoEps(fila.Cod_EP);
                 const etiquetaEps = `${codFila}. ${nombreEps}`;
                 const depto = String(fila.Departamento || '').toLowerCase().trim();
                 const descMeta = String(fila.Descripcion_Especifica || '').toLowerCase().trim();

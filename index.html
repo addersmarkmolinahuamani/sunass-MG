@@ -141,8 +141,9 @@
             border-bottom: 2px solid #94a3b8 !important;
         }
         .tabla-matriz-informes tbody tr.fila-fin-eps > td,
-        .tabla-matriz-informes tbody td.col-matriz-eps.fin-de-eps {
-            border-bottom: 3px solid #475569 !important;
+        .tabla-matriz-informes tbody td.col-matriz-eps.fin-de-eps,
+        .tabla-matriz-informes tbody td.col-matriz-periodo.fin-de-eps {
+            border-bottom: 3.5px solid #002244 !important;
         }
 
         /* Estilos para Años Regulatorios con Evaluación Suspendida (Sin Evaluación) */
@@ -2641,7 +2642,12 @@
 
                         // Columna 2: Periodo Regulatorio (celda unida con rowspan para todos los años del mismo periodo)
                         if (aIdx === 0) {
-                            const clasePeriodoFin = (esFinDePeriodo || esFinDeEps) ? 'fin-de-periodo' : '';
+                            let clasePeriodoFin = '';
+                            if (esUltimoPeriodoEps && !esUltimaEps) {
+                                clasePeriodoFin = 'fin-de-eps';
+                            } else if (!esUltimoPeriodoEps) {
+                                clasePeriodoFin = 'fin-de-periodo';
+                            }
                             html += `
                                 <td rowspan="${aniosOrdenados.length}" class="col-matriz-periodo ${clasePeriodoFin} text-center bg-slate-100 border-r border-slate-300 align-middle select-none px-2 py-3">
                                     <span class="block font-black text-sm text-[#003366]">${periodo}</span>

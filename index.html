@@ -1524,7 +1524,10 @@
             }, 320);
         }
 
+        let moduloActual = 'tablero';
+
         function cambiarModulo(modulo) {
+            moduloActual = modulo;
             const modTablero = document.getElementById('modulo-tablero');
             const modMatriz = document.getElementById('modulo-matriz');
             const modReportes = document.getElementById('modulo-reportes');
@@ -1551,6 +1554,9 @@
             document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
             document.querySelectorAll('[id^="arrow-trigger-"]').forEach(a => a.classList.remove('rotate-180'));
 
+            const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+            const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+
             if (modulo === 'tablero') {
                 if (modTablero) {
                     modTablero.classList.replace('opacity-0', 'opacity-100');
@@ -1568,14 +1574,14 @@
                 if (contPerTablero) contPerTablero.classList.remove('hidden');
                 if (contPerMatriz) contPerMatriz.classList.add('hidden');
 
-                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
-                const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+                // Asegurar que el filtro de matriz esté estrictamente oculto en tablero
+                if (contServMatriz) contServMatriz.classList.add('hidden');
+
                 const codTablero = normalizarCodigoEps(document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "");
                 if (contServTablero) {
                     if (codTablero === '026' || codTablero === '028') contServTablero.classList.remove('hidden');
                     else contServTablero.classList.add('hidden');
                 }
-                if (contServMatriz) contServMatriz.classList.add('hidden');
 
                 if (btnTablero) btnTablero.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate";
             } else if (modulo === 'matriz') {
@@ -1595,7 +1601,7 @@
                 if (contPerTablero) contPerTablero.classList.add('hidden');
                 if (contPerMatriz) contPerMatriz.classList.remove('hidden');
 
-                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+                // Asegurar que el filtro de tablero esté estrictamente oculto en matriz
                 if (contServTablero) contServTablero.classList.add('hidden');
 
                 if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
@@ -1614,8 +1620,6 @@
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
                 if (panelTablero) panelTablero.classList.add('hidden');
-                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
-                const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
                 if (contServTablero) contServTablero.classList.add('hidden');
                 if (contServMatriz) contServMatriz.classList.add('hidden');
                 if (btnReportes) btnReportes.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate";
@@ -1947,12 +1951,18 @@
             const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
             const selectServMatriz = document.getElementById('filtro-servicio-matriz');
             
-            // Si la selección es exactamente una sola EPS y es 026 o 028, mostrar el filtro de Tipo de Servicio
+            // Si la selección es exactamente una sola EPS y es 026 o 028, mostrar el filtro de Tipo de Servicio ÚNICAMENTE si estamos en el módulo matriz
             let esEpsConServicios = false;
             let tipoServicioFiltro = 'Agua y Saneamiento';
             if (codsEps.length === 1 && (codsEps[0] === '026' || codsEps[0] === '028')) {
                 esEpsConServicios = true;
-                if (contServMatriz) contServMatriz.classList.remove('hidden');
+                if (contServMatriz) {
+                    if (moduloActual === 'matriz') {
+                        contServMatriz.classList.remove('hidden');
+                    } else {
+                        contServMatriz.classList.add('hidden');
+                    }
+                }
                 tipoServicioFiltro = selectServMatriz ? selectServMatriz.value : 'Agua y Saneamiento';
             } else {
                 if (contServMatriz) contServMatriz.classList.add('hidden');
@@ -2032,7 +2042,13 @@
 
                 let tipoServicio = 'Agua y Saneamiento';
                 if (codEps === '026' || codEps === '028') {
-                    if (contServTablero) contServTablero.classList.remove('hidden');
+                    if (contServTablero) {
+                        if (moduloActual === 'tablero') {
+                            contServTablero.classList.remove('hidden');
+                        } else {
+                            contServTablero.classList.add('hidden');
+                        }
+                    }
                     tipoServicio = selectServTablero ? selectServTablero.value : 'Agua y Saneamiento';
                 } else {
                     if (contServTablero) contServTablero.classList.add('hidden');
@@ -2247,6 +2263,8 @@
             if (selectServTablero && !selectServTablero.dataset.wired) {
                 selectServTablero.dataset.wired = "1";
                 selectServTablero.addEventListener('change', () => {
+                    const selectServMatriz = document.getElementById('filtro-servicio-matriz');
+                    if (selectServMatriz) selectServMatriz.value = selectServTablero.value;
                     updateSubFilters();
                 });
             }
@@ -2255,6 +2273,8 @@
             if (selectServMatriz && !selectServMatriz.dataset.wired) {
                 selectServMatriz.dataset.wired = "1";
                 selectServMatriz.addEventListener('change', () => {
+                    const selectServTablero = document.getElementById('filtro-servicio-tablero');
+                    if (selectServTablero) selectServTablero.value = selectServMatriz.value;
                     actualizarPeriodosMatriz();
                     renderizarMatrizInformes();
                 });

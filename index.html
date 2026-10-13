@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js para visualización de ICG -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SheetJS para exportación nativa a Excel (.xlsx) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
         
@@ -993,9 +995,9 @@
                     <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                         🏠 Portada
                     </button>
-                    <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Imprimir / PDF
+                    <button onclick="exportarMatrizExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Exportar la matriz actual a formato Excel (.xlsx)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar a Excel
                     </button>
                 </div>
             </header>
@@ -1253,9 +1255,9 @@
                     <button onclick="volverAPortada()" class="px-3.5 py-2 border border-slate-300 rounded text-slate-700 bg-white hover:bg-slate-50 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                         🏠 Portada
                     </button>
-                    <button onclick="exportarCSV()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm">
+                    <button onclick="exportarReportesExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Exportar el reporte actual a formato Excel (.xlsx)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Exportar a Excel (CSV)
+                        Exportar a Excel
                     </button>
                 </div>
             </header>
@@ -3815,7 +3817,7 @@
             document.getElementById('rep-contador').innerText = `Mostrando ${dataFiltrada.length} registros`;
         }
 
-        function exportarCSV() {
+        function exportarReportesExcel() {
             const dataExportar = obtenerDatosFiltradosReporte();
 
             if (dataExportar.length === 0) {
@@ -3823,47 +3825,332 @@
                 if (mensajeError) {
                     mensajeError.innerText = "No hay datos para exportar con los filtros actuales.";
                 }
+                alert("No hay datos para exportar con los filtros actuales.");
                 return;
             }
 
             const colsActivas = TODAS_LAS_COLUMNAS.filter(c => c.activa);
-            let csvContent = "\uFEFF"; 
-            csvContent += colsActivas.map(c => `"${c.nombre}"`).join(";") + "\n";
+            const cabeceras = colsActivas.map(c => c.nombre);
+            const filasExcel = [cabeceras];
 
             dataExportar.forEach(fila => {
-                let filaCsv = colsActivas.map(col => {
+                let filaDatos = colsActivas.map(col => {
                     if (col.id === 'Informe_Etapa') {
                         const docs = obtenerInformesDelAnio(fila);
-                        if (docs.length === 0) return '""';
-                        // Concatenar con salto de línea (\n), ordenados por etapa procesal
-                        const textoDocs = docs.map(d => d.texto.trim()).join("\n");
-                        return `"${textoDocs.replace(/"/g, '""')}"`;
+                        if (docs.length === 0) return '-';
+                        return docs.map(d => d.texto.trim()).join("\n");
                     } else if (col.id === 'Informe_Etapa_Link') {
                         const docs = obtenerInformesDelAnio(fila);
                         const links = docs.filter(d => d.link && d.link.startsWith('http')).map(d => d.link);
-                        if (links.length === 0) return '""';
-                        const textoLinks = links.join("\n");
-                        return `"${textoLinks.replace(/"/g, '""')}"`;
+                        if (links.length === 0) return '-';
+                        return links.join("\n");
                     } else {
                         let valor = fila[col.id];
-                        if (valor === null || valor === undefined) valor = '';
-                        let texto = String(valor).replace(/"/g, '""').replace(/\n/g, ' ');
-                        return `"${texto}"`;
+                        if (valor === null || valor === undefined || valor === '') return '';
+                        if (typeof valor === 'number') return valor;
+                        if (typeof valor === 'string' && /^-?\d+(\.\d+)?$/.test(valor.trim()) && !valor.trim().startsWith('0') && col.id !== 'Cod_EP') {
+                            const n = Number(valor.trim());
+                            if (!isNaN(n)) return n;
+                        }
+                        return valor;
                     }
                 });
-                csvContent += filaCsv.join(";") + "\n";
+                filasExcel.push(filaDatos);
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const fecha = new Date().toISOString().slice(0,10).replace(/-/g,"");
-            link.setAttribute("href", URL.createObjectURL(blob));
-            link.setAttribute("download", `Reporte_Personalizado_SUNASS_${fecha}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+
+            if (typeof XLSX !== 'undefined') {
+                const ws = XLSX.utils.aoa_to_sheet(filasExcel);
+                // Ajustar anchos automáticos de columnas
+                const colWidths = cabeceras.map((cab, colIdx) => {
+                    let maxLen = cab.length;
+                    for (let r = 1; r < Math.min(filasExcel.length, 120); r++) {
+                        const val = filasExcel[r][colIdx];
+                        if (val !== undefined && val !== null) {
+                            const lines = String(val).split('\n');
+                            lines.forEach(l => { if (l.length > maxLen) maxLen = l.length; });
+                        }
+                    }
+                    return { wch: Math.min(Math.max(maxLen + 3, 12), 50) };
+                });
+                ws['!cols'] = colWidths;
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Reporte_SUNASS");
+                XLSX.writeFile(wb, `Reporte_Personalizado_SUNASS_${fecha}.xlsx`);
+            } else {
+                // Fallback CSV con UTF-8 BOM
+                let csvContent = "\uFEFF";
+                csvContent += cabeceras.map(c => `"${c}"`).join(";") + "\n";
+                for (let i = 1; i < filasExcel.length; i++) {
+                    csvContent += filasExcel[i].map(v => `"${String(v !== undefined && v !== null ? v : '').replace(/"/g, '""')}"`).join(";") + "\n";
+                }
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.setAttribute("href", URL.createObjectURL(blob));
+                link.setAttribute("download", `Reporte_Personalizado_SUNASS_${fecha}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         }
+
+        function exportarMatrizExcel() {
+            let epsSeleccionadas = [];
+            if (dropdownEpsMatrizInstance) {
+                epsSeleccionadas = dropdownEpsMatrizInstance.getValores();
+            } else {
+                const valTablero = document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "";
+                if (valTablero) epsSeleccionadas = [valTablero];
+            }
+
+            const mapTodasEps = new Map();
+            db_informes.forEach(item => {
+                const rawCod = String(item.Cod_EP || '').trim();
+                if (!rawCod) return;
+                const codPadded = normalizarCodigoEps(rawCod);
+                let nombre = String(item.Nombre_EPS || '').trim();
+                if (codPadded === '008') nombre = 'UE AGUA TUMBES';
+                const numCod = parseInt(codPadded, 10);
+                const etiqueta = `${codPadded}. ${nombre}`;
+                if (!mapTodasEps.has(codPadded)) {
+                    mapTodasEps.set(codPadded, {
+                        cod: codPadded,
+                        codPadded: codPadded,
+                        num: isNaN(numCod) ? 9999 : numCod,
+                        nombre: nombre,
+                        etiqueta: etiqueta
+                    });
+                }
+            });
+
+            const todasEpsOrdenadas = Array.from(mapTodasEps.values()).sort((a, b) => a.num - b.num);
+            const codigosSeleccionadosSet = new Set(
+                (epsSeleccionadas && epsSeleccionadas.length > 0)
+                    ? epsSeleccionadas.map(e => normalizarCodigoEps(e))
+                    : []
+            );
+
+            const epsAMostrar = (codigosSeleccionadosSet.size > 0)
+                ? todasEpsOrdenadas.filter(e => codigosSeleccionadosSet.has(e.codPadded))
+                : todasEpsOrdenadas;
+
+            if (epsAMostrar.length === 0) {
+                alert("No hay Empresas Prestadoras seleccionadas para exportar.");
+                return;
+            }
+
+            const esEpsConServicios = (epsAMostrar.length === 1 && (epsAMostrar[0].codPadded === '026' || epsAMostrar[0].codPadded === '028'));
+            const tipoServicioMatriz = esEpsConServicios
+                ? (document.getElementById('filtro-servicio-matriz') ? document.getElementById('filtro-servicio-matriz').value : 'Agua y Saneamiento')
+                : null;
+
+            let periodosFiltro = [];
+            if (dropdownPeriodoMatrizInstance) {
+                periodosFiltro = dropdownPeriodoMatrizInstance.getValores();
+            }
+            const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
+
+            const filasExcel = [];
+
+            // Fila 1: Encabezados de grupo
+            filasExcel.push([
+                'Empresa Prestadora',
+                'Periodo Regulatorio',
+                'Año Regulatorio',
+                'Etapa de Fiscalización', '', '', '', '',
+                'Procedimiento Administrativo Sancionador (PAS)', '', '',
+                'Recursos Administrativos', ''
+            ]);
+
+            // Fila 2: Sub-encabezados de columna
+            filasExcel.push([
+                'Empresa',
+                'Periodo',
+                'Año',
+                'Inf. Inicial',
+                'Inf. Final',
+                'Inf. Fiscalización',
+                'Complementario',
+                'Medidas Correctivas',
+                'Instrucción',
+                'Complementario',
+                'Decisión (RDS)',
+                'Reconsideración',
+                'Apelación'
+            ]);
+
+            const columnasDoc = [
+                { txtKey: 'Inf_Fisc_Inicial', linkKey: 'Inf_Fisc_Inicial_Link' },
+                { txtKey: 'Inf_Fisc_Final', linkKey: 'Inf_Fisc_Final_Link' },
+                { txtKey: 'Inf_Fiscalizacion', linkKey: 'Inf_Fiscalizacion_Link' },
+                { txtKey: 'Inf_Fisc_Complementario', linkKey: 'Inf_Fisc_Complementario_Link' },
+                { txtKey: 'Inf_Fisc_MedidasCorrectivas', linkKey: 'Inf_Fisc_MedidasCorrectivas_Link' },
+                { txtKey: 'Inf_PAS_Instruccion', linkKey: 'Inf_PAS_Instruccion_Link' },
+                { txtKey: 'Inf_PAS_Complementario', linkKey: 'Inf_PAS_Complementario_Link' },
+                { txtKey: 'Inf_PAS_Decision', linkKey: 'Inf_PAS_Decision_Link' },
+                { txtKey: 'Recurso_Reconsideracion', linkKey: 'Recurso_Reconsideracion_Link' },
+                { txtKey: 'Recurso_Apelacion', linkKey: 'Recurso_Apelacion_Link' }
+            ];
+
+            const hipervinculos = [];
+
+            epsAMostrar.forEach(epsItem => {
+                const codEps = epsItem.codPadded;
+                const nombreEps = epsItem.nombre;
+
+                const todosPeriodosEps = [...new Set(
+                    db_informes
+                        .filter(item => {
+                            if (normalizarCodigoEps(item.Cod_EP) !== codEps) return false;
+                            if (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz) {
+                                return (item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz;
+                            }
+                            return true;
+                        })
+                        .map(item => item.Periodo_Regulatorio)
+                        .filter(Boolean)
+                )].sort((a, b) => {
+                    const idxA = ordenRomanosCreciente.indexOf(a);
+                    const idxB = ordenRomanosCreciente.indexOf(b);
+                    return (idxA !== -1 ? idxA : 99) - (idxB !== -1 ? idxB : 99);
+                });
+
+                const periodosEpsAMostrar = (periodosFiltro && periodosFiltro.length > 0)
+                    ? todosPeriodosEps.filter(p => periodosFiltro.includes(p))
+                    : todosPeriodosEps;
+
+                periodosEpsAMostrar.forEach(periodo => {
+                    const informesPeriodo = db_informes.filter(item => 
+                        normalizarCodigoEps(item.Cod_EP) === codEps && 
+                        item.Periodo_Regulatorio === periodo &&
+                        (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz) : true)
+                    );
+
+                    const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                    const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
+                        const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
+                        const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
+                        return na - nb;
+                    });
+                    const aniosOrdenados = [...aniosBase, ...ptYears];
+
+                    const mapPorAnio = new Map();
+                    informesPeriodo.forEach(inf => {
+                        const a = inf.Año_Regulatorio;
+                        if (a) mapPorAnio.set(a, inf);
+                    });
+
+                    const clavePeriodo = `${codEps}_${periodo}`;
+                    const quinquenioPeriodo = (informesPeriodo.find(inf => inf.Quinquenio && inf.Quinquenio !== '') || {}).Quinquenio
+                        || (typeof MAPA_QUINQUENIOS !== 'undefined' ? MAPA_QUINQUENIOS[clavePeriodo] : '')
+                        || '';
+
+                    aniosOrdenados.forEach(anio => {
+                        const docObj = mapPorAnio.get(anio);
+                        const claveAnio = `${codEps}_${periodo}_${anio}`;
+                        const rangoAnio = (docObj && docObj.Rango_Anio) 
+                            ? docObj.Rango_Anio 
+                            : ((typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAnio] : '') || '');
+                        const estadoEval = (docObj && docObj.Estado_Evaluacion) ? String(docObj.Estado_Evaluacion).trim() : '';
+                        const esSuspendido = estadoEval.toLowerCase().includes('suspend');
+
+                        const sufijoServicio = (esEpsConServicios && tipoServicioMatriz) ? ` [${tipoServicioMatriz}]` : '';
+                        const textoEmpresa = `${codEps}. ${nombreEps}${sufijoServicio}`;
+                        const textoPeriodo = quinquenioPeriodo ? `${periodo} (${quinquenioPeriodo})` : periodo;
+                        const textoAnio = `${anio}${rangoAnio ? ' (' + rangoAnio + ')' : ''}${esSuspendido ? ' [SUSPENDIDO]' : ''}`;
+
+                        const filaActualIdx = filasExcel.length;
+                        const filaDatos = [
+                            textoEmpresa,
+                            textoPeriodo,
+                            textoAnio
+                        ];
+
+                        columnasDoc.forEach((col, colOffset) => {
+                            const cIdx = 3 + colOffset;
+                            const texto = docObj ? docObj[col.txtKey] : null;
+                            const link = docObj ? docObj[col.linkKey] : null;
+
+                            if (texto && texto !== '-' && String(texto).trim() !== '') {
+                                const textoLimpio = String(texto).trim();
+                                filaDatos.push(textoLimpio);
+                                if (link && typeof link === 'string' && link.startsWith('http')) {
+                                    hipervinculos.push({ r: filaActualIdx, c: cIdx, target: link.trim() });
+                                }
+                            } else {
+                                filaDatos.push('-');
+                            }
+                        });
+
+                        filasExcel.push(filaDatos);
+                    });
+                });
+            });
+
+            const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+
+            if (typeof XLSX !== 'undefined') {
+                const ws = XLSX.utils.aoa_to_sheet(filasExcel);
+                // Merges de encabezados
+                ws['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 1, c: 0 } }, // Empresa
+                    { s: { r: 0, c: 1 }, e: { r: 1, c: 1 } }, // Periodo
+                    { s: { r: 0, c: 2 }, e: { r: 1, c: 2 } }, // Año
+                    { s: { r: 0, c: 3 }, e: { r: 0, c: 7 } }, // Etapa de Fiscalización
+                    { s: { r: 0, c: 8 }, e: { r: 0, c: 10 } }, // Etapa PAS
+                    { s: { r: 0, c: 11 }, e: { r: 0, c: 12 } } // Recursos Administrativos
+                ];
+
+                // Inyectar hipervínculos a los documentos digitales
+                hipervinculos.forEach(h => {
+                    const cellRef = XLSX.utils.encode_cell({ r: h.r, c: h.c });
+                    if (ws[cellRef]) {
+                        ws[cellRef].l = { Target: h.target, Tooltip: h.target };
+                    }
+                });
+
+                // Anchos óptimos para visualización cómoda en Excel
+                ws['!cols'] = [
+                    { wch: 34 }, // Empresa
+                    { wch: 22 }, // Periodo
+                    { wch: 22 }, // Año
+                    { wch: 22 }, // Inf. Inicial
+                    { wch: 22 }, // Inf. Final
+                    { wch: 26 }, // Inf. Fiscalización
+                    { wch: 22 }, // Complementario Fisc
+                    { wch: 24 }, // Medidas Correctivas
+                    { wch: 22 }, // Instrucción PAS
+                    { wch: 22 }, // Complementario PAS
+                    { wch: 26 }, // Decisión PAS (RDS)
+                    { wch: 22 }, // Reconsideración
+                    { wch: 22 }  // Apelación
+                ];
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Matriz_Informes");
+                XLSX.writeFile(wb, `Matriz_Informes_Resoluciones_SUNASS_${fecha}.xlsx`);
+            } else {
+                // Fallback CSV
+                let csvContent = "\uFEFF";
+                filasExcel.forEach(fila => {
+                    csvContent += fila.map(v => `"${String(v !== undefined && v !== null ? v : '').replace(/"/g, '""')}"`).join(";") + "\n";
+                });
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                link.setAttribute("href", URL.createObjectURL(blob));
+                link.setAttribute("download", `Matriz_Informes_Resoluciones_SUNASS_${fecha}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Mantener compatibilidad por si se invoca exportarCSV()
+        const exportarCSV = exportarReportesExcel;
 
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initDashboard);

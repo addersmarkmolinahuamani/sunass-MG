@@ -547,6 +547,24 @@
                     </div>
                 </div>
 
+                <!-- Selector de Tipo de Servicio para Evaluación (Solo visible para SEDAPAL 026 y SEDALIB 028) -->
+                <div class="mb-4 hidden" id="contenedor-filtro-servicio-tablero">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Tipo de Servicio</label>
+                    <select id="filtro-servicio-tablero" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-xs font-bold focus:ring-2 focus:ring-blue-500 cursor-pointer shadow-sm">
+                        <option value="Agua y Saneamiento">Agua y Saneamiento</option>
+                        <option value="Aguas Subterráneas">Aguas Subterráneas</option>
+                    </select>
+                </div>
+
+                <!-- Selector de Tipo de Servicio para Matriz de Informes (Solo visible para SEDAPAL 026 y SEDALIB 028) -->
+                <div class="mb-4 hidden" id="contenedor-filtro-servicio-matriz">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Tipo de Servicio</label>
+                    <select id="filtro-servicio-matriz" class="w-full p-2.5 rounded bg-white text-gray-800 border-none text-xs font-bold focus:ring-2 focus:ring-emerald-500 cursor-pointer shadow-sm">
+                        <option value="Agua y Saneamiento">Agua y Saneamiento</option>
+                        <option value="Aguas Subterráneas">Aguas Subterráneas</option>
+                    </select>
+                </div>
+
                 <!-- Selector de Periodo para Evaluación (Simple) -->
                 <div class="mb-4" id="contenedor-filtro-periodo-tablero">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Periodo Regulatorio</label>
@@ -1339,9 +1357,10 @@
             return str;
         }
 
-        function generarClaveInforme(codEp, periodo, anio) {
+        function generarClaveInforme(codEp, periodo, anio, tipoServicio) {
             const codNorm = normalizarCodigoEps(codEp);
-            return `${codNorm}_${String(periodo || '').trim()}_${String(anio || '').trim()}`;
+            const srv = (tipoServicio && String(tipoServicio).trim() !== '') ? String(tipoServicio).trim() : 'Agua y Saneamiento';
+            return `${codNorm}_${String(periodo || '').trim()}_${String(anio || '').trim()}_${srv}`;
         }
 
         function construirMapaInformes() {
@@ -1349,15 +1368,21 @@
             if (!db_informes || !Array.isArray(db_informes)) return;
             
             db_informes.forEach(item => {
-                const key = generarClaveInforme(item.Cod_EP, item.Periodo_Regulatorio, item.Año_Regulatorio);
+                const srv = item.Tipo_Servicio || 'Agua y Saneamiento';
+                const key = generarClaveInforme(item.Cod_EP, item.Periodo_Regulatorio, item.Año_Regulatorio, srv);
                 mapaInformesLookup.set(key, item);
+                const fallbackKey = `${normalizarCodigoEps(item.Cod_EP)}_${String(item.Periodo_Regulatorio || '').trim()}_${String(item.Año_Regulatorio || '').trim()}`;
+                if (!mapaInformesLookup.has(fallbackKey)) {
+                    mapaInformesLookup.set(fallbackKey, item);
+                }
             });
         }
 
         function obtenerInformesDelAnio(fila) {
             if (!fila) return [];
-            const key = generarClaveInforme(fila.Cod_EP, fila.Periodo_Regulatorio, fila.Año_Regulatorio);
-            const registroDoc = mapaInformesLookup.get(key);
+            const key = generarClaveInforme(fila.Cod_EP, fila.Periodo_Regulatorio, fila.Año_Regulatorio, fila.Tipo_Servicio);
+            const fallbackKey = `${normalizarCodigoEps(fila.Cod_EP)}_${String(fila.Periodo_Regulatorio || '').trim()}_${String(fila.Año_Regulatorio || '').trim()}`;
+            const registroDoc = mapaInformesLookup.get(key) || mapaInformesLookup.get(fallbackKey);
             if (!registroDoc) return [];
 
             const listaDocs = [];
@@ -1542,6 +1567,16 @@
                 const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
                 if (contPerTablero) contPerTablero.classList.remove('hidden');
                 if (contPerMatriz) contPerMatriz.classList.add('hidden');
+
+                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+                const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+                const codTablero = normalizarCodigoEps(document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "");
+                if (contServTablero) {
+                    if (codTablero === '026' || codTablero === '028') contServTablero.classList.remove('hidden');
+                    else contServTablero.classList.add('hidden');
+                }
+                if (contServMatriz) contServMatriz.classList.add('hidden');
+
                 if (btnTablero) btnTablero.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate";
             } else if (modulo === 'matriz') {
                 if (modMatriz) {
@@ -1559,6 +1594,10 @@
                 const contPerMatriz = document.getElementById('contenedor-filtro-periodo-matriz');
                 if (contPerTablero) contPerTablero.classList.add('hidden');
                 if (contPerMatriz) contPerMatriz.classList.remove('hidden');
+
+                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+                if (contServTablero) contServTablero.classList.add('hidden');
+
                 if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
                 if (typeof actualizarPeriodosMatriz === 'function') {
                     actualizarPeriodosMatriz();
@@ -1575,6 +1614,10 @@
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
                 if (panelTablero) panelTablero.classList.add('hidden');
+                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+                const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+                if (contServTablero) contServTablero.classList.add('hidden');
+                if (contServMatriz) contServMatriz.classList.add('hidden');
                 if (btnReportes) btnReportes.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate";
             }
         }
@@ -1901,9 +1944,31 @@
                 if (epsVal) codsEps = [normalizarCodigoEps(epsVal)];
             }
 
+            const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+            const selectServMatriz = document.getElementById('filtro-servicio-matriz');
+            
+            // Si la selección es exactamente una sola EPS y es 026 o 028, mostrar el filtro de Tipo de Servicio
+            let esEpsConServicios = false;
+            let tipoServicioFiltro = 'Agua y Saneamiento';
+            if (codsEps.length === 1 && (codsEps[0] === '026' || codsEps[0] === '028')) {
+                esEpsConServicios = true;
+                if (contServMatriz) contServMatriz.classList.remove('hidden');
+                tipoServicioFiltro = selectServMatriz ? selectServMatriz.value : 'Agua y Saneamiento';
+            } else {
+                if (contServMatriz) contServMatriz.classList.add('hidden');
+                if (selectServMatriz) selectServMatriz.value = 'Agua y Saneamiento';
+            }
+
             const codsSet = new Set(codsEps);
             const informesFiltrados = (codsSet.size > 0)
-                ? db_informes.filter(item => codsSet.has(normalizarCodigoEps(item.Cod_EP)))
+                ? db_informes.filter(item => {
+                    const cod = normalizarCodigoEps(item.Cod_EP);
+                    if (!codsSet.has(cod)) return false;
+                    if (esEpsConServicios && (cod === '026' || cod === '028')) {
+                        return (item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioFiltro;
+                    }
+                    return true;
+                })
                 : db_informes;
 
             const ordenRomanosCreciente = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR', 'VI PR', 'VII PR', 'VIII PR', 'IX PR', 'X PR'];
@@ -1962,7 +2027,22 @@
 
             const updateSubFilters = () => {
                 const codEps = normalizarCodigoEps(selectEps.value);
-                const datosEps = db_global.filter(item => normalizarCodigoEps(item.Cod_EP) === codEps);
+                const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
+                const selectServTablero = document.getElementById('filtro-servicio-tablero');
+
+                let tipoServicio = 'Agua y Saneamiento';
+                if (codEps === '026' || codEps === '028') {
+                    if (contServTablero) contServTablero.classList.remove('hidden');
+                    tipoServicio = selectServTablero ? selectServTablero.value : 'Agua y Saneamiento';
+                } else {
+                    if (contServTablero) contServTablero.classList.add('hidden');
+                    if (selectServTablero) selectServTablero.value = 'Agua y Saneamiento';
+                }
+
+                const datosEps = db_global.filter(item => 
+                    normalizarCodigoEps(item.Cod_EP) === codEps &&
+                    ((codEps === '026' || codEps === '028') ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicio) : true)
+                );
 
                 const ordenRomanos = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR'];
                 const periodos = [...new Set(datosEps.map(item => item.Periodo_Regulatorio))].sort((a, b) => {
@@ -2163,6 +2243,23 @@
                 }
             });
 
+            const selectServTablero = document.getElementById('filtro-servicio-tablero');
+            if (selectServTablero && !selectServTablero.dataset.wired) {
+                selectServTablero.dataset.wired = "1";
+                selectServTablero.addEventListener('change', () => {
+                    updateSubFilters();
+                });
+            }
+
+            const selectServMatriz = document.getElementById('filtro-servicio-matriz');
+            if (selectServMatriz && !selectServMatriz.dataset.wired) {
+                selectServMatriz.dataset.wired = "1";
+                selectServMatriz.addEventListener('change', () => {
+                    actualizarPeriodosMatriz();
+                    renderizarMatrizInformes();
+                });
+            }
+
             if (epsOrdenadasCodigo.length > 0) updateSubFilters();
 
             selectPeriodo.addEventListener('change', () => {
@@ -2177,9 +2274,13 @@
             if (!epsSelect || !periodoSelect) return;
 
             const codEps = normalizarCodigoEps(epsSelect);
+            const tipoServicio = (codEps === '026' || codEps === '028')
+                ? (document.getElementById('filtro-servicio-tablero') ? document.getElementById('filtro-servicio-tablero').value : 'Agua y Saneamiento')
+                : 'Agua y Saneamiento';
             const datosEpsPeriodo = db_global.filter(item => 
                 normalizarCodigoEps(item.Cod_EP) === codEps && 
-                item.Periodo_Regulatorio === periodoSelect
+                item.Periodo_Regulatorio === periodoSelect &&
+                ((codEps === '026' || codEps === '028') ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicio) : true)
             );
 
             const etapasDisponibles = [...new Set(datosEpsPeriodo.map(item => item.Etapa))];
@@ -2411,9 +2512,14 @@
             if (lblEtapa) lblEtapa.innerText = etapaActual ? etapaActual.replace('_', ' ') : '-';
 
             // Detectar todos los años transitorios (PT) asociados a esta EPS y Periodo
+            const tipoServicioSelect = (codEps === '026' || codEps === '028')
+                ? (document.getElementById('filtro-servicio-tablero') ? document.getElementById('filtro-servicio-tablero').value : 'Agua y Saneamiento')
+                : 'Agua y Saneamiento';
+
             const datosPeriodo = db_global.filter(item => 
                 normalizarCodigoEps(item.Cod_EP) === codEps && 
-                item.Periodo_Regulatorio === periodoSelect
+                item.Periodo_Regulatorio === periodoSelect &&
+                ((codEps === '026' || codEps === '028') ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioSelect) : true)
             );
             const ptSet = new Set();
             datosPeriodo.forEach(item => {
@@ -2857,12 +2963,19 @@
                 return;
             }
 
+            // Si la selección es exactamente una sola EPS y es 026 o 028, tomamos el Tipo de Servicio
+            const esEpsConServicios = (epsAMostrar.length === 1 && (epsAMostrar[0].codPadded === '026' || epsAMostrar[0].codPadded === '028'));
+            const tipoServicioMatriz = esEpsConServicios
+                ? (document.getElementById('filtro-servicio-matriz') ? document.getElementById('filtro-servicio-matriz').value : 'Agua y Saneamiento')
+                : null;
+
             // Actualizar título sobre la matriz con el nombre / conteo de las Empresas Prestadoras
             const tituloMatrizEps = document.getElementById('titulo-matriz-nombre-eps');
             if (tituloMatrizEps) {
                 if (epsAMostrar.length === 1) {
-                    tituloMatrizEps.textContent = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}`;
-                    tituloMatrizEps.title = epsAMostrar[0].nombre;
+                    const sufijoServicio = (esEpsConServicios && tipoServicioMatriz) ? ` (${tipoServicioMatriz})` : '';
+                    tituloMatrizEps.textContent = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}${sufijoServicio}`;
+                    tituloMatrizEps.title = epsAMostrar[0].nombre + sufijoServicio;
                 } else if (epsAMostrar.length === todasEpsOrdenadas.length) {
                     tituloMatrizEps.textContent = `Todas las Empresas Prestadoras (${epsAMostrar.length})`;
                     tituloMatrizEps.title = "Todas las Empresas Prestadoras";
@@ -2909,7 +3022,13 @@
                 // Periodos de esta EPS presentes en db_informes
                 const todosPeriodosEps = [...new Set(
                     db_informes
-                        .filter(item => normalizarCodigoEps(item.Cod_EP) === codEps)
+                        .filter(item => {
+                            if (normalizarCodigoEps(item.Cod_EP) !== codEps) return false;
+                            if (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz) {
+                                return (item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz;
+                            }
+                            return true;
+                        })
                         .map(item => item.Periodo_Regulatorio)
                         .filter(Boolean)
                 )].sort((a, b) => {
@@ -2928,7 +3047,8 @@
                 const periodosData = periodosEpsAMostrar.map(periodo => {
                     const informesPeriodo = db_informes.filter(item => 
                         normalizarCodigoEps(item.Cod_EP) === codEps && 
-                        item.Periodo_Regulatorio === periodo
+                        item.Periodo_Regulatorio === periodo &&
+                        (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz) : true)
                     );
                     const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
                     const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
@@ -3117,7 +3237,8 @@
             // Actualizar tarjetas de resumen con los conteos discriminados de la selección actual
             let textoAlcance = '';
             if (epsAMostrar.length === 1) {
-                textoAlcance = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}`;
+                const sufijoServicio = (esEpsConServicios && tipoServicioMatriz) ? ` (${tipoServicioMatriz})` : '';
+                textoAlcance = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}${sufijoServicio}`;
             } else if (epsAMostrar.length === todasEpsOrdenadas.length) {
                 textoAlcance = `Todas las Empresas Prestadoras (${epsAMostrar.length})`;
             } else {

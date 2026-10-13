@@ -14,7 +14,7 @@ def exportar_base_web():
         
         # 1. Dataset de Metas e Indicadores (Tablero y Reportes)
         columnas_metas = [
-            'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Departamento', 'Tamano_EPS', 'Estado_Evaluacion',
+            'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Tipo_Servicio', 'Departamento', 'Tamano_EPS', 'Estado_Evaluacion',
             'ID_Meta_General', 'Meta_Principal', 'Nivel_Evaluacion', 'Descripcion_Especifica', 'Unidad_Medida',
             'Etapa', 'Año_Regulatorio', 'Valor_Exigido', 'Valor_Ejecutado', 'ICI'
         ]
@@ -23,7 +23,7 @@ def exportar_base_web():
         
         # 2. Matriz Consolidada de Informes por Año y Etapa
         cols_informes = [
-            'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Año_Regulatorio', 'Estado_Evaluacion',
+            'Cod_EP', 'Nombre_EPS', 'Periodo_Regulatorio', 'Año_Regulatorio', 'Tipo_Servicio', 'Estado_Evaluacion',
             'Quinquenio', 'Rango_Anio',
             'Inf_Fisc_Inicial', 'Inf_Fisc_Inicial_Link',
             'Inf_Fisc_Final', 'Inf_Fisc_Final_Link',
@@ -37,7 +37,10 @@ def exportar_base_web():
             'Recurso_Apelacion', 'Recurso_Apelacion_Link'
         ]
         cols_inf_presentes = [c for c in cols_informes if c in df.columns]
-        df_inf = df[cols_inf_presentes].drop_duplicates(subset=['Cod_EP', 'Periodo_Regulatorio', 'Año_Regulatorio'])
+        subset_cols = ['Cod_EP', 'Periodo_Regulatorio', 'Año_Regulatorio']
+        if 'Tipo_Servicio' in cols_inf_presentes:
+            subset_cols.append('Tipo_Servicio')
+        df_inf = df[cols_inf_presentes].drop_duplicates(subset=subset_cols)
         registros_informes = df_inf.to_dict(orient='records')
         
         print(f"Escribiendo {len(registros_metas)} metas y {len(registros_informes)} registros de informes en '{ruta_salida}'...")

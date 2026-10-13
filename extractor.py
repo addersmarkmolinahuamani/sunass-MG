@@ -90,9 +90,13 @@ def cargar_informes_totales(file_path):
         c_dep = ws.cell(r, 2).value
         c_nom = ws.cell(r, 3).value
         c_per = ws.cell(r, 4).value
+        c_tipo_per = ws.cell(r, 5).value
+        c_clase_mg = ws.cell(r, 6).value
         c_eval = ws.cell(r, 14).value
         c_est = ws.cell(r, 15).value
         c_tam = ws.cell(r, 17).value
+        
+        tipo_servicio = 'Aguas Subterráneas' if (str(c_clase_mg).strip() == 'MyGUAS' or str(c_tipo_per).strip() == 'AS') else 'Agua y Saneamiento'
         
         cod_n = norm_cod(c_cod)
         per_n = norm_periodo(c_per)
@@ -102,13 +106,18 @@ def cargar_informes_totales(file_path):
             dep_limpio = str(c_dep).strip() if c_dep else None
             tam_limpio = str(c_tam).strip() if c_tam else None
             if dep_limpio or tam_limpio:
-                dict_eps_meta[(cod_n, per_n)] = {
+                dict_eps_meta[(cod_n, per_n, tipo_servicio)] = {
                     'Departamento': dep_limpio,
                     'Tamano_EPS': tam_limpio
                 }
+                if (cod_n, per_n) not in dict_eps_meta:
+                    dict_eps_meta[(cod_n, per_n)] = {
+                        'Departamento': dep_limpio,
+                        'Tamano_EPS': tam_limpio
+                    }
         
         if cod_n and per_n and anio_n:
-            key = (cod_n, per_n, anio_n)
+            key = (cod_n, per_n, anio_n, tipo_servicio)
             
             def get_cell_data(col_idx):
                 cell = ws.cell(r, col_idx)
@@ -153,11 +162,12 @@ def cargar_informes_totales(file_path):
                     return f'{m.group(1)} - {m.group(2)}'
                 return s
 
-            dict_inf[key] = {
+            reg_data = {
                 'Departamento': str(c_dep).strip() if c_dep else None,
                 'Empresa_Informes': str(c_nom).strip() if c_nom else None,
                 'Tamano_EPS': str(c_tam).strip() if c_tam else None,
                 'Estado_Evaluacion': str(c_est).strip() if c_est else None,
+                'Tipo_Servicio': tipo_servicio,
                 'Quinquenio': fmt_quinq(c_quinq),
                 'Rango_Anio': fmt_rango_an(c_rango_an),
                 'Inf_Fisc_Inicial': fisc_ini_txt,
@@ -181,44 +191,63 @@ def cargar_informes_totales(file_path):
                 'Recurso_Apelacion': rec_ape_txt,
                 'Recurso_Apelacion_Link': rec_ape_lnk
             }
+            dict_inf[key] = reg_data
+            if (cod_n, per_n, anio_n) not in dict_inf:
+                dict_inf[(cod_n, per_n, anio_n)] = reg_data
             
     print(f"Éxito: {len(dict_inf)} registros de informes cargados para cruce.")
     return dict_inf, dict_eps_meta
 
-def parse_periodo_banner(texto, periodos_ya_vistos):
-    """Detecta el periodo regulatorio en el banner de cada bloque."""
+def parse_periodo_banner(texto, periodos_ya_vistos=None, cod_ep=None):
+    """Detecta el periodo regulatorio y el tipo de servicio en el banner de cada bloque."""
     s = texto.upper()
-    if 'METAS DE SERVICIO' in s:
-        return None
+    
+    # Clasificar Tipo de Servicio
+    tipo_servicio = 'Agua y Saneamiento'
+    if 'MYGUAS' in s:
+        tipo_servicio = 'Aguas Subterráneas'
+    elif 'SUBTERR' in s and 'AGUA Y SANEAMIENTO' not in s:
+        tipo_servicio = 'Aguas Subterráneas'
+    elif 'AGUAS 059' in s or 'AGUAS 065' in s:
+        tipo_servicio = 'Aguas Subterráneas'
         
     p_detectado = None
-    if 'QUINTO' in s or ' 5TO' in s or 'V PR' in s or 'V PERIODO' in s:
-        p_detectado = 'V PR'
-    elif 'CUARTO' in s or ' 4TO' in s or 'IV PR' in s or 'IV PERIODO' in s:
-        p_detectado = 'IV PR'
-    elif 'TERCER' in s or 'TERCERO' in s or ' 3ER' in s or 'III PR' in s or 'III PERIODO' in s:
-        p_detectado = 'III PR'
-    elif 'SEGUNDO' in s or ' 2DO' in s or 'II PR' in s or 'II PERIODO' in s:
-        p_detectado = 'II PR'
-    elif 'PRIMER' in s or ' 1ER' in s or 'I PR' in s or 'I PERIODO' in s:
-        p_detectado = 'I PR'
-        
-    # Corrección de errores de copy-paste en títulos (ej: "SEGUNDO QUINQUENIO" con años <= 2010)
-    m_anio = re.search(r'\((\d{4})', s)
-    if m_anio:
-        anio_ini = int(m_anio.group(1))
-        if anio_ini <= 2010 and p_detectado in ('II PR', 'III PR'):
+    
+    # Mapeo específico para SEDAPAL (026) en Saneamiento por numeración de Quinquenio en títulos
+    if cod_ep == 26 and tipo_servicio == 'Agua y Saneamiento':
+        if '2022-2027' in s: p_detectado = 'V PR'
+        elif '2015-2020' in s: p_detectado = 'IV PR'
+        elif '2010-2015' in s: p_detectado = 'III PR'
+        elif '2006-2010' in s: p_detectado = 'II PR'
+    
+    if not p_detectado:
+        if 'QUINTO' in s or ' 5TO' in s or 'V PR' in s or 'V PERIODO' in s:
+            p_detectado = 'V PR'
+        elif 'CUARTO' in s or ' 4TO' in s or 'IV PR' in s or 'IV PERIODO' in s:
+            p_detectado = 'IV PR'
+        elif 'TERCER' in s or 'TERCERO' in s or ' 3ER' in s or 'III PR' in s or 'III PERIODO' in s:
+            p_detectado = 'III PR'
+        elif 'SEGUNDO' in s or ' 2DO' in s or 'II PR' in s or 'II PERIODO' in s:
+            p_detectado = 'II PR'
+        elif 'PRIMER' in s or ' 1ER' in s or 'I PR' in s or 'I PERIODO' in s:
             p_detectado = 'I PR'
             
-    # Garantizar orden lógico si ya se detectó el periodo previamente en la misma hoja
-    if p_detectado in periodos_ya_vistos:
+    # Corrección de errores de copy-paste en títulos (ej: "SEGUNDO QUINQUENIO" con años <= 2010)
+    m_anio = re.search(r'\((\d{4})', s)
+    if m_anio and not (cod_ep == 26 and tipo_servicio == 'Agua y Saneamiento'):
+        anio_ini = int(m_anio.group(1))
+        if anio_ini <= 2010 and p_detectado in ('II PR', 'III PR') and tipo_servicio != 'Aguas Subterráneas':
+            p_detectado = 'I PR'
+            
+    # Garantizar orden lógico si ya se detectó el periodo previamente en la misma hoja dentro del mismo servicio
+    if periodos_ya_vistos and p_detectado in periodos_ya_vistos:
         orden = ['V PR', 'IV PR', 'III PR', 'II PR', 'I PR']
-        if periodos_ya_vistos and periodos_ya_vistos[-1] in orden:
+        if periodos_ya_vistos[-1] in orden:
             idx = orden.index(periodos_ya_vistos[-1])
             if idx + 1 < len(orden):
                 p_detectado = orden[idx + 1]
 
-    return p_detectado
+    return p_detectado, tipo_servicio
 
 def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
     """
@@ -435,32 +464,40 @@ def extraer_todas_las_eps_dinamico():
         
         # 1. Encontrar todos los bloques de periodos regulatorios en la hoja
         bloques = []
-        vistos = []
+        vistos_san = []
+        vistos_as = []
         for r in range(len(df)):
             for c in range(min(5, len(df.columns))):
                 val = str(df.iloc[r, c] or '').strip().replace('\n', ' ')
-                if "RESULTADOS DEL CUMPLIMIENTO DE METAS DE GESTI" in val.upper():
-                    pr = parse_periodo_banner(val, vistos)
+                if "RESULTADOS DEL CUMPLIMIENTO" in val.upper() or "METAS DE SERVICIO MYGUAS" in val.upper():
+                    es_as = 'SUBTERR' in val.upper() or 'MYGUAS' in val.upper() or 'AGUAS 059' in val.upper() or 'AGUAS 065' in val.upper()
+                    if 'AGUA Y SANEAMIENTO' in val.upper():
+                        es_as = False
+                    vistos_act = vistos_as if es_as else vistos_san
+                    pr, tipo_srv = parse_periodo_banner(val, vistos_act, cod_ep_num)
                     if pr:
-                        vistos.append(pr)
-                        bloques.append((r, pr))
+                        if tipo_srv == 'Aguas Subterráneas':
+                            vistos_as.append(pr)
+                        else:
+                            vistos_san.append(pr)
+                        bloques.append((r, pr, tipo_srv))
                     break
                     
         # Fallback si no se detectó ningún banner: usar celdas fijas tradicionales
         if not bloques:
             pr_fallback = str(df.iloc[2, 0]).strip() if pd.notna(df.iloc[2, 0]) else "III PR"
-            bloques = [(3, pr_fallback)]
+            bloques = [(3, pr_fallback, 'Agua y Saneamiento')]
             
         total_bloques_procesados += len(bloques)
         
         # 2. Procesar cada bloque (periodo regulatorio) de la EPS
-        for idx_b, (r_ban, periodo_reg) in enumerate(bloques):
+        for idx_b, (r_ban, periodo_reg, tipo_servicio) in enumerate(bloques):
             r_fin_bloque = bloques[idx_b + 1][0] if idx_b + 1 < len(bloques) else len(df)
             periodo_reg_romano = norm_periodo(periodo_reg)
             
             mapa_etapas, columnas_metricas, r_start = detectar_columnas_bloque(df, r_ban, r_fin_bloque)
             
-            meta_eps_gen = dict_eps_meta.get((cod_ep_num, periodo_reg_romano), {})
+            meta_eps_gen = dict_eps_meta.get((cod_ep_num, periodo_reg_romano, tipo_servicio)) or dict_eps_meta.get((cod_ep_num, periodo_reg_romano), {})
             departamento_val = meta_eps_gen.get('Departamento')
             tamano_val = meta_eps_gen.get('Tamano_EPS')
             
@@ -508,7 +545,7 @@ def extraer_todas_las_eps_dinamico():
                     def agregar_registro(anio_etiqueta, v_meta, v_ejec, v_ici):
                         if v_meta is None and v_ejec is None and v_ici is None:
                             return
-                        info_cruce = dict_inf.get((cod_ep_num, periodo_reg_romano, anio_etiqueta), {})
+                        info_cruce = dict_inf.get((cod_ep_num, periodo_reg_romano, anio_etiqueta, tipo_servicio)) or dict_inf.get((cod_ep_num, periodo_reg_romano, anio_etiqueta), {})
                         
                         inf_etapa = None
                         inf_etapa_link = None
@@ -529,6 +566,7 @@ def extraer_todas_las_eps_dinamico():
                             'Cod_EP': cod_ep,
                             'Nombre_EPS': nombre_eps,
                             'Periodo_Regulatorio': periodo_reg,
+                            'Tipo_Servicio': tipo_servicio,
                             'Departamento': info_cruce.get('Departamento') or departamento_val,
                             'Tamano_EPS': info_cruce.get('Tamano_EPS') or tamano_val,
                             'Estado_Evaluacion': info_cruce.get('Estado_Evaluacion'),

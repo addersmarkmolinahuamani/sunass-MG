@@ -983,6 +983,190 @@
             </header>
 
             <main class="flex-1 p-8 overflow-y-auto">
+                <!-- CONTENEDOR DE TARJETAS DE RESUMEN DE DOCUMENTOS (4 TARJETAS COMPRIMIBLES / EXPANDIBLES) -->
+                <div id="contenedor-resumen-documentos" class="mb-4 bg-white rounded-xl shadow-xs border border-slate-200/90 overflow-hidden transition-all duration-300">
+                    <!-- Barra Superior de Control (Título + Totales Rápidos + Botón Comprimir/Expandir) -->
+                    <div class="px-4 py-2.5 bg-gradient-to-r from-slate-50 via-white to-slate-50/80 border-b border-slate-200 flex items-center justify-between gap-3 cursor-pointer select-none" onclick="toggleResumenDocumentos()" title="Clic para comprimir o expandir las tarjetas de resumen">
+                        <div class="flex items-center gap-2.5 min-w-0">
+                            <span class="flex items-center justify-center w-6 h-6 rounded-md bg-[#003366] text-white text-xs shadow-2xs shrink-0">
+                                📊
+                            </span>
+                            <div class="flex items-center gap-2 flex-wrap min-w-0">
+                                <span class="text-xs font-black text-[#003366] tracking-wide uppercase">Resumen Documentario por Etapa</span>
+                                <span id="badge-resumen-alcance" class="text-[11px] font-semibold text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full truncate max-w-xs">
+                                    Todas las EPS
+                                </span>
+                            </div>
+
+                            <!-- Mini-cinta de resumen (visible cuando las tarjetas están comprimidas) -->
+                            <div id="mini-resumen-colapsado" class="hidden md:flex items-center gap-2.5 text-[11px] text-slate-600 pl-3 border-l border-slate-200">
+                                <span class="inline-flex items-center gap-1 font-medium"><span class="w-2 h-2 rounded-full bg-blue-600"></span> Fiscalización: <strong id="mini-total-fisc" class="font-bold text-slate-800 tabular-nums">0</strong></span>
+                                <span class="text-slate-300">•</span>
+                                <span class="inline-flex items-center gap-1 font-medium"><span class="w-2 h-2 rounded-full bg-indigo-600"></span> PAS: <strong id="mini-total-pas" class="font-bold text-slate-800 tabular-nums">0</strong></span>
+                                <span class="text-slate-300">•</span>
+                                <span class="inline-flex items-center gap-1 font-medium"><span class="w-2 h-2 rounded-full bg-amber-600"></span> Recursos: <strong id="mini-total-rec" class="font-bold text-slate-800 tabular-nums">0</strong></span>
+                                <span class="text-slate-300">•</span>
+                                <span class="inline-flex items-center gap-1 font-medium"><span class="w-2 h-2 rounded-full bg-emerald-600"></span> Total: <strong id="mini-total-gral" class="font-black text-emerald-700 tabular-nums">0</strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Botón Comprimir / Expandir -->
+                        <button type="button" id="btn-toggle-resumen-docs" class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-blue-900 bg-white hover:bg-slate-100 border border-slate-200 hover:border-blue-300 rounded-lg shadow-2xs transition shrink-0" onclick="event.stopPropagation(); toggleResumenDocumentos();">
+                            <span id="txt-toggle-resumen-docs">Comprimir</span>
+                            <svg id="icono-toggle-resumen-docs" class="w-3.5 h-3.5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Cuerpo con las 4 tarjetas (Grid compacto) -->
+                    <div id="cuerpo-tarjetas-resumen" class="p-3 bg-slate-50/50 transition-all duration-300">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                            
+                            <!-- TARJETA 1: FISCALIZACIÓN -->
+                            <div class="bg-white rounded-lg p-2.5 border border-slate-200 border-t-[3px] border-t-blue-600 shadow-2xs hover:shadow-xs transition">
+                                <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                        <h3 class="text-[11.5px] font-black uppercase tracking-wider text-slate-800">Fiscalización</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-extrabold text-[11px] border border-blue-200/70">
+                                        <span id="kpi-total-fiscalizacion">0</span> docs
+                                    </span>
+                                </div>
+                                <div class="space-y-0.5 text-[11px]">
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. Iniciales:</span>
+                                        <span id="kpi-fisc-iniciales" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. Finales:</span>
+                                        <span id="kpi-fisc-finales" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. de Fiscalización:</span>
+                                        <span id="kpi-fisc-fiscalizacion" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. Complementarios:</span>
+                                        <span id="kpi-fisc-complementarios" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Medidas Correctivas:</span>
+                                        <span id="kpi-fisc-medidas" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TARJETA 2: PAS -->
+                            <div class="bg-white rounded-lg p-2.5 border border-slate-200 border-t-[3px] border-t-indigo-600 shadow-2xs hover:shadow-xs transition">
+                                <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-indigo-600"></span>
+                                        <h3 class="text-[11.5px] font-black uppercase tracking-wider text-slate-800">Etapa PAS</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 font-extrabold text-[11px] border border-indigo-200/70">
+                                        <span id="kpi-total-pas">0</span> docs
+                                    </span>
+                                </div>
+                                <div class="space-y-0.5 text-[11px]">
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. de Instrucción:</span>
+                                        <span id="kpi-pas-instruccion" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. Complementarios:</span>
+                                        <span id="kpi-pas-complementarios" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate" title="Resoluciones de la Dirección de Sanciones">Resoluciones (RDS):</span>
+                                        <span id="kpi-pas-rds" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. de Decisión:</span>
+                                        <span id="kpi-pas-decision" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded opacity-75">
+                                        <span class="text-slate-400 text-[10px] italic">Procedimiento</span>
+                                        <span class="text-indigo-600 font-bold text-[10px]">Sancionador</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TARJETA 3: RECURSOS ADMINISTRATIVOS -->
+                            <div class="bg-white rounded-lg p-2.5 border border-slate-200 border-t-[3px] border-t-amber-600 shadow-2xs hover:shadow-xs transition">
+                                <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-amber-600"></span>
+                                        <h3 class="text-[11.5px] font-black uppercase tracking-wider text-slate-800">Recursos Adm.</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 font-extrabold text-[11px] border border-amber-200/70">
+                                        <span id="kpi-total-recursos">0</span> docs
+                                    </span>
+                                </div>
+                                <div class="space-y-0.5 text-[11px]">
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate" title="Resoluciones de la Dirección de Sanciones en Reconsideración">Resoluciones (RDS):</span>
+                                        <span id="kpi-rec-rds" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. Reconsideración:</span>
+                                        <span id="kpi-rec-reconsideracion" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate" title="Resoluciones de Gerencia General en Apelación">Resoluciones (RGG):</span>
+                                        <span id="kpi-rec-rgg" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Inf. de Apelación:</span>
+                                        <span id="kpi-rec-apelacion" class="font-bold text-slate-900 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded opacity-75">
+                                        <span class="text-slate-400 text-[10px] italic">Impugnaciones</span>
+                                        <span class="text-amber-700 font-bold text-[10px]">Recons. / Apel.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TARJETA 4: TOTAL GENERAL / RESUMEN -->
+                            <div class="bg-white rounded-lg p-2.5 border border-slate-200 border-t-[3px] border-t-emerald-600 shadow-2xs hover:shadow-xs transition">
+                                <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-slate-100">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+                                        <h3 class="text-[11.5px] font-black uppercase tracking-wider text-slate-800">Total General</h3>
+                                    </div>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 font-black text-[11px] border border-emerald-200/70">
+                                        <span id="kpi-total-general-docs">0</span> docs
+                                    </span>
+                                </div>
+                                <div class="space-y-0.5 text-[11px]">
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Fiscalización:</span>
+                                        <span id="kpi-total-resumen-fisc" class="font-bold text-blue-700 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Etapa PAS:</span>
+                                        <span id="kpi-total-resumen-pas" class="font-bold text-indigo-700 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded hover:bg-slate-50">
+                                        <span class="text-slate-600 truncate">Recursos Adm.:</span>
+                                        <span id="kpi-total-resumen-rec" class="font-bold text-amber-700 tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1.5 rounded bg-emerald-50/80 border border-emerald-100 font-semibold text-emerald-900">
+                                        <span class="truncate">Total Tramitados:</span>
+                                        <span id="kpi-total-resumen-suma" class="font-black tabular-nums">0</span>
+                                    </div>
+                                    <div class="flex items-center justify-between py-0.5 px-1 rounded opacity-75">
+                                        <span class="text-slate-400 text-[10px] italic">Años Evaluados</span>
+                                        <span id="kpi-total-anios-evaluados" class="text-emerald-700 font-bold text-[10px]">0 reg.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
                 <!-- MATRIZ OFICIAL DE INFORMES -->
                 <div id="seccion-matriz-informes" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-10">
                     <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
@@ -1378,6 +1562,9 @@
                 if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
                 if (typeof actualizarPeriodosMatriz === 'function') {
                     actualizarPeriodosMatriz();
+                }
+                if (typeof aplicarEstadoGuardadoResumenDocs === 'function') {
+                    aplicarEstadoGuardadoResumenDocs();
                 }
                 renderizarMatrizInformes();
             } else if (modulo === 'reportes') {
@@ -2442,12 +2629,182 @@
             dibujarGraficosIci(metasNormales, ptColumns);
         }
 
+        // ========================================================
+        // UTILIDADES Y CONTEO DE DOCUMENTOS DE LA MATRIZ (4 TARJETAS)
+        // ========================================================
+        function esDocValido(str) {
+            if (!str) return false;
+            const s = String(str).trim();
+            if (!s || s === '-' || s === '–' || s === '—' || s.toUpperCase() === 'N/A') return false;
+            const u = s.toUpperCase();
+            if (u.includes('FECHA TENTATIVA') || u.includes('PENDIENTE CARGAR') || u.includes('SIN EVALUACION') || u.includes('NO EVALUADO') || u.includes('SUSPENDID')) return false;
+            return true;
+        }
+
+        function discriminarDocumentos(texto) {
+            if (!esDocValido(texto)) return [];
+            const s = String(texto).trim();
+
+            // Caso 1: Estructura general con paréntesis global, p.ej: Doc1 (Doc2) o Doc1 \n (Doc2)
+            const matchParen = s.match(/^(.*?)\s*\((.*?)\)\s*$/s);
+            if (matchParen) {
+                const parte1 = matchParen[1].trim();
+                const parte2 = matchParen[2].trim();
+                const docs = [];
+
+                if (esDocValido(parte1)) {
+                    parte1.split('\n').map(l => l.trim()).filter(esDocValido).forEach(d => docs.push(d));
+                }
+
+                // Descartar notas aclaratorias que no constituyen documentos (ej: '(Remitido a GG, No notificado a EP)')
+                const u2 = parte2.toUpperCase();
+                const esComentario = u2.includes('REMITIDO') || u2.includes('NOTIFICADO') || u2.includes('PENDIENTE');
+                const tieneDoc = /\d/.test(parte2) || u2.includes('SUNASS') || u2.includes('RDS') || u2.includes('RGG') || u2.includes('ID') || u2.includes('INF') || u2.includes('IOAJ');
+
+                if (esDocValido(parte2) && !esComentario && tieneDoc) {
+                    parte2.split('\n').map(l => l.trim()).filter(esDocValido).forEach(d => docs.push(d));
+                }
+                return docs;
+            }
+
+            // Caso 2: Documentos separados por salto de línea (\n) con o sin paréntesis por línea
+            const lineas = s.split('\n').map(l => l.trim()).filter(esDocValido);
+            const resultado = [];
+            lineas.forEach(linea => {
+                const m = linea.match(/^(.*?)\s*\((.*?)\)\s*$/);
+                if (m) {
+                    const p1 = m[1].trim();
+                    const p2 = m[2].trim();
+                    if (esDocValido(p1)) resultado.push(p1);
+                    const u2 = p2.toUpperCase();
+                    const esComentario = u2.includes('REMITIDO') || u2.includes('NOTIFICADO') || u2.includes('PENDIENTE');
+                    const tieneDoc = /\d/.test(p2) || u2.includes('SUNASS') || u2.includes('RDS') || u2.includes('RGG') || u2.includes('ID') || u2.includes('INF') || u2.includes('IOAJ');
+                    if (esDocValido(p2) && !esComentario && tieneDoc) {
+                        resultado.push(p2);
+                    }
+                } else {
+                    resultado.push(linea);
+                }
+            });
+            return resultado;
+        }
+
+        function toggleResumenDocumentos() {
+            const contenedor = document.getElementById('cuerpo-tarjetas-resumen');
+            const miniResumen = document.getElementById('mini-resumen-colapsado');
+            const txtBtn = document.getElementById('txt-toggle-resumen-docs');
+            const icono = document.getElementById('icono-toggle-resumen-docs');
+            if (!contenedor) return;
+
+            const estaColapsado = contenedor.classList.contains('hidden');
+            if (estaColapsado) {
+                // Expandir
+                contenedor.classList.remove('hidden');
+                if (miniResumen) miniResumen.classList.add('hidden');
+                if (txtBtn) txtBtn.textContent = 'Comprimir';
+                if (icono) icono.classList.remove('rotate-180');
+                localStorage.setItem('sunass_resumen_docs_colapsado', '0');
+            } else {
+                // Comprimir
+                contenedor.classList.add('hidden');
+                if (miniResumen) miniResumen.classList.remove('hidden');
+                if (txtBtn) txtBtn.textContent = 'Expandir';
+                if (icono) icono.classList.add('rotate-180');
+                localStorage.setItem('sunass_resumen_docs_colapsado', '1');
+            }
+        }
+
+        function aplicarEstadoGuardadoResumenDocs() {
+            const colapsadoGuardado = localStorage.getItem('sunass_resumen_docs_colapsado') === '1';
+            const contenedor = document.getElementById('cuerpo-tarjetas-resumen');
+            const miniResumen = document.getElementById('mini-resumen-colapsado');
+            const txtBtn = document.getElementById('txt-toggle-resumen-docs');
+            const icono = document.getElementById('icono-toggle-resumen-docs');
+            if (!contenedor) return;
+
+            if (colapsadoGuardado) {
+                contenedor.classList.add('hidden');
+                if (miniResumen) miniResumen.classList.remove('hidden');
+                if (txtBtn) txtBtn.textContent = 'Expandir';
+                if (icono) icono.classList.add('rotate-180');
+            } else {
+                contenedor.classList.remove('hidden');
+                if (miniResumen) miniResumen.classList.add('hidden');
+                if (txtBtn) txtBtn.textContent = 'Comprimir';
+                if (icono) icono.classList.remove('rotate-180');
+            }
+        }
+
+        function actualizarTarjetasResumenInformes(stats, alcance) {
+            const defaultStats = {
+                fisc_ini: 0, fisc_fin: 0, fisc_inf: 0, fisc_comp: 0, fisc_med: 0,
+                pas_inst: 0, pas_comp: 0, pas_rds: 0, pas_id: 0,
+                rec_rds: 0, rec_recon: 0, rec_rgg: 0, rec_apel: 0,
+                anios_evaluados: 0
+            };
+            const s = stats || defaultStats;
+
+            const totalFisc = s.fisc_ini + s.fisc_fin + s.fisc_inf + s.fisc_comp + s.fisc_med;
+            const totalPas = s.pas_inst + s.pas_comp + s.pas_rds + s.pas_id;
+            const totalRec = s.rec_rds + s.rec_recon + s.rec_rgg + s.rec_apel;
+            const totalGeneral = totalFisc + totalPas + totalRec;
+
+            const setTxt = (id, val) => {
+                const el = document.getElementById(id);
+                if (el) el.textContent = typeof val === 'number' ? val.toLocaleString('es-PE') : val;
+            };
+
+            // 1. Tarjeta de Fiscalización
+            setTxt('kpi-total-fiscalizacion', totalFisc);
+            setTxt('kpi-fisc-iniciales', s.fisc_ini);
+            setTxt('kpi-fisc-finales', s.fisc_fin);
+            setTxt('kpi-fisc-fiscalizacion', s.fisc_inf);
+            setTxt('kpi-fisc-complementarios', s.fisc_comp);
+            setTxt('kpi-fisc-medidas', s.fisc_med);
+
+            // 2. Tarjeta PAS
+            setTxt('kpi-total-pas', totalPas);
+            setTxt('kpi-pas-instruccion', s.pas_inst);
+            setTxt('kpi-pas-complementarios', s.pas_comp);
+            setTxt('kpi-pas-rds', s.pas_rds);
+            setTxt('kpi-pas-decision', s.pas_id);
+
+            // 3. Tarjeta Recursos Administrativos
+            setTxt('kpi-total-recursos', totalRec);
+            setTxt('kpi-rec-rds', s.rec_rds);
+            setTxt('kpi-rec-reconsideracion', s.rec_recon);
+            setTxt('kpi-rec-rgg', s.rec_rgg);
+            setTxt('kpi-rec-apelacion', s.rec_apel);
+
+            // 4. Tarjeta Total General / Resumen
+            setTxt('kpi-total-general-docs', totalGeneral);
+            setTxt('kpi-total-resumen-fisc', totalFisc);
+            setTxt('kpi-total-resumen-pas', totalPas);
+            setTxt('kpi-total-resumen-rec', totalRec);
+            setTxt('kpi-total-resumen-suma', `${totalGeneral.toLocaleString('es-PE')} docs`);
+            setTxt('kpi-total-anios-evaluados', `${s.anios_evaluados} reg.`);
+
+            // Mini-cinta colapsada
+            setTxt('mini-total-fisc', totalFisc);
+            setTxt('mini-total-pas', totalPas);
+            setTxt('mini-total-rec', totalRec);
+            setTxt('mini-total-gral', totalGeneral);
+
+            // Badge de alcance
+            const badgeAlcance = document.getElementById('badge-resumen-alcance');
+            if (badgeAlcance && alcance) {
+                badgeAlcance.textContent = alcance;
+                badgeAlcance.title = alcance;
+            }
+        }
+
         function renderizarMatrizInformes() {
             const tbody = document.getElementById('tabla-informes-cuerpo');
             if (!tbody) return;
 
             if (!db_informes || db_informes.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No hay registros de informes disponibles.</td></tr>';
+                actualizarTarjetasResumenInformes(null, 'Sin datos');
                 return;
             }
 
@@ -2496,6 +2853,7 @@
 
             if (epsAMostrar.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No hay Empresas Prestadoras seleccionadas para mostrar.</td></tr>';
+                actualizarTarjetasResumenInformes(null, 'Sin selección');
                 return;
             }
 
@@ -2536,6 +2894,12 @@
 
             let html = '';
             let totalFilasGeneradas = 0;
+            const statsDocs = {
+                fisc_ini: 0, fisc_fin: 0, fisc_inf: 0, fisc_comp: 0, fisc_med: 0,
+                pas_inst: 0, pas_comp: 0, pas_rds: 0, pas_id: 0,
+                rec_rds: 0, rec_recon: 0, rec_rgg: 0, rec_apel: 0,
+                anios_evaluados: 0
+            };
 
             epsAMostrar.forEach((epsItem, eIdx) => {
                 const codEps = epsItem.codPadded;
@@ -2610,6 +2974,38 @@
                         else if (esFinDePeriodo) claseBorde = 'fila-fin-periodo';
 
                         const docObj = mapPorAnio.get(anio);
+
+                        // Acumular conteo discriminado de documentos para las 4 tarjetas de resumen
+                        if (docObj) {
+                            statsDocs.anios_evaluados++;
+                            statsDocs.fisc_ini += discriminarDocumentos(docObj.Inf_Fisc_Inicial).length;
+                            statsDocs.fisc_fin += discriminarDocumentos(docObj.Inf_Fisc_Final).length;
+                            statsDocs.fisc_inf += discriminarDocumentos(docObj.Inf_Fiscalizacion).length;
+                            statsDocs.fisc_comp += discriminarDocumentos(docObj.Inf_Fisc_Complementario).length;
+                            statsDocs.fisc_med += discriminarDocumentos(docObj.Inf_Fisc_MedidasCorrectivas).length;
+
+                            statsDocs.pas_inst += discriminarDocumentos(docObj.Inf_PAS_Instruccion).length;
+                            statsDocs.pas_comp += discriminarDocumentos(docObj.Inf_PAS_Complementario).length;
+                            discriminarDocumentos(docObj.Inf_PAS_Decision).forEach(doc => {
+                                if (doc.toUpperCase().includes('RDS')) statsDocs.pas_rds++;
+                                else statsDocs.pas_id++;
+                            });
+
+                            discriminarDocumentos(docObj.Recurso_Reconsideracion).forEach(doc => {
+                                const u = doc.toUpperCase();
+                                if (u.includes('RDS')) statsDocs.rec_rds++;
+                                else if (u.includes('RGG')) statsDocs.rec_rgg++;
+                                else statsDocs.rec_recon++;
+                            });
+
+                            discriminarDocumentos(docObj.Recurso_Apelacion).forEach(doc => {
+                                const u = doc.toUpperCase();
+                                if (u.includes('RGG') || u.includes('RCD')) statsDocs.rec_rgg++;
+                                else if (u.includes('RDS')) statsDocs.rec_rds++;
+                                else statsDocs.rec_apel++;
+                            });
+                        }
+
                         const claveAnio = `${codEps}_${periodo}_${anio}`;
                         const rangoAnio = (docObj && docObj.Rango_Anio) 
                             ? docObj.Rango_Anio 
@@ -2717,6 +3113,20 @@
                     });
                 });
             });
+
+            // Actualizar tarjetas de resumen con los conteos discriminados de la selección actual
+            let textoAlcance = '';
+            if (epsAMostrar.length === 1) {
+                textoAlcance = `${epsAMostrar[0].codPadded}. ${epsAMostrar[0].nombre}`;
+            } else if (epsAMostrar.length === todasEpsOrdenadas.length) {
+                textoAlcance = `Todas las Empresas Prestadoras (${epsAMostrar.length})`;
+            } else {
+                textoAlcance = `${epsAMostrar.length} EPS seleccionadas`;
+            }
+            if (periodosFiltro && periodosFiltro.length > 0) {
+                textoAlcance += ` • ${periodosFiltro.join(', ')}`;
+            }
+            actualizarTarjetasResumenInformes(statsDocs, textoAlcance);
 
             if (totalFilasGeneradas === 0) {
                 tbody.innerHTML = '<tr><td colspan="13" class="text-center py-6 text-gray-400 italic">No se encontraron informes para la selección indicada.</td></tr>';

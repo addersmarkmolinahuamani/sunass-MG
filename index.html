@@ -742,6 +742,8 @@
                     <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
                 </div>
                 <div class="flex items-center gap-2.5">
+                    <!-- Acceso al Estudio Tarifario en Header -->
+                    <div id="contenedor-header-estudio-tarifario" class="relative inline-block"></div>
                     <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                         🏠 Portada
                     </button>
@@ -760,9 +762,13 @@
                         
                         <!-- Datos de la Empresa Prestadora y Vigencia -->
                         <div class="space-y-2">
-                            <div class="flex items-center justify-between gap-2">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
                                 <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2 py-0.5 rounded inline-block">Empresa Prestadora</span>
-                                <span id="card-eps-quinquenio-badge" class="text-[10.5px] font-extrabold text-blue-900 bg-blue-100/80 px-2.5 py-0.5 rounded-full border border-blue-200 shadow-2xs" title="Vigencia quinquenal oficial">-</span>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span id="card-eps-quinquenio-badge" class="text-[10.5px] font-extrabold text-blue-900 bg-blue-100/80 px-2.5 py-0.5 rounded-full border border-blue-200 shadow-2xs" title="Vigencia quinquenal oficial">-</span>
+                                    <!-- Acceso al Estudio Tarifario en la Ficha EPS -->
+                                    <div id="contenedor-card-estudio-tarifario" class="relative inline-block"></div>
+                                </div>
                             </div>
 
                             <h3 id="card-eps-nombre" class="text-sm font-bold text-slate-800 leading-snug line-clamp-2" title="-">-</h3>
@@ -1286,6 +1292,7 @@
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
     <script src="fechas_informes.js?v=20261012_v5"></script>
+    <script src="estudios_tarifarios.js?v=20261014_v1"></script>
     <script src="datos_sunass.js?v=20261012_v5"></script>
 
     <script>
@@ -2475,11 +2482,211 @@
                 }
             }
 
+            // Determinar Tipo de Servicio para el filtro activo (en SEDAPAL 026 y SEDALIB 028)
+            const tipoServicioSelect = (codEps === '026' || codEps === '028')
+                ? (document.getElementById('filtro-servicio-tablero') ? document.getElementById('filtro-servicio-tablero').value : 'Agua y Saneamiento')
+                : 'Agua y Saneamiento';
+
+            // Actualizar Acceso oficial al Estudio Tarifario según la EPS y Periodo visualizados
+            actualizarAccesoEstudioTarifario(codEps, periodoSelect, tipoServicioSelect);
+
             // Renderizar la tabla de metas para la etapa activa
             renderizarSoloTabla();
 
             // Renderizar la Matriz completa de Informes Oficiales en su módulo
             renderizarMatrizInformes();
+        }
+
+        // =========================================================================
+        // ACCESO OFICIAL AL ESTUDIO TARIFARIO POR EPS Y PERIODO REGULATORIO
+        // =========================================================================
+        function toggleDropdownEstudios(e, menuId) {
+            if (e) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+            const menu = document.getElementById(menuId);
+            if (!menu) return;
+            const estaOculto = menu.classList.contains('hidden');
+            const todosLosMenus = document.querySelectorAll('.menu-dropdown-estudios');
+            todosLosMenus.forEach(m => m.classList.add('hidden'));
+            if (estaOculto) {
+                menu.classList.remove('hidden');
+            }
+        }
+
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('#wrapper-dropdown-card-et') && !e.target.closest('#wrapper-dropdown-header-et')) {
+                const menus = document.querySelectorAll('.menu-dropdown-estudios');
+                menus.forEach(m => m.classList.add('hidden'));
+            }
+        });
+
+        function obtenerEstudiosTarifarios(codEpsParam, periodoParam, tipoServicioParam) {
+            if (typeof db_estudios_tarifarios === 'undefined' || !Array.isArray(db_estudios_tarifarios)) {
+                return [];
+            }
+            const codNorm = normalizarCodigoEps(codEpsParam);
+            const esEspecial = (codNorm === '026' || codNorm === '028');
+            const srvNorm = (tipoServicioParam && tipoServicioParam.toLowerCase().includes('subterr')) ? 'subterr' : 'agua';
+
+            let perBase = String(periodoParam || '').trim().toUpperCase();
+            const m = perBase.match(/\b(I{1,3}|IV|V)\s*PR\b/);
+            if (m) perBase = m[0];
+            else {
+                const m2 = perBase.match(/\b(I{1,3}|IV|V)\b/);
+                if (m2) perBase = m2[1] + ' PR';
+            }
+
+            return db_estudios_tarifarios.filter(item => {
+                if (normalizarCodigoEps(item.cod_ep) !== codNorm) return false;
+                if (esEspecial) {
+                    const itemSrv = (item.tipo_servicio && item.tipo_servicio.toLowerCase().includes('subterr')) ? 'subterr' : 'agua';
+                    if (itemSrv !== srvNorm) return false;
+                }
+                const itemPerBase = (item.periodo_base || '').trim().toUpperCase();
+                const itemPer = (item.periodo || '').trim().toUpperCase();
+                return (itemPerBase === perBase || itemPer === perBase || itemPer.startsWith(perBase));
+            });
+        }
+
+        function actualizarAccesoEstudioTarifario(codEps, periodo, tipoServicio) {
+            const contCard = document.getElementById('contenedor-card-estudio-tarifario');
+            const contHeader = document.getElementById('contenedor-header-estudio-tarifario');
+            if (!contCard && !contHeader) return;
+
+            const estudios = obtenerEstudiosTarifarios(codEps, periodo, tipoServicio);
+            const estudiosConLink = estudios.filter(e => e.link && e.link.trim() !== '');
+
+            // 1. RENDER EN FICHA CONSOLIDADA EPS (Badge / Botón en cabecera de la tarjeta)
+            if (contCard) {
+                if (estudiosConLink.length === 0) {
+                    const mensajeTooltip = estudios.length > 0 
+                        ? 'Estudio Tarifario registrado pero sin enlace digital disponible' 
+                        : 'No se encontró Estudio Tarifario para este periodo';
+                    contCard.innerHTML = `
+                        <button type="button" disabled
+                                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold text-slate-400 bg-slate-100 border border-slate-200 cursor-not-allowed opacity-75 shadow-2xs select-none"
+                                title="${escaparHtml(mensajeTooltip)}">
+                            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Estudio Tarifario</span>
+                        </button>
+                    `;
+                } else if (estudiosConLink.length === 1) {
+                    const est = estudiosConLink[0];
+                    const tooltipTexto = `Ver Estudio Tarifario Oficial (${est.tipo || 'Definitivo'}) • Quinquenio: ${est.quinquenio || ''} ${est.fecha_aprobacion ? '• Aprobación: ' + est.fecha_aprobacion : ''}`;
+                    contCard.innerHTML = `
+                        <a href="${escaparHtml(est.link)}" target="_blank" rel="noopener noreferrer"
+                           class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold text-blue-900 bg-blue-100/90 hover:bg-blue-200/90 border border-blue-300/80 shadow-2xs hover:shadow-xs transition transform hover:-translate-y-0.5 select-none"
+                           title="${escaparHtml(tooltipTexto)}">
+                            <svg class="w-3 h-3 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Estudio Tarifario</span>
+                            <svg class="w-2.5 h-2.5 text-blue-600 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    `;
+                } else {
+                    let itemsHtml = '';
+                    estudiosConLink.forEach(e => {
+                        itemsHtml += `
+                            <a href="${escaparHtml(e.link)}" target="_blank" rel="noopener noreferrer"
+                               class="flex items-start gap-2 px-3 py-2 hover:bg-blue-50/80 transition text-slate-700 hover:text-blue-900 group">
+                                <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <div class="flex-1 text-left min-w-0">
+                                    <div class="text-[11px] font-bold text-slate-800 group-hover:text-blue-900 flex items-center justify-between">
+                                        <span class="truncate pr-1">${escaparHtml(e.tipo || 'Estudio Tarifario')}</span>
+                                        <span class="text-[9.5px] font-extrabold text-blue-700 bg-blue-100 px-1.5 py-0.2 rounded shrink-0">${escaparHtml(e.periodo)}</span>
+                                    </div>
+                                    <p class="text-[9.5px] text-slate-500 mt-0.5 truncate">${e.quinquenio ? 'Quinquenio: ' + escaparHtml(e.quinquenio) : ''} ${e.fecha_aprobacion ? '• Aprob: ' + escaparHtml(e.fecha_aprobacion) : ''}</p>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+                        `;
+                    });
+
+                    contCard.innerHTML = `
+                        <div class="relative inline-block text-left" id="wrapper-dropdown-card-et">
+                            <button type="button" onclick="toggleDropdownEstudios(event, 'menu-card-et')"
+                                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10.5px] font-bold text-blue-900 bg-blue-100/90 hover:bg-blue-200/90 border border-blue-300/80 shadow-2xs hover:shadow-xs transition cursor-pointer select-none"
+                                    title="Existen ${estudiosConLink.length} versiones del Estudio Tarifario (Definitivo y Modificado)">
+                                <svg class="w-3 h-3 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>Estudios Tarifarios (${estudiosConLink.length})</span>
+                                <svg class="w-2.5 h-2.5 text-blue-700 opacity-90 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div id="menu-card-et" class="menu-dropdown-estudios hidden absolute right-0 top-full mt-1.5 w-72 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 py-1 divide-y divide-slate-100 overflow-hidden text-xs">
+                                <div class="px-3 py-1.5 bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                    Versiones del Estudio Tarifario
+                                </div>
+                                ${itemsHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 2. RENDER EN HEADER SUPERIOR (Botón de acción en la barra de Resultados de Evaluación)
+            if (contHeader) {
+                if (estudiosConLink.length === 0) {
+                    const mensajeTooltip = estudios.length > 0 
+                        ? 'Estudio Tarifario registrado pero sin enlace digital disponible' 
+                        : 'No se encontró Estudio Tarifario para este periodo';
+                    contHeader.innerHTML = `
+                        <button type="button" disabled
+                                class="px-3.5 py-2 border border-slate-200 rounded text-slate-400 bg-slate-50 text-xs font-semibold flex items-center gap-1.5 cursor-not-allowed opacity-75 shadow-xs"
+                                title="${escaparHtml(mensajeTooltip)}">
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Estudio Tarifario</span>
+                        </button>
+                    `;
+                } else if (estudiosConLink.length === 1) {
+                    const est = estudiosConLink[0];
+                    const tooltipTexto = `Abrir Estudio Tarifario Oficial (${est.tipo || 'Definitivo'}) • Quinquenio: ${est.quinquenio || ''}`;
+                    contHeader.innerHTML = `
+                        <a href="${escaparHtml(est.link)}" target="_blank" rel="noopener noreferrer"
+                           class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/90 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm hover:shadow transition transform hover:-translate-y-0.5 select-none"
+                           title="${escaparHtml(tooltipTexto)}">
+                            <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            <span>Estudio Tarifario</span>
+                            <svg class="w-3 h-3 text-blue-600 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    `;
+                } else {
+                    let itemsHeaderHtml = '';
+                    estudiosConLink.forEach(e => {
+                        itemsHeaderHtml += `
+                            <a href="${escaparHtml(e.link)}" target="_blank" rel="noopener noreferrer"
+                               class="flex items-start gap-2.5 px-3.5 py-2 hover:bg-blue-50/80 transition text-slate-700 hover:text-blue-900 group">
+                                <svg class="w-4 h-4 text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <div class="flex-1 text-left min-w-0">
+                                    <div class="text-[11.5px] font-bold text-slate-800 group-hover:text-blue-900 flex items-center justify-between">
+                                        <span class="truncate pr-1">${escaparHtml(e.tipo || 'Estudio Tarifario')}</span>
+                                        <span class="text-[10px] font-extrabold text-blue-700 bg-blue-100 px-1.5 py-0.2 rounded shrink-0">${escaparHtml(e.periodo)}</span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 mt-0.5 truncate">${e.quinquenio ? 'Quinquenio: ' + escaparHtml(e.quinquenio) : ''} ${e.fecha_aprobacion ? '• Aprob: ' + escaparHtml(e.fecha_aprobacion) : ''}</p>
+                                </div>
+                                <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+                        `;
+                    });
+
+                    contHeader.innerHTML = `
+                        <div class="relative inline-block text-left" id="wrapper-dropdown-header-et">
+                            <button type="button" onclick="toggleDropdownEstudios(event, 'menu-header-et')"
+                                    class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/90 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm hover:shadow transition transform hover:-translate-y-0.5 cursor-pointer select-none"
+                                    title="Ver ${estudiosConLink.length} versiones del Estudio Tarifario (Definitivo y Modificado)">
+                                <svg class="w-4 h-4 text-blue-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>Estudio Tarifario (${estudiosConLink.length})</span>
+                                <svg class="w-3 h-3 text-blue-700 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+                            <div id="menu-header-et" class="menu-dropdown-estudios hidden absolute right-0 top-full mt-1.5 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 py-1.5 divide-y divide-slate-100 overflow-hidden text-xs">
+                                <div class="px-3.5 py-2 bg-slate-50 border-b border-slate-100 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                    Versiones del Estudio Tarifario
+                                </div>
+                                ${itemsHeaderHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
         }
 
         function actualizarTarjetaTemporalidad(codEpsParam, periodo, ptColumns = []) {

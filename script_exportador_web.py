@@ -63,3 +63,8 @@ def exportar_base_web():
 
 if __name__ == "__main__":
     exportar_base_web()
+    try:
+        from generar_estudios_tarifarios import generar_estudios_tarifarios
+        generar_estudios_tarifarios()
+    except Exception as e:
+        print(f"Nota: No se pudo generar estudios_tarifarios.js: {e}")

@@ -2951,6 +2951,7 @@
                     let val = filaIcg.ici_pt[pt];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIcg(val);
+                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }

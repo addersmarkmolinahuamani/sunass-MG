@@ -2107,12 +2107,6 @@
                 valorInicial: epsInicial,
                 onSelect: (val) => {
                     selectEps.value = val;
-                    if (dropdownEpsMatrizInstance) {
-                        const valsMatriz = dropdownEpsMatrizInstance.getValores();
-                        if (valsMatriz.length <= 1) {
-                            dropdownEpsMatrizInstance.setValor([val]);
-                        }
-                    }
                     updateSubFilters();
                 }
             });
@@ -2137,7 +2131,7 @@
                 esMultiple: true,
                 permitirTodas: true,
                 textoTodas: "Todas",
-                valorInicial: epsInicial ? [epsInicial] : [],
+                valorInicial: [],
                 onSelect: () => {
                     actualizarPeriodosMatriz();
                     renderizarMatrizInformes();

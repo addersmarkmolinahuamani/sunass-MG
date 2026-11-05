@@ -627,14 +627,14 @@
                 <div class="min-w-[1440px] pb-2">
                     
                     <!-- Barra de Cabecera (Eje X: Años Calendario 2006 al 2029) - Sticky a top:0 para sincronía perfecta -->
-                    <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-center bg-[#eaeaea] border-b-2 border-stone-300 py-2 select-none shadow-xs">
+                    <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs h-10">
                         <!-- Columna Fija: EPS (Eje Y) -->
-                        <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 sticky left-0 z-30 bg-[#eaeaea] h-full self-stretch border-r border-stone-300/60 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                        <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                             <span>Empresa Prestadora</span>
                             <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                         </div>
                         <!-- Eje X: Años Calendario (2006 al 2029) -->
-                        <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-10">
+                        <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
                             <!-- Los años se renderizan dinámicamente -->
                         </div>
                     </div>
@@ -2000,17 +2000,17 @@
 
             // 2. Renderizar encabezado Eje X (Años Calendario 2006 al 2029 con soporte interactivo de expansión)
             if (headerEl) {
+                headerEl.className = `sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs ${anioExpandidoGantt !== null ? 'h-12' : 'h-10'}`;
                 let htmlHeader = `
-                    <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 select-none sticky left-0 z-30 bg-[#eaeaea] h-full self-stretch border-r border-stone-300/60 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                    <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 select-none sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                         <span>Empresa Prestadora</span>
                         <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">${epsFiltradas.length}</span>
                     </div>
-                    <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-10">
+                    <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
                 `;
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const yPct = escala.getYearPct(y);
                     const estaExpandido = (anioExpandidoGantt === y);
-                    const esDecada = (y % 5 === 0);
 
                     if (estaExpandido) {
                         // Año Expandido: Cabecera con botón de contraer y 12 subcolumnas de meses
@@ -2039,17 +2039,13 @@
                             </div>
                         `;
                     } else {
-                        // Año Normal: Clickeable para expandir mes a mes
-                        const estiloAnio = esDecada 
-                            ? 'bg-amber-100/90 text-amber-900 border-amber-300 font-black shadow-2xs hover:bg-amber-200 hover:border-amber-400' 
-                            : 'bg-white text-slate-700 border-stone-200 hover:border-blue-400 hover:bg-blue-50/70 hover:text-blue-900';
+                        // Año Normal: Clickeable para expandir mes a mes (Centrado, sin lupita y estilo limpio uniforme)
                         htmlHeader += `
                             <div data-gantt-anio="${y}" style="width: ${yPct.widthPct}%;" class="h-full px-0.5 flex items-center select-none">
                                 <div onclick="toggleExpandirAnioGantt(${y})" 
-                                     class="w-full py-2 rounded border text-[11px] truncate cursor-pointer transition flex items-center justify-center gap-0.5 group ${estiloAnio}" 
-                                     title="Año Calendario ${y} - Clic para expandir mes a mes (Ene - Dic)">
+                                     class="w-full h-7 rounded border border-stone-200 bg-white text-slate-700 font-bold text-[11px] cursor-pointer transition flex items-center justify-center hover:border-blue-500 hover:bg-blue-50/80 hover:text-blue-900 shadow-2xs select-none" 
+                                     title="Año Calendario ${y} - Clic para ver mes a mes (Ene - Dic)">
                                     <span>${y}</span>
-                                    <span class="text-[8px] opacity-0 group-hover:opacity-100 transition text-blue-600 font-bold">🔍</span>
                                 </div>
                             </div>
                         `;
@@ -2088,7 +2084,7 @@
                 htmlCuerpo += `
                     <div class="flex items-center h-9 hover:bg-amber-50/60 transition-colors group ${bgFila}">
                         <!-- Columna Y: Código y Nombre EPS (Sticky left) -->
-                        <div class="w-72 shrink-0 pl-4 pr-3 flex items-center gap-2 select-none sticky left-0 z-20 ${bgFila} group-hover:bg-amber-50/95 transition-colors h-full self-stretch border-r border-stone-200/80 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.08)]">
+                        <div class="w-72 shrink-0 pl-4 pr-3 flex items-center gap-2 select-none sticky left-0 z-20 ${bgFila} group-hover:bg-amber-50/95 transition-colors h-full self-stretch border-r-2 border-stone-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                             <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 text-[#003366] border border-blue-200 text-[10.5px] font-black shrink-0">
                                 ${eps.cod}
                             </span>
@@ -2107,7 +2103,6 @@
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const yPct = escala.getYearPct(y);
                     const estaExpandido = (anioExpandidoGantt === y);
-                    const esDecada = (y % 5 === 0);
 
                     if (estaExpandido) {
                         htmlCuerpo += `
@@ -2123,7 +2118,7 @@
                             </div>
                         `;
                     } else {
-                        const bgVacio = esDecada ? 'bg-stone-100/60 border-stone-200/70' : 'bg-stone-50/40 border-stone-200/40';
+                        const bgVacio = 'bg-stone-50/40 border-stone-200/40';
                         htmlCuerpo += `
                             <div style="width: ${yPct.widthPct}%;" class="h-7 px-0.5">
                                 <div class="w-full h-full rounded ${bgVacio} border"></div>

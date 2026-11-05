@@ -263,14 +263,13 @@
 
         /* Estilos para el Modal y Diagrama Gantt de Línea de Tiempo de Periodos Regulatorios (Tema Claro Cálido) */
         .franja-fen-overlay {
-            background: rgba(239, 68, 68, 0.18);
+            background: rgba(239, 68, 68, 0.16);
             border-left: 2px dashed #dc2626;
             border-right: 2px dashed #dc2626;
             pointer-events: none;
-            transition: opacity 0.25s ease;
         }
         .franja-fen-header {
-            background: rgba(220, 38, 38, 0.22);
+            background: rgba(239, 68, 68, 0.28);
             border-left: 2px dashed #dc2626;
             border-right: 2px dashed #dc2626;
             color: #991b1b;
@@ -619,7 +618,7 @@
 
             <!-- Cuerpo Principal: Contenedor con Scroll Unificado (Cabecera y Filas sincronizadas en scroll horizontal) -->
             <div id="contenedor-scroll-gantt" class="flex-1 overflow-auto gantt-scroll-area pt-0 px-4 pb-4 bg-[#f8f8f6]">
-                <div class="min-w-[1360px] pb-2">
+                <div class="min-w-[1440px] pb-2">
                     
                     <!-- Barra de Cabecera (Eje X: Años Calendario 2006 al 2029) - Sticky a top:0 para sincronía perfecta -->
                     <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-center bg-[#eaeaea] border-b-2 border-stone-300 py-2.5 px-3 select-none shadow-xs">
@@ -629,7 +628,7 @@
                             <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                         </div>
                         <!-- Eje X: Años Calendario (2006 al 2029) -->
-                        <div class="flex-1 relative grid grid-cols-timeline gap-1 text-center font-black text-[11px] text-slate-700">
+                        <div class="flex-1 min-w-[1152px] relative flex items-center text-center font-black text-[11px] text-slate-700 h-7">
                             <!-- Los años se renderizan dinámicamente -->
                         </div>
                     </div>
@@ -1763,6 +1762,9 @@
                 mapEps.get(codPadded).rawItems.push(item);
             });
 
+            const mapQ = (typeof MAPA_QUINQUENIOS !== 'undefined') ? MAPA_QUINQUENIOS : {};
+            const mapR = (typeof MAPA_RANGOS_ANIOS !== 'undefined') ? MAPA_RANGOS_ANIOS : {};
+
             // Asignar a cada año regulatorio su posición temporal real con 12 divisiones internas por año
             const listaEps = Array.from(mapEps.values()).sort((a, b) => a.num - b.num);
 
@@ -1797,47 +1799,47 @@
                     let baseMonth = 0; // Por defecto enero
 
                     for (let idx = 0; idx < itemsUnicos.length; idx++) {
-                        const parsed = parsearInicioFinMes(itemsUnicos[idx].Rango_Anio);
-                        if (parsed && (parsed.yE - parsed.yS) <= 2) {
+                        const it = itemsUnicos[idx];
+                        const claveR = `${eps.cod}_${pr}_${it.Año_Regulatorio}`;
+                        const rangoTexto = it.Rango_Anio || mapR[claveR] || '';
+                        const parsed = parsearInicioFinMes(rangoTexto);
+                        if (parsed && (parsed.yE - parsed.yS) <= 1) {
                             baseYear = parsed.yS - idx;
                             baseMonth = parsed.mS;
                             break;
                         }
                     }
 
-                    // Si no se dedujo de Rango_Anio, buscar en Quinquenio
+                    // Si no se dedujo de Rango_Anio, buscar en Quinquenio oficial
                     if (baseYear === null) {
-                        for (let it of itemsUnicos) {
-                            const qm = String(it.Quinquenio || '').match(/\d{4}/);
-                            if (qm) {
-                                baseYear = parseInt(qm[0], 10);
-                                baseMonth = 0;
-                                break;
-                            }
+                        const claveQ = `${eps.cod}_${pr}`;
+                        const qm = String(mapQ[claveQ] || itemsUnicos[0].Quinquenio || '').match(/\d{4}/);
+                        if (qm) {
+                            baseYear = parseInt(qm[0], 10);
+                            baseMonth = 0;
+                        } else {
+                            baseYear = 2015;
+                            baseMonth = 0;
                         }
-                    }
-
-                    if (baseYear === null) {
-                        baseYear = 2015;
-                        baseMonth = 0;
                     }
 
                     itemsUnicos.forEach((it, idx) => {
                         let yStart = baseYear + idx;
                         let mStart = baseMonth;
 
-                        const parsed = parsearInicioFinMes(it.Rango_Anio);
-                        if (parsed && (parsed.yE - parsed.yS) <= 2) {
+                        const claveR = `${eps.cod}_${pr}_${it.Año_Regulatorio}`;
+                        const rangoTexto = it.Rango_Anio || mapR[claveR] || '';
+                        const parsed = parsearInicioFinMes(rangoTexto);
+                        if (parsed && (parsed.yE - parsed.yS) <= 1) {
                             yStart = parsed.yS;
                             mStart = parsed.mS;
                         }
 
-                        // Calcular posición porcentual exacta en la línea de tiempo (288 meses = 100%)
+                        // Calcular posición porcentual exacta en la línea de tiempo continua (288 meses = 100%)
                         const startMonthIndex = (yStart - ANIO_INICIAL_GANTT) * 12 + mStart;
                         const leftPct = Math.max(0, (startMonthIndex / TOTAL_MESES_GANTT) * 100);
-                        // Ancho de 1 año regulatorio (12 meses): (12 / 288) * 100 = 4.16667%
-                        // Para permitir un espacio visual entre bloques consecutivos, usamos 4.02%
-                        const widthPct = (12 / TOTAL_MESES_GANTT) * 100 * 0.96;
+                        // Ancho de 1 año regulatorio exacto (12 meses en una escala de 288 meses): (12 / 288) * 100 = 4.16667%
+                        const widthPct = (12 / TOTAL_MESES_GANTT) * 100;
 
                         aniosResueltos.push({
                             periodo: pr,
@@ -1847,8 +1849,8 @@
                             leftPct: leftPct,
                             widthPct: widthPct,
                             estado: it.Estado_Evaluacion || null,
-                            rango: it.Rango_Anio || '',
-                            quinquenio: it.Quinquenio || '',
+                            rango: rangoTexto,
+                            quinquenio: it.Quinquenio || mapQ[`${eps.cod}_${pr}`] || '',
                             infFisc: it.Inf_Fiscalizacion || it.Inf_Fisc_Final || it.Inf_Fisc_Inicial || null,
                             infPas: it.Inf_PAS_Decision || it.Inf_PAS_Instruccion || null
                         });
@@ -1906,21 +1908,29 @@
                         <span>Empresa Prestadora (50)</span>
                         <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                     </div>
-                    <div class="flex-1 grid grid-cols-timeline gap-1 text-center font-black text-[11px] text-slate-700">
+                    <div class="flex-1 min-w-[1152px] relative flex items-center text-center font-black text-[11px] text-slate-700 h-7">
                 `;
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const esDecada = (y % 5 === 0);
                     const estiloAnio = esDecada 
                         ? 'bg-amber-100/90 text-amber-900 border-amber-300 font-black shadow-2xs' 
                         : 'bg-white text-slate-700 border-stone-200';
-                    htmlHeader += `<div class="py-1 px-0.5 rounded border text-[11px] truncate ${estiloAnio}" title="Año Calendario ${y}">${y}</div>`;
+                    htmlHeader += `
+                        <div style="width: calc(100% / ${TOTAL_ANIOS_GANTT});" class="h-full px-0.5 flex items-center">
+                            <div class="w-full py-1 rounded border text-[11px] truncate ${estiloAnio}" title="Año Calendario ${y}">
+                                ${y}
+                            </div>
+                        </div>
+                    `;
                 }
                 if (mostrarFranjaFen) {
+                    // Franja Fenómeno de El Niño: Noviembre 2026 (mes 250) a Abril 2027 (mes 256) -> 6 meses
+                    // Posición exacta en escala continua de 288 meses: left = (250/288)*100 = 86.8056%, width = (6/288)*100 = 2.0833%
                     htmlHeader += `
                         <div class="franja-fen-header absolute top-0 bottom-0 flex items-center justify-center font-black text-[9px] uppercase tracking-wider z-25 shadow-xs" 
-                             style="left: 86.8056%; width: 2.0833%;"
+                             style="left: 86.8056%; width: 2.0833%;" 
                              title="Franja de Emergencia: Fenómeno de El Niño (Noviembre 2026 a Abril 2027)">
-                            <span class="truncate rotate-90 transform origin-center font-black text-red-900">FEN</span>
+                            <span class="truncate rotate-90 transform origin-center font-black text-red-900 select-none">FEN</span>
                         </div>
                     `;
                 }
@@ -1955,7 +1965,7 @@
                 const bgFila = (epsIdx % 2 === 0) ? 'bg-white' : 'bg-[#fafaf8]';
 
                 htmlCuerpo += `
-                    <div class="flex items-center py-1.5 px-3 hover:bg-amber-50/60 transition-colors group ${bgFila}">
+                    <div class="flex items-center h-9 px-3 hover:bg-amber-50/60 transition-colors group ${bgFila}">
                         <!-- Columna Y: Código y Nombre EPS -->
                         <div class="w-64 shrink-0 pr-4 flex items-center gap-2 select-none">
                             <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 text-[#003366] border border-blue-200 text-[10.5px] font-black shrink-0">
@@ -1966,30 +1976,35 @@
                             </span>
                         </div>
 
-                        <!-- Cuadrícula Temporal Eje X con división mensual interna -->
-                        <div class="flex-1 relative h-7">
-                            <!-- Cuadrícula de fondo de los 24 años (para alineación visual perfecta) -->
-                            <div class="absolute inset-0 grid grid-cols-timeline gap-1 pointer-events-none">
+                        <!-- Pista Temporal Eje X con división mensual exacta (288 meses = 100%) -->
+                        <div class="flex-1 min-w-[1152px] relative h-full flex items-center">
+                            
+                            <!-- Cuadrícula de fondo de los 24 años (para alineación visual perfecta de cada año calendario) -->
+                            <div class="absolute inset-0 flex pointer-events-none items-center">
                 `;
 
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const esDecada = (y % 5 === 0);
-                    const bgVacio = esDecada ? 'bg-stone-100/50 border-stone-200/60' : 'bg-stone-50/30 border-stone-200/30';
-                    htmlCuerpo += `<div class="h-7 rounded ${bgVacio} border"></div>`;
+                    const bgVacio = esDecada ? 'bg-stone-100/60 border-stone-200/70' : 'bg-stone-50/40 border-stone-200/40';
+                    htmlCuerpo += `
+                        <div style="width: calc(100% / ${TOTAL_ANIOS_GANTT});" class="h-7 px-0.5">
+                            <div class="w-full h-full rounded ${bgVacio} border"></div>
+                        </div>
+                    `;
                 }
 
                 htmlCuerpo += `
                             </div>
 
-                            <!-- Franja FEN si está activada -->
+                            <!-- Franja FEN continua si está activada (cubre el 100% de la altura de la fila sin cortes) -->
                             ${mostrarFranjaFen ? `
-                                <div class="franja-fen-overlay absolute top-0 bottom-0 z-20" 
+                                <div class="franja-fen-overlay absolute top-0 bottom-0 z-20 pointer-events-none" 
                                      style="left: 86.8056%; width: 2.0833%;" 
                                      title="Franja Fenómeno de El Niño (Nov 2026 - Abr 2027): Estado de Emergencia FEN"></div>
                             ` : ''}
 
                             <!-- Bloques de Años Regulatorios posicionados exactamente en sus meses de inicio -->
-                            <div class="absolute inset-0">
+                            <div class="absolute inset-0 flex items-center pointer-events-none">
                 `;
 
                 eps.anios.forEach(item => {
@@ -2032,8 +2047,8 @@ Quinquenio: ${item.quinquenio || 'N/D'}
 Documento: ${docRef}`;
 
                     htmlCuerpo += `
-                        <div class="gantt-bloque-anio absolute top-0 h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none ${estiloClase}" 
-                             style="left: ${item.leftPct}%; width: ${item.widthPct}%;"
+                        <div class="gantt-bloque-anio absolute h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none pointer-events-auto ${estiloClase}" 
+                             style="left: ${item.leftPct}%; width: calc(${item.widthPct}% - 2px);" 
                              title="${escaparHtml(tooltip)}"
                              onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}')">
                             ${iconoEstado}<span>${etiquetaAnio}</span>

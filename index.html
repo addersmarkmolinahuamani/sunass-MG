@@ -260,6 +260,50 @@
         @media print {
             #pantalla-portada { display: none !important; }
         }
+
+        /* Estilos para el Modal y Diagrama Gantt de Línea de Tiempo de Periodos Regulatorios */
+        #modal-gantt-linea-tiempo {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #modal-gantt-linea-tiempo.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #modal-gantt-linea-tiempo:not(.hidden) {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        
+        .grid-cols-25 {
+            grid-template-columns: repeat(25, minmax(32px, 1fr)) !important;
+        }
+
+        .gantt-bloque-anio {
+            transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.15s ease;
+        }
+        .gantt-bloque-anio:hover {
+            transform: scale(1.08);
+            z-index: 30;
+            filter: brightness(1.12);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+        .gantt-scroll-area::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .gantt-scroll-area::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        .gantt-scroll-area::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        .gantt-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
     </style>
 </head>
 <body class="flex h-screen overflow-hidden">
@@ -418,6 +462,21 @@
                      style="max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); pointer-events: none;">
             </div>
 
+
+            <!-- BOTÓN SECUNDARIO DISCRETO: LÍNEA DE TIEMPO REGULATORIA (GANTT) -->
+            <div class="absolute" style="left: 26cqw; top: 79.5cqh; width: 57cqw; display: flex; justify-content: flex-end; z-index: 25;">
+                <button onclick="abrirModalGantt()" 
+                        type="button"
+                        class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/60 hover:bg-blue-900/80 border border-slate-700/60 hover:border-blue-400/60 backdrop-blur-md shadow-sm transition-all duration-200 cursor-pointer group"
+                        title="Ver Línea de Tiempo y Años Regulatorios de todas las Empresas Prestadoras">
+                    <svg class="w-3.5 h-3.5 text-blue-400 group-hover:text-blue-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    <span>Línea de Tiempo Regulatoria</span>
+                    <span class="text-[10px] text-blue-300 font-bold bg-blue-950/70 px-1.5 py-0.5 rounded-full border border-blue-800/60">Gantt</span>
+                </button>
+            </div>
+
             <!-- FRANJA INFERIOR DE METADATOS (Acentos verdes verticales como en la referencia Power BI) -->
             <footer class="absolute" style="left: 21cqw; right: 16cqw; bottom: 2.6cqh; height: 8.5cqh; display: flex; align-items: center; justify-content: space-between; z-index: 20;">
                 <!-- Columna 1: Dirección de Fiscalización -->
@@ -450,6 +509,127 @@
 
         </div>
 
+    </div>
+
+
+    <!-- ========================================================================= -->
+    <!-- MODAL DIAGRAMA GANTT: LÍNEA DE TIEMPO REGULATORIA POR EPS (50 EMPRESAS)    -->
+    <!-- ========================================================================= -->
+    <div id="modal-gantt-linea-tiempo" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-sm hidden" role="dialog" aria-modal="true">
+        <div class="relative w-full max-w-[96vw] xl:max-w-[1400px] h-[92vh] bg-slate-900 border border-slate-700/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-100">
+            
+            <!-- Encabezado del Modal -->
+            <div class="px-6 py-4 border-b border-slate-800 bg-slate-950/80 flex flex-wrap items-center justify-between gap-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-base font-black text-white tracking-wide">Línea de Tiempo Regulatoria de Empresas Prestadoras</h3>
+                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-full">Diagrama Gantt</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-0.5">Visualización cronológica y por años regulatorios evaluados, años en transición (PT) y suspensiones de evaluación.</p>
+                    </div>
+                </div>
+
+                <!-- Buscador rápido y Botón de cierre -->
+                <div class="flex items-center gap-3">
+                    <div class="relative w-64">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-slate-500 text-xs">🔍</span>
+                        <input type="text" id="input-buscar-gantt" oninput="filtrarGanttPorEps(this.value)" placeholder="Buscar EPS por código o nombre..." class="w-full pl-8 pr-3 py-1.5 bg-slate-800/90 text-slate-200 text-xs rounded-lg border border-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition placeholder-slate-500">
+                    </div>
+                    <button onclick="cerrarModalGantt()" type="button" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition" title="Cerrar modal (Esc)">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Barra de Leyenda de Periodos Regulatorios y Estados -->
+            <div class="px-6 py-2.5 bg-slate-950/40 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 select-none">
+                <!-- Leyenda de Periodos -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Periodos Regulatorios:</span>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-blue-950/60 border border-blue-800/60 rounded">
+                        <span class="w-3 h-3 rounded-xs bg-[#2563eb]"></span>
+                        <span class="text-[11px] font-semibold text-blue-200">I PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-950/60 border border-emerald-800/60 rounded">
+                        <span class="w-3 h-3 rounded-xs bg-[#059669]"></span>
+                        <span class="text-[11px] font-semibold text-emerald-200">II PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-purple-950/60 border border-purple-800/60 rounded">
+                        <span class="w-3 h-3 rounded-xs bg-[#7c3aed]"></span>
+                        <span class="text-[11px] font-semibold text-purple-200">III PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-amber-950/60 border border-amber-800/60 rounded">
+                        <span class="w-3 h-3 rounded-xs bg-[#d97706]"></span>
+                        <span class="text-[11px] font-semibold text-amber-200">IV PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-rose-950/60 border border-rose-800/60 rounded">
+                        <span class="w-3 h-3 rounded-xs bg-[#e11d48]"></span>
+                        <span class="text-[11px] font-semibold text-rose-200">V PR</span>
+                    </div>
+                </div>
+
+                <!-- Leyenda de Estados y Transición -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Convenciones:</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-xs bg-slate-700 border border-amber-400 border-dashed flex items-center justify-center text-[9px] font-black text-amber-300">PT</span>
+                        <span class="text-[11px] text-slate-300 font-medium">Año en Transición (PT)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-xs bg-slate-500/80 border border-slate-400 flex items-center justify-center text-[8px] text-white">⏸</span>
+                        <span class="text-[11px] text-slate-300 font-medium">Evaluación Suspendida</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-xs bg-slate-700/80 border border-slate-600 flex items-center justify-center text-[8px] text-sky-400">⏳</span>
+                        <span class="text-[11px] text-slate-300 font-medium">En curso</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuerpo Principal: Contenedor con Scroll de las 50 EPS y la Cuadrícula Gantt -->
+            <div id="contenedor-scroll-gantt" class="flex-1 overflow-auto gantt-scroll-area p-4 bg-slate-900/90">
+                <div class="min-w-[1050px]">
+                    <!-- Encabezado de la cuadrícula Gantt (Eje X: Secuencia de Años) -->
+                    <div id="gantt-header-eje-x" class="sticky top-0 z-20 flex items-center bg-slate-950 border-b border-slate-700 py-2.5 px-3 rounded-t-lg shadow-md select-none">
+                        <!-- Columna Fija: EPS (Eje Y) -->
+                        <div class="w-64 shrink-0 font-bold text-xs text-slate-300 tracking-wider uppercase flex items-center justify-between pr-4">
+                            <span>Empresa Prestadora (50)</span>
+                            <span id="gantt-contador-eps" class="text-[10px] text-blue-400 font-bold bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">50</span>
+                        </div>
+                        <!-- Eje X: Años Regulatorios Secuenciales -->
+                        <div class="flex-1 grid grid-cols-25 gap-1 text-center font-bold text-[10px] text-slate-400">
+                            <!-- Los números de columna se renderizan dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Lista de Filas de cada Empresa Prestadora (Eje Y) -->
+                    <div id="gantt-cuerpo-filas" class="divide-y divide-slate-800/80 bg-slate-900/60 rounded-b-lg border-x border-b border-slate-800">
+                        <!-- Las filas se renderizan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pie del Modal: Resumen global y botón cerrar -->
+            <div class="px-6 py-3 border-t border-slate-800 bg-slate-950/90 flex items-center justify-between gap-4 text-xs shrink-0">
+                <div class="flex items-center gap-4 text-slate-400">
+                    <span>Total Evaluadas: <strong class="text-white">50 EPS</strong></span>
+                    <span>•</span>
+                    <span>Periodos Cubiertos: <strong class="text-white">I PR al V PR</strong></span>
+                    <span>•</span>
+                    <span class="italic text-slate-500">Pasa el cursor sobre cada celda para ver el rango de fechas, estado e informe oficial.</span>
+                </div>
+                <button onclick="cerrarModalGantt()" type="button" class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg font-semibold text-xs transition border border-slate-700">
+                    Cerrar
+                </button>
+            </div>
+
+        </div>
     </div>
 
     <!-- Panel Lateral Izquierdo -->
@@ -1429,6 +1609,318 @@
             } else if (destino === 'reportes') {
                 cambiarModulo('reportes');
             }
+        }
+
+
+        // =========================================================================
+        // LÓGICA DEL DIAGRAMA GANTT: LÍNEA DE TIEMPO REGULATORIA (50 EMPRESAS)
+        // =========================================================================
+        let datosGanttCache = null;
+        let filtroQueryGantt = "";
+
+        const COLORES_PERIODOS_GANTT = {
+            'I PR': {
+                bg: 'bg-[#2563eb]',
+                border: 'border-[#3b82f6]',
+                text: 'text-blue-100',
+                hex: '#2563eb'
+            },
+            'II PR': {
+                bg: 'bg-[#059669]',
+                border: 'border-[#10b981]',
+                text: 'text-emerald-100',
+                hex: '#059669'
+            },
+            'III PR': {
+                bg: 'bg-[#7c3aed]',
+                border: 'border-[#8b5cf6]',
+                text: 'text-purple-100',
+                hex: '#7c3aed'
+            },
+            'IV PR': {
+                bg: 'bg-[#d97706]',
+                border: 'border-[#f59e0b]',
+                text: 'text-amber-100',
+                hex: '#d97706'
+            },
+            'V PR': {
+                bg: 'bg-[#e11d48]',
+                border: 'border-[#f43f5e]',
+                text: 'text-rose-100',
+                hex: '#e11d48'
+            }
+        };
+
+        function prepararDatosGantt() {
+            if (datosGanttCache) return datosGanttCache;
+
+            const fuente = (typeof db_informes !== 'undefined' && db_informes.length) 
+                ? db_informes 
+                : ((typeof matrizInformesNacional !== 'undefined') ? matrizInformesNacional : []);
+
+            const ordPer = { 'I PR': 1, 'II PR': 2, 'III PR': 3, 'IV PR': 4, 'V PR': 5 };
+            const ordAnio = (a) => {
+                if (typeof a !== 'string') return 99;
+                if (a.startsWith('Año ')) {
+                    const n = parseInt(a.replace(/\D/g, ''), 10);
+                    return isNaN(n) ? 99 : n;
+                }
+                if (a.startsWith('PT ')) {
+                    const n = parseInt(a.replace(/\D/g, ''), 10);
+                    return isNaN(n) ? 99 : 10 + n;
+                }
+                return 99;
+            };
+
+            const mapEps = new Map();
+
+            fuente.forEach(item => {
+                const rawCod = String(item.Cod_EP || '').trim();
+                const anio = String(item.Año_Regulatorio || '').trim();
+                if (!rawCod || !anio || anio === 'Año Base' || anio === 'Acumulado') return;
+
+                const codPadded = normalizarCodigoEps(rawCod);
+                let nombre = String(item.Nombre_EPS || '').trim();
+                if (codPadded === '008') nombre = 'UE AGUA TUMBES';
+                const numCod = parseInt(codPadded, 10);
+
+                if (!mapEps.has(codPadded)) {
+                    mapEps.set(codPadded, {
+                        cod: codPadded,
+                        num: isNaN(numCod) ? 9999 : numCod,
+                        nombre: nombre,
+                        anios: []
+                    });
+                }
+
+                mapEps.get(codPadded).anios.push({
+                    periodo: item.Periodo_Regulatorio || '',
+                    anio: anio,
+                    estado: item.Estado_Evaluacion || null,
+                    rango: item.Rango_Anio || '',
+                    quinquenio: item.Quinquenio || '',
+                    infFisc: item.Inf_Fiscalizacion || item.Inf_Fisc_Final || item.Inf_Fisc_Inicial || null,
+                    infFiscLink: item.Inf_Fiscalizacion_Link || item.Inf_Fisc_Final_Link || item.Inf_Fisc_Inicial_Link || null,
+                    infPas: item.Inf_PAS_Decision || item.Inf_PAS_Instruccion || null,
+                    infPasLink: item.Inf_PAS_Decision_Link || item.Inf_PAS_Instruccion_Link || null
+                });
+            });
+
+            // Ordenar EPS por código y sus años en secuencia cronológica regulatoria
+            const listaEps = Array.from(mapEps.values()).sort((a, b) => a.num - b.num);
+
+            listaEps.forEach(eps => {
+                // Eliminar duplicados si una EPS tiene varios servicios (ej. SEDAPAL / SEDALIB)
+                const seen = new Set();
+                const aniosUnicos = [];
+                eps.anios.forEach(a => {
+                    const key = `${a.periodo}_${a.anio}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        aniosUnicos.push(a);
+                    }
+                });
+                aniosUnicos.sort((x, y) => {
+                    const pDiff = (ordPer[x.periodo] || 99) - (ordPer[y.periodo] || 99);
+                    if (pDiff !== 0) return pDiff;
+                    return ordAnio(x.anio) - ordAnio(y.anio);
+                });
+                eps.anios = aniosUnicos;
+            });
+
+            datosGanttCache = listaEps;
+            return datosGanttCache;
+        }
+
+        function abrirModalGantt() {
+            const modal = document.getElementById('modal-gantt-linea-tiempo');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            renderizarDiagramaGantt();
+
+            const inputBuscar = document.getElementById('input-buscar-gantt');
+            if (inputBuscar) {
+                inputBuscar.value = '';
+                filtroQueryGantt = '';
+                setTimeout(() => inputBuscar.focus(), 60);
+            }
+        }
+
+        function cerrarModalGantt() {
+            const modal = document.getElementById('modal-gantt-linea-tiempo');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Permitir cerrar modal con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('modal-gantt-linea-tiempo');
+                if (modal && !modal.classList.contains('hidden')) {
+                    cerrarModalGantt();
+                }
+            }
+        });
+
+        function filtrarGanttPorEps(query) {
+            filtroQueryGantt = (query || '').toLowerCase().trim();
+            renderizarDiagramaGantt();
+        }
+
+        function renderizarDiagramaGantt() {
+            const headerEl = document.getElementById('gantt-header-eje-x');
+            const cuerpoEl = document.getElementById('gantt-cuerpo-filas');
+            const contadorEl = document.getElementById('gantt-contador-eps');
+            if (!cuerpoEl) return;
+
+            const listaEps = prepararDatosGantt();
+            const maxCol = 25; // Máximo de años regulatorios secuenciales observados (SEDAPAL tiene 25)
+
+            // 1. Renderizar encabezado Eje X (Años 1 al 25)
+            if (headerEl) {
+                let htmlHeader = `
+                    <div class="w-64 shrink-0 font-bold text-xs text-slate-300 tracking-wider uppercase flex items-center justify-between pr-4">
+                        <span>Empresa Prestadora (50)</span>
+                        <span id="gantt-contador-eps" class="text-[10px] text-blue-400 font-bold bg-blue-950/80 px-2 py-0.5 rounded border border-blue-800">50</span>
+                    </div>
+                    <div class="flex-1 grid grid-cols-25 gap-1 text-center font-bold text-[10px] text-slate-400">
+                `;
+                for (let c = 1; c <= maxCol; c++) {
+                    htmlHeader += `<div class="py-1 bg-slate-900/60 rounded border border-slate-800/80" title="Año secuencial regulatorio ${c}">A${c}</div>`;
+                }
+                htmlHeader += `</div>`;
+                headerEl.innerHTML = htmlHeader;
+            }
+
+            // 2. Filtrar EPS según búsqueda
+            const epsFiltradas = listaEps.filter(eps => {
+                if (!filtroQueryGantt) return true;
+                const texto = `${eps.cod} ${eps.nombre}`.toLowerCase();
+                return texto.includes(filtroQueryGantt);
+            });
+
+            if (contadorEl) {
+                contadorEl.textContent = `${epsFiltradas.length}`;
+            }
+
+            if (epsFiltradas.length === 0) {
+                cuerpoEl.innerHTML = `
+                    <div class="p-8 text-center text-slate-400 text-xs italic">
+                        No se encontraron Empresas Prestadoras que coincidan con "${escaparHtml(filtroQueryGantt)}".
+                    </div>
+                `;
+                return;
+            }
+
+            // 3. Renderizar filas de cada EPS
+            let htmlCuerpo = '';
+
+            epsFiltradas.forEach(eps => {
+                htmlCuerpo += `
+                    <div class="flex items-center py-2 px-3 hover:bg-slate-800/50 transition-colors group">
+                        <!-- Columna Y: Código y Nombre EPS -->
+                        <div class="w-64 shrink-0 pr-4 flex items-center gap-2 select-none">
+                            <span class="inline-block px-1.5 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800 text-[10.5px] font-black shrink-0">
+                                ${eps.cod}
+                            </span>
+                            <span class="text-xs font-semibold text-slate-200 group-hover:text-white truncate" title="${escaparHtml(eps.nombre)}">
+                                ${escaparHtml(eps.nombre)}
+                            </span>
+                        </div>
+
+                        <!-- Cuadrícula Eje X (Años Regulatorios) -->
+                        <div class="flex-1 grid grid-cols-25 gap-1 items-center">
+                `;
+
+                // Renderizar los años regulatorios de la EPS
+                for (let i = 0; i < maxCol; i++) {
+                    if (i < eps.anios.length) {
+                        const item = eps.anios[i];
+                        const cfgColor = COLORES_PERIODOS_GANTT[item.periodo] || {
+                            bg: 'bg-slate-700',
+                            border: 'border-slate-600',
+                            text: 'text-slate-200',
+                            hex: '#475569'
+                        };
+
+                        const esPt = item.anio.startsWith('PT');
+                        const estado = String(item.estado || '').toLowerCase();
+                        const esSuspendido = estado.includes('suspend');
+                        const esEnCurso = estado.includes('curso');
+
+                        let estiloClase = '';
+                        let iconoEstado = '';
+                        let etiquetaAnio = item.anio.replace('Año ', 'A').replace('PT ', 'PT');
+
+                        if (esSuspendido) {
+                            estiloClase = 'bg-slate-700 text-slate-300 border-slate-500 opacity-90';
+                            iconoEstado = '<span class="text-[9px] mr-0.5" title="Evaluación suspendida">⏸</span>';
+                        } else if (esPt) {
+                            estiloClase = `${cfgColor.bg} ${cfgColor.text} border-amber-300 border-dashed border-2 ring-1 ring-amber-400/40 font-black shadow-sm`;
+                            iconoEstado = '';
+                        } else if (esEnCurso) {
+                            estiloClase = `${cfgColor.bg}/85 ${cfgColor.text} ${cfgColor.border} border-dashed`;
+                            iconoEstado = '<span class="text-[8px] mr-0.5" title="En curso">⏳</span>';
+                        } else {
+                            estiloClase = `${cfgColor.bg} ${cfgColor.text} ${cfgColor.border} shadow-xs font-bold`;
+                        }
+
+                        // Tooltip descriptivo al pasar el mouse
+                        const estadoTexto = esSuspendido ? 'Evaluación Suspendida (Sin evaluación)' : (item.estado || 'Evaluado');
+                        const docRef = item.infFisc || item.infPas || 'Sin informe registrado';
+                        const tooltip = `${eps.cod}. ${eps.nombre}
+${item.periodo} - ${item.anio}${esPt ? ' (Año en Transición)' : ''}
+Estado: ${estadoTexto}
+Rango: ${item.rango || 'N/D'}
+Quinquenio: ${item.quinquenio || 'N/D'}
+Documento: ${docRef}`;
+
+                        htmlCuerpo += `
+                            <div class="gantt-bloque-anio relative h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none ${estiloClase}" 
+                                 title="${escaparHtml(tooltip)}"
+                                 onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}')">
+                                ${iconoEstado}<span>${etiquetaAnio}</span>
+                            </div>
+                        `;
+                    } else {
+                        // Celda vacía para completar las 25 columnas
+                        htmlCuerpo += `
+                            <div class="h-7 rounded bg-slate-950/30 border border-slate-800/40"></div>
+                        `;
+                    }
+                }
+
+                htmlCuerpo += `
+                        </div>
+                    </div>
+                `;
+            });
+
+            cuerpoEl.innerHTML = htmlCuerpo;
+        }
+
+        // Navegar a la matriz de informes al hacer clic en un bloque del Gantt
+        function abrirDetalleAnioGantt(codEps, periodo, anio) {
+            cerrarModalGantt();
+            navegarDesdePortada('matriz');
+
+            setTimeout(() => {
+                if (dropdownEpsMatrizInstance) {
+                    const todasEps = dropdownEpsMatrizInstance.getValor ? dropdownEpsMatrizInstance.getValores() : [];
+                    // Filtrar por la EPS seleccionada
+                    const epsMatch = (db_informes || []).find(item => normalizarCodigoEps(item.Cod_EP) === codEps);
+                    if (epsMatch) {
+                        const nombre = (codEps === '008') ? 'UE AGUA TUMBES' : epsMatch.Nombre_EPS;
+                        const etiqueta = `${codEps}. ${nombre}`;
+                        dropdownEpsMatrizInstance.setValor([etiqueta]);
+                        if (typeof actualizarPeriodosMatriz === 'function') {
+                            actualizarPeriodosMatriz();
+                        }
+                        if (typeof renderizarMatrizInformes === 'function') {
+                            renderizarMatrizInformes();
+                        }
+                    }
+                }
+            }, 120);
         }
 
         function volverAPortada() {

@@ -262,6 +262,20 @@
         }
 
         /* Estilos para el Modal y Diagrama Gantt de Línea de Tiempo de Periodos Regulatorios (Tema Claro Cálido) */
+        .franja-fen-overlay {
+            background: rgba(239, 68, 68, 0.18);
+            border-left: 2px dashed #dc2626;
+            border-right: 2px dashed #dc2626;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .franja-fen-header {
+            background: rgba(220, 38, 38, 0.22);
+            border-left: 2px dashed #dc2626;
+            border-right: 2px dashed #dc2626;
+            color: #991b1b;
+        }
+
         #modal-gantt-linea-tiempo {
             transition: opacity 0.3s ease, visibility 0.3s ease;
         }
@@ -573,6 +587,18 @@
                     </div>
                 </div>
 
+                <!-- Control Checkbox FEN (Fenómeno de El Niño) -->
+                <div class="flex items-center gap-2 px-2.5 py-1 bg-red-50/90 border border-red-300 rounded-lg shadow-2xs">
+                    <label class="flex items-center gap-2 cursor-pointer select-none" title="Activar/desactivar franja del Fenómeno de El Niño (Noviembre 2026 a Abril 2027) para ver años regulatorios impactados">
+                        <input type="checkbox" id="chk-fen-toggle" onchange="toggleFranjaFen(this.checked)" class="w-4 h-4 text-red-600 bg-white border-red-400 rounded focus:ring-red-500 cursor-pointer">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+                            <span class="text-xs font-black text-red-800 tracking-tight">FEN</span>
+                            <span class="text-[10px] text-red-700 font-semibold hidden sm:inline">(Nov 2026 - Abr 2027)</span>
+                        </div>
+                    </label>
+                </div>
+
                 <!-- Leyenda de Estados y Transición -->
                 <div class="flex items-center gap-3 flex-wrap">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Convenciones:</span>
@@ -603,7 +629,7 @@
                             <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                         </div>
                         <!-- Eje X: Años Calendario (2006 al 2029) -->
-                        <div class="flex-1 grid grid-cols-timeline gap-1 text-center font-black text-[11px] text-slate-700">
+                        <div class="flex-1 relative grid grid-cols-timeline gap-1 text-center font-black text-[11px] text-slate-700">
                             <!-- Los años se renderizan dinámicamente -->
                         </div>
                     </div>
@@ -1618,6 +1644,7 @@
         // =========================================================================
         let datosGanttCache = null;
         let filtroQueryGantt = "";
+        let mostrarFranjaFen = false;
 
         const COLORES_PERIODOS_GANTT = {
             'I PR': {
@@ -1849,6 +1876,11 @@
             }
         }
 
+        function toggleFranjaFen(activado) {
+            mostrarFranjaFen = Boolean(activado);
+            renderizarDiagramaGantt();
+        }
+
         function cerrarModalGantt() {
             const modal = document.getElementById('modal-gantt-linea-tiempo');
             if (modal) modal.classList.add('hidden');
@@ -1882,6 +1914,15 @@
                         ? 'bg-amber-100/90 text-amber-900 border-amber-300 font-black shadow-2xs' 
                         : 'bg-white text-slate-700 border-stone-200';
                     htmlHeader += `<div class="py-1 px-0.5 rounded border text-[11px] truncate ${estiloAnio}" title="Año Calendario ${y}">${y}</div>`;
+                }
+                if (mostrarFranjaFen) {
+                    htmlHeader += `
+                        <div class="franja-fen-header absolute top-0 bottom-0 flex items-center justify-center font-black text-[9px] uppercase tracking-wider z-25 shadow-xs" 
+                             style="left: 86.8056%; width: 2.0833%;"
+                             title="Franja de Emergencia: Fenómeno de El Niño (Noviembre 2026 a Abril 2027)">
+                            <span class="truncate rotate-90 transform origin-center font-black text-red-900">FEN</span>
+                        </div>
+                    `;
                 }
                 htmlHeader += `</div>`;
                 headerEl.innerHTML = htmlHeader;
@@ -1939,6 +1980,13 @@
 
                 htmlCuerpo += `
                             </div>
+
+                            <!-- Franja FEN si está activada -->
+                            ${mostrarFranjaFen ? `
+                                <div class="franja-fen-overlay absolute top-0 bottom-0 z-20" 
+                                     style="left: 86.8056%; width: 2.0833%;" 
+                                     title="Franja Fenómeno de El Niño (Nov 2026 - Abr 2027): Estado de Emergencia FEN"></div>
+                            ` : ''}
 
                             <!-- Bloques de Años Regulatorios posicionados exactamente en sus meses de inicio -->
                             <div class="absolute inset-0">

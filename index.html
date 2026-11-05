@@ -1652,7 +1652,16 @@
 
         const ANIO_INICIAL_GANTT = 2006;
         const ANIO_FINAL_GANTT = 2029;
-        const TOTAL_ANIOS_GANTT = ANIO_FINAL_GANTT - ANIO_INICIAL_GANTT + 1; // 24 años
+        const TOTAL_ANIOS_GANTT = ANIO_FINAL_GANTT - ANIO_INICIAL_GANTT + 1; // 24 años (2006 al 2029)
+
+        function parsearAniosRango(rango) {
+            if (!rango || typeof rango !== 'string') return null;
+            const matches = rango.match(/\d{2,4}/g);
+            if (!matches || matches.length < 2) return null;
+            const y1 = parseInt(matches[0].length === 2 ? '20' + matches[0] : matches[0], 10);
+            const y2 = parseInt(matches[1].length === 2 ? '20' + matches[1] : matches[1], 10);
+            return { y1, y2 };
+        }
 
         function prepararDatosGantt() {
             if (datosGanttCache) return datosGanttCache;
@@ -1665,17 +1674,17 @@
             const ordAnio = (a) => {
                 if (typeof a !== 'string') return 99;
                 if (a.startsWith('Año ')) {
-                    const n = parseInt(a.replace(/\\D/g, ''), 10);
+                    const n = parseInt(a.replace(/\D/g, ''), 10);
                     return isNaN(n) ? 99 : n;
                 }
                 if (a.startsWith('PT ')) {
-                    const n = parseInt(a.replace(/\\D/g, ''), 10);
+                    const n = parseInt(a.replace(/\D/g, ''), 10);
                     return isNaN(n) ? 99 : 10 + n;
                 }
                 return 99;
             };
 
-            // Filtrar preferentemente servicio principal 'Agua y Saneamiento' para 026 y 028
+            // Filtrar preferentemente servicio principal 'Agua y Saneamiento' para EPS con servicios múltiples
             const fuenteFiltrada = fuente.filter(item => {
                 const anio = String(item.Año_Regulatorio || '').trim();
                 if (!anio || anio === 'Año Base' || anio === 'Acumulado') return false;
@@ -1719,7 +1728,6 @@
                 });
 
                 const aniosResueltos = [];
-
                 const periodosOrdenados = Object.keys(porPeriodo).sort((x, y) => (ordPer[x] || 99) - (ordPer[y] || 99));
 
                 periodosOrdenados.forEach(pr => {
@@ -1736,51 +1744,36 @@
                     });
                     itemsUnicos.sort((x, y) => ordAnio(x.Año_Regulatorio) - ordAnio(y.Año_Regulatorio));
 
-                    // Determinar el año calendario base del periodo
+                    // Determinar el año calendario base de este periodo específico
                     let anioBasePeriodo = null;
-                    itemsUnicos.forEach((it, idx) => {
-                        if (anioBasePeriodo !== null) return;
-                        const r = String(it.Rango_Anio || '');
-                        if (r) {
-                            const nums = r.match(/\\b(\\d{2,4})\\b/g);
-                            if (nums && nums.length >= 2) {
-                                const y1 = parseInt(nums[0].length === 2 ? '20' + nums[0] : nums[0], 10);
-                                const y2 = parseInt(nums[1].length === 2 ? '20' + nums[1] : nums[1], 10);
-                                if ((y2 - y1) <= 2) {
-                                    anioBasePeriodo = y1 - idx;
-                                }
-                            }
+                    for (let idx = 0; idx < itemsUnicos.length; idx++) {
+                        const parsed = parsearAniosRango(itemsUnicos[idx].Rango_Anio);
+                        if (parsed && (parsed.y2 - parsed.y1) <= 2) {
+                            anioBasePeriodo = parsed.y1 - idx;
+                            break;
                         }
-                    });
+                    }
 
                     // Si no se dedujo de Rango_Anio, buscar en Quinquenio
                     if (anioBasePeriodo === null) {
-                        itemsUnicos.forEach(it => {
-                            if (anioBasePeriodo !== null) return;
-                            const q = String(it.Quinquenio || '');
-                            const nums = q.match(/\\b(\\d{4})\\b/);
-                            if (nums) {
-                                anioBasePeriodo = parseInt(nums[0], 10);
+                        for (let it of itemsUnicos) {
+                            const qm = String(it.Quinquenio || '').match(/\d{4}/);
+                            if (qm) {
+                                anioBasePeriodo = parseInt(qm[0], 10);
+                                break;
                             }
-                        });
+                        }
                     }
 
                     if (anioBasePeriodo === null) {
-                        anioBasePeriodo = 2015; // Respaldo
+                        anioBasePeriodo = 2015; // Respaldo seguro
                     }
 
                     itemsUnicos.forEach((it, idx) => {
                         let calYear = anioBasePeriodo + idx;
-                        const r = String(it.Rango_Anio || '');
-                        if (r) {
-                            const nums = r.match(/\\b(\\d{2,4})\\b/g);
-                            if (nums && nums.length >= 2) {
-                                const y1 = parseInt(nums[0].length === 2 ? '20' + nums[0] : nums[0], 10);
-                                const y2 = parseInt(nums[1].length === 2 ? '20' + nums[1] : nums[1], 10);
-                                if ((y2 - y1) <= 2) {
-                                    calYear = y1;
-                                }
-                            }
+                        const parsed = parsearAniosRango(it.Rango_Anio);
+                        if (parsed && (parsed.y2 - parsed.y1) <= 2) {
+                            calYear = parsed.y1;
                         }
 
                         aniosResueltos.push({

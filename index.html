@@ -543,7 +543,7 @@
                             <h3 class="text-base font-black text-[#002b66] tracking-tight">Línea de Tiempo Regulatoria de Empresas Prestadoras</h3>
                             <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-[#003366] border border-blue-200 rounded-full">Diagrama Gantt Cronológico</span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029) con posicionamiento mensual interno. <strong class="text-blue-800">Haz clic en cualquier año (2006, 2015, etc.) para expandirlo mes a mes (Ene - Dic)</strong>, o vuelve a cliquearlo para contraerlo.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029) con posicionamiento mensual interno. <strong class="text-blue-800">Haz clic en los años para expandir uno o varios a la vez mes a mes (Ene - Dic)</strong>, y vuelve a hacer clic para contraerlos.</p>
                     </div>
                 </div>
 
@@ -587,9 +587,9 @@
                 </div>
 
                 <!-- Indicador interactivo: Zoom mes a mes -->
-                <div class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-sky-50/90 border border-sky-300 rounded-lg text-sky-900 shadow-2xs select-none" title="Haz clic sobre cualquier año en el encabezado para desplegar sus 12 meses">
-                    <span class="text-xs">🔍</span>
-                    <span class="text-[11px] font-bold">Clic en un año para ver mes a mes</span>
+                <div id="badge-zoom-gantt" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-sky-50/90 border border-sky-300 rounded-lg text-sky-900 shadow-2xs select-none" title="Haz clic sobre cualquier año en el encabezado para desplegar o contraer sus 12 meses">
+                    <span class="text-xs">📅</span>
+                    <span id="texto-zoom-gantt" class="text-[11px] font-bold">Clic en los años para ver mes a mes</span>
                 </div>
 
                 <!-- Control Checkbox FEN (Fenómeno de El Niño) -->
@@ -634,7 +634,7 @@
                             <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                         </div>
                         <!-- Eje X: Años Calendario (2006 al 2029) -->
-                        <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
+                        <div class="flex-1 min-w-[1152px] relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
                             <!-- Los años se renderizan dinámicamente -->
                         </div>
                     </div>
@@ -1650,16 +1650,17 @@
         let datosGanttCache = null;
         let filtroQueryGantt = "";
         let mostrarFranjaFen = false;
-        let anioExpandidoGantt = null; // Año actualmente expandido mes a mes (ej. 2015, o null si ninguno)
+        let aniosExpandidosGantt = new Set(); // Conjunto de años expandidos simultáneamente (ej: 2015, 2025, 2026)
 
         const NOMBRES_MESES_CORTOS_GANTT = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Set', 'Oct', 'Nov', 'Dic'];
 
-        function calcularEscalaGantt(anioExpandido = null, factorZoom = 9) {
+        function calcularEscalaGantt(aniosExpandidos = aniosExpandidosGantt, factorZoom = 8) {
             const posMonth = new Array(TOTAL_MESES_GANTT + 1);
             posMonth[0] = 0;
+            const expSet = (aniosExpandidos instanceof Set) ? aniosExpandidos : new Set(aniosExpandidos ? [aniosExpandidos] : []);
             for (let m = 0; m < TOTAL_MESES_GANTT; m++) {
                 const y = ANIO_INICIAL_GANTT + Math.floor(m / 12);
-                const w = (anioExpandido !== null && y === anioExpandido) ? factorZoom : 1;
+                const w = expSet.has(y) ? factorZoom : 1;
                 posMonth[m + 1] = posMonth[m] + w;
             }
             const totalUnits = posMonth[TOTAL_MESES_GANTT];
@@ -1686,26 +1687,32 @@
             const anioInt = parseInt(anio, 10);
             if (isNaN(anioInt)) return;
 
-            if (anioExpandidoGantt === anioInt) {
-                anioExpandidoGantt = null;
+            const estabaExpandido = aniosExpandidosGantt.has(anioInt);
+            if (estabaExpandido) {
+                aniosExpandidosGantt.delete(anioInt);
             } else {
-                anioExpandidoGantt = anioInt;
+                aniosExpandidosGantt.add(anioInt);
             }
 
             renderizarDiagramaGantt();
 
-            if (anioExpandidoGantt !== null) {
+            if (!estabaExpandido) {
                 setTimeout(() => {
                     const elHeader = document.querySelector(`[data-gantt-anio="${anioInt}"]`);
                     const scrollArea = document.getElementById('contenedor-scroll-gantt');
                     if (elHeader && scrollArea) {
                         const rectHeader = elHeader.getBoundingClientRect();
                         const rectScroll = scrollArea.getBoundingClientRect();
-                        const targetScrollLeft = scrollArea.scrollLeft + rectHeader.left - rectScroll.left - 280;
+                        const targetScrollLeft = scrollArea.scrollLeft + rectHeader.left - rectScroll.left - 290;
                         scrollArea.scrollTo({ left: Math.max(0, targetScrollLeft), behavior: 'smooth' });
                     }
                 }, 40);
             }
+        }
+
+        function contraerTodosLosAniosGantt() {
+            aniosExpandidosGantt.clear();
+            renderizarDiagramaGantt();
         }
 
         const COLORES_PERIODOS_GANTT = {
@@ -1973,17 +1980,37 @@
             if (!cuerpoEl) return;
 
             const listaEps = prepararDatosGantt();
-            const escala = calcularEscalaGantt(anioExpandidoGantt, 9);
+            const escala = calcularEscalaGantt(aniosExpandidosGantt, 8);
 
-            // Ajustar ancho mínimo del contenedor si un año está expandido para dar espacio cómodo a los 12 meses
+            // Ajustar ancho mínimo del contenedor según la cantidad de años expandidos simultáneamente
+            const numExp = aniosExpandidosGantt.size;
+            const extraWidth = numExp * 480;
+            const minTotalWidth = 1440 + extraWidth;
+            const minTrackWidth = 1152 + extraWidth;
+
             const wrapperInner = document.querySelector('#contenedor-scroll-gantt > div');
             if (wrapperInner) {
-                if (anioExpandidoGantt !== null) {
-                    wrapperInner.classList.remove('min-w-[1440px]');
-                    wrapperInner.classList.add('min-w-[1920px]');
+                wrapperInner.style.minWidth = minTotalWidth + 'px';
+            }
+
+            // Actualizar badge/botón de zoom en la barra superior
+            const badgeZoom = document.getElementById('badge-zoom-gantt');
+            if (badgeZoom) {
+                if (numExp > 0) {
+                    badgeZoom.className = "flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 border border-amber-300 rounded-lg text-amber-950 shadow-2xs select-none";
+                    badgeZoom.innerHTML = `
+                        <span class="text-xs">📅</span>
+                        <span class="text-[11px] font-bold">${numExp} año${numExp > 1 ? 's' : ''} desplegado${numExp > 1 ? 's' : ''}</span>
+                        <button onclick="contraerTodosLosAniosGantt()" class="ml-1 px-1.5 py-0.5 bg-white hover:bg-red-50 text-red-700 hover:text-red-900 border border-amber-300 rounded text-[10px] font-black transition shadow-2xs">
+                            ▲ Contraer todo${numExp > 1 ? 's' : ''}
+                        </button>
+                    `;
                 } else {
-                    wrapperInner.classList.remove('min-w-[1920px]');
-                    wrapperInner.classList.add('min-w-[1440px]');
+                    badgeZoom.className = "hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-sky-50/90 border border-sky-300 rounded-lg text-sky-900 shadow-2xs select-none";
+                    badgeZoom.innerHTML = `
+                        <span class="text-xs">📅</span>
+                        <span class="text-[11px] font-bold">Clic en los años para ver mes a mes</span>
+                    `;
                 }
             }
 
@@ -1998,19 +2025,19 @@
                 contadorEl.textContent = `${epsFiltradas.length}`;
             }
 
-            // 2. Renderizar encabezado Eje X (Años Calendario 2006 al 2029 con soporte interactivo de expansión)
+            // 2. Renderizar encabezado Eje X (Años Calendario 2006 al 2029 con soporte interactivo de expansión múltiple)
             if (headerEl) {
-                headerEl.className = `sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs ${anioExpandidoGantt !== null ? 'h-12' : 'h-10'}`;
+                headerEl.className = `sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs ${numExp > 0 ? 'h-12' : 'h-10'}`;
                 let htmlHeader = `
                     <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 select-none sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                         <span>Empresa Prestadora</span>
                         <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">${epsFiltradas.length}</span>
                     </div>
-                    <div class="flex-1 min-w-[1152px] pr-4 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
+                    <div style="min-width: ${minTrackWidth}px;" class="flex-1 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
                 `;
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const yPct = escala.getYearPct(y);
-                    const estaExpandido = (anioExpandidoGantt === y);
+                    const estaExpandido = aniosExpandidosGantt.has(y);
 
                     if (estaExpandido) {
                         // Año Expandido: Cabecera con botón de contraer y 12 subcolumnas de meses
@@ -2094,7 +2121,7 @@
                         </div>
 
                         <!-- Pista Temporal Eje X con división mensual exacta -->
-                        <div class="flex-1 min-w-[1152px] pr-4 relative h-full flex items-center">
+                        <div style="min-width: ${minTrackWidth}px;" class="flex-1 relative h-full flex items-center">
                             
                             <!-- Cuadrícula de fondo de los 24 años (con 12 subdivisiones para el año expandido) -->
                             <div class="absolute inset-0 flex pointer-events-none items-center">
@@ -2102,7 +2129,7 @@
 
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
                     const yPct = escala.getYearPct(y);
-                    const estaExpandido = (anioExpandidoGantt === y);
+                    const estaExpandido = aniosExpandidosGantt.has(y);
 
                     if (estaExpandido) {
                         htmlCuerpo += `

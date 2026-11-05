@@ -530,7 +530,7 @@
                             <h3 class="text-base font-black text-[#002b66] tracking-tight">Línea de Tiempo Regulatoria de Empresas Prestadoras</h3>
                             <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-[#003366] border border-blue-200 rounded-full">Diagrama Gantt Cronológico</span>
                         </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029): visualiza con exactitud los inicios, transiciones (PT), suspensiones y vigencias de cada periodo regulatorio.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029) con posicionamiento mensual interno: visualiza con exactitud los inicios reales, transiciones (PT) y suspensiones.</p>
                     </div>
                 </div>
 
@@ -591,12 +591,12 @@
                 </div>
             </div>
 
-                        <!-- Cuerpo Principal: Contenedor con Barra de Cabecera Fija justo debajo de la Leyenda y Cuerpo Desplazable -->
-            <div id="contenedor-scroll-gantt" class="flex-1 flex flex-col overflow-x-auto bg-[#f8f8f6]">
-                <div class="min-w-[1260px] flex-1 flex flex-col overflow-hidden">
+            <!-- Cuerpo Principal: Contenedor con Scroll Unificado (Cabecera y Filas sincronizadas en scroll horizontal) -->
+            <div id="contenedor-scroll-gantt" class="flex-1 overflow-auto gantt-scroll-area pt-0 px-4 pb-4 bg-[#f8f8f6]">
+                <div class="min-w-[1360px] pb-2">
                     
-                    <!-- Barra de Cabecera Fija Eje X (Años Calendario 2006 al 2029) - Inmóvil bajo la Leyenda -->
-                    <div id="gantt-header-eje-x" class="shrink-0 flex items-center bg-[#eaeaea] border-b-2 border-stone-300 py-2.5 px-4 select-none shadow-xs">
+                    <!-- Barra de Cabecera (Eje X: Años Calendario 2006 al 2029) - Sticky a top:0 para sincronía perfecta -->
+                    <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-center bg-[#eaeaea] border-b-2 border-stone-300 py-2.5 px-3 select-none shadow-xs">
                         <!-- Columna Fija: EPS (Eje Y) -->
                         <div class="w-64 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pr-4">
                             <span>Empresa Prestadora (50)</span>
@@ -608,11 +608,9 @@
                         </div>
                     </div>
 
-                    <!-- Contenedor Desplazable Verticalmente de las 50 EPS -->
-                    <div class="flex-1 overflow-y-auto gantt-scroll-area bg-white">
-                        <div id="gantt-cuerpo-filas" class="divide-y divide-stone-200">
-                            <!-- Las filas se renderizan dinámicamente -->
-                        </div>
+                    <!-- Lista de Filas de cada Empresa Prestadora (Eje Y) -->
+                    <div id="gantt-cuerpo-filas" class="divide-y divide-stone-200 bg-white border-x border-b border-stone-300 shadow-xs">
+                        <!-- Las filas se renderizan dinámicamente -->
                     </div>
 
                 </div>
@@ -1657,14 +1655,33 @@
         const ANIO_INICIAL_GANTT = 2006;
         const ANIO_FINAL_GANTT = 2029;
         const TOTAL_ANIOS_GANTT = ANIO_FINAL_GANTT - ANIO_INICIAL_GANTT + 1; // 24 años (2006 al 2029)
+        const TOTAL_MESES_GANTT = TOTAL_ANIOS_GANTT * 12; // 288 meses
 
-        function parsearAniosRango(rango) {
+        const MESES_INDICE_GANTT = {
+            'ene': 0, 'feb': 1, 'mar': 2, 'abr': 3, 'may': 4, 'jun': 5,
+            'jul': 6, 'ago': 7, 'set': 8, 'sep': 8, 'oct': 9, 'nov': 10, 'dic': 11
+        };
+
+        function parsearInicioFinMes(rango) {
             if (!rango || typeof rango !== 'string') return null;
-            const matches = rango.match(/\d{2,4}/g);
-            if (!matches || matches.length < 2) return null;
-            const y1 = parseInt(matches[0].length === 2 ? '20' + matches[0] : matches[0], 10);
-            const y2 = parseInt(matches[1].length === 2 ? '20' + matches[1] : matches[1], 10);
-            return { y1, y2 };
+            const parts = rango.split('-');
+            if (parts.length >= 2) {
+                const sPart = parts[0].trim().toLowerCase();
+                const ePart = parts[1].trim().toLowerCase();
+                let mS = null, mE = null;
+                for (let m in MESES_INDICE_GANTT) {
+                    if (sPart.includes(m) && mS === null) mS = MESES_INDICE_GANTT[m];
+                    if (ePart.includes(m) && mE === null) mE = MESES_INDICE_GANTT[m];
+                }
+                const nS = sPart.match(/\d{2,4}/g);
+                const nE = ePart.match(/\d{2,4}/g);
+                if (nS && nE && mS !== null && mE !== null) {
+                    const yS = parseInt(nS[0].length === 2 ? '20' + nS[0] : nS[0], 10);
+                    const yE = parseInt(nE[0].length === 2 ? '20' + nE[0] : nE[0], 10);
+                    return { yS, mS, yE, mE };
+                }
+            }
+            return null;
         }
 
         function prepararDatosGantt() {
@@ -1719,7 +1736,7 @@
                 mapEps.get(codPadded).rawItems.push(item);
             });
 
-            // Asignar a cada año regulatorio su año calendario exacto en el eje X
+            // Asignar a cada año regulatorio su posición temporal real con 12 divisiones internas por año
             const listaEps = Array.from(mapEps.values()).sort((a, b) => a.num - b.num);
 
             listaEps.forEach(eps => {
@@ -1748,42 +1765,60 @@
                     });
                     itemsUnicos.sort((x, y) => ordAnio(x.Año_Regulatorio) - ordAnio(y.Año_Regulatorio));
 
-                    // Determinar el año calendario base de este periodo específico
-                    let anioBasePeriodo = null;
+                    // Determinar fecha base del periodo (año y mes)
+                    let baseYear = null;
+                    let baseMonth = 0; // Por defecto enero
+
                     for (let idx = 0; idx < itemsUnicos.length; idx++) {
-                        const parsed = parsearAniosRango(itemsUnicos[idx].Rango_Anio);
-                        if (parsed && (parsed.y2 - parsed.y1) <= 2) {
-                            anioBasePeriodo = parsed.y1 - idx;
+                        const parsed = parsearInicioFinMes(itemsUnicos[idx].Rango_Anio);
+                        if (parsed && (parsed.yE - parsed.yS) <= 2) {
+                            baseYear = parsed.yS - idx;
+                            baseMonth = parsed.mS;
                             break;
                         }
                     }
 
                     // Si no se dedujo de Rango_Anio, buscar en Quinquenio
-                    if (anioBasePeriodo === null) {
+                    if (baseYear === null) {
                         for (let it of itemsUnicos) {
                             const qm = String(it.Quinquenio || '').match(/\d{4}/);
                             if (qm) {
-                                anioBasePeriodo = parseInt(qm[0], 10);
+                                baseYear = parseInt(qm[0], 10);
+                                baseMonth = 0;
                                 break;
                             }
                         }
                     }
 
-                    if (anioBasePeriodo === null) {
-                        anioBasePeriodo = 2015; // Respaldo seguro
+                    if (baseYear === null) {
+                        baseYear = 2015;
+                        baseMonth = 0;
                     }
 
                     itemsUnicos.forEach((it, idx) => {
-                        let calYear = anioBasePeriodo + idx;
-                        const parsed = parsearAniosRango(it.Rango_Anio);
-                        if (parsed && (parsed.y2 - parsed.y1) <= 2) {
-                            calYear = parsed.y1;
+                        let yStart = baseYear + idx;
+                        let mStart = baseMonth;
+
+                        const parsed = parsearInicioFinMes(it.Rango_Anio);
+                        if (parsed && (parsed.yE - parsed.yS) <= 2) {
+                            yStart = parsed.yS;
+                            mStart = parsed.mS;
                         }
+
+                        // Calcular posición porcentual exacta en la línea de tiempo (288 meses = 100%)
+                        const startMonthIndex = (yStart - ANIO_INICIAL_GANTT) * 12 + mStart;
+                        const leftPct = Math.max(0, (startMonthIndex / TOTAL_MESES_GANTT) * 100);
+                        // Ancho de 1 año regulatorio (12 meses): (12 / 288) * 100 = 4.16667%
+                        // Para permitir un espacio visual entre bloques consecutivos, usamos 4.02%
+                        const widthPct = (12 / TOTAL_MESES_GANTT) * 100 * 0.96;
 
                         aniosResueltos.push({
                             periodo: pr,
                             anio: it.Año_Regulatorio,
-                            calYear: calYear,
+                            calYear: yStart,
+                            calMonth: mStart,
+                            leftPct: leftPct,
+                            widthPct: widthPct,
                             estado: it.Estado_Evaluacion || null,
                             rango: it.Rango_Anio || '',
                             quinquenio: it.Quinquenio || '',
@@ -1837,7 +1872,7 @@
                 let htmlHeader = `
                     <div class="w-64 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pr-4 select-none">
                         <span>Empresa Prestadora (50)</span>
-                        <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200">50</span>
+                        <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
                     </div>
                     <div class="flex-1 grid grid-cols-timeline gap-1 text-center font-black text-[11px] text-slate-700">
                 `;
@@ -1872,14 +1907,14 @@
                 return;
             }
 
-            // 3. Renderizar filas de cada EPS en la cuadrícula temporal
+            // 3. Renderizar filas de cada EPS en la cuadrícula temporal con posicionamiento mensual interno
             let htmlCuerpo = '';
 
             epsFiltradas.forEach((eps, epsIdx) => {
                 const bgFila = (epsIdx % 2 === 0) ? 'bg-white' : 'bg-[#fafaf8]';
 
                 htmlCuerpo += `
-                    <div class="flex items-center py-1.5 px-4 hover:bg-amber-50/60 transition-colors group ${bgFila}">
+                    <div class="flex items-center py-1.5 px-3 hover:bg-amber-50/60 transition-colors group ${bgFila}">
                         <!-- Columna Y: Código y Nombre EPS -->
                         <div class="w-64 shrink-0 pr-4 flex items-center gap-2 select-none">
                             <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 text-[#003366] border border-blue-200 text-[10.5px] font-black shrink-0">
@@ -1890,77 +1925,76 @@
                             </span>
                         </div>
 
-                        <!-- Cuadrícula Eje X (Años Calendario 2006 al 2029) -->
-                        <div class="flex-1 grid grid-cols-timeline gap-1 items-center">
+                        <!-- Cuadrícula Temporal Eje X con división mensual interna -->
+                        <div class="flex-1 relative h-7">
+                            <!-- Cuadrícula de fondo de los 24 años (para alineación visual perfecta) -->
+                            <div class="absolute inset-0 grid grid-cols-timeline gap-1 pointer-events-none">
                 `;
 
-                // Crear mapa de años para acceso O(1)
-                const mapaAniosEps = new Map();
-                eps.anios.forEach(a => {
-                    mapaAniosEps.set(a.calYear, a);
-                });
-
                 for (let y = ANIO_INICIAL_GANTT; y <= ANIO_FINAL_GANTT; y++) {
-                    const item = mapaAniosEps.get(y);
-
-                    if (item) {
-                        const cfgColor = COLORES_PERIODOS_GANTT[item.periodo] || {
-                            bg: 'bg-slate-600',
-                            border: 'border-slate-700',
-                            text: 'text-white',
-                            hex: '#475569'
-                        };
-
-                        const esPt = item.anio.startsWith('PT');
-                        const estado = String(item.estado || '').toLowerCase();
-                        const esSuspendido = estado.includes('suspend');
-                        const esEnCurso = estado.includes('curso');
-
-                        let estiloClase = '';
-                        let iconoEstado = '';
-                        let etiquetaAnio = item.anio.replace('Año ', 'A').replace('PT ', 'PT');
-
-                        if (esSuspendido) {
-                            estiloClase = 'bg-slate-300 text-slate-700 border-slate-400 font-bold shadow-2xs';
-                            iconoEstado = '<span class="text-[8.5px] mr-0.5" title="Evaluación suspendida">⏸</span>';
-                        } else if (esPt) {
-                            estiloClase = `${cfgColor.bg} ${cfgColor.text} border-2 border-amber-300 border-dashed ring-2 ring-amber-400/60 font-black shadow-xs`;
-                            iconoEstado = '';
-                        } else if (esEnCurso) {
-                            estiloClase = `${cfgColor.bg}/90 ${cfgColor.text} ${cfgColor.border} border-dashed shadow-2xs`;
-                            iconoEstado = '<span class="text-[8px] mr-0.5" title="En curso">⏳</span>';
-                        } else {
-                            estiloClase = `${cfgColor.bg} ${cfgColor.text} ${cfgColor.border} shadow-2xs font-black`;
-                        }
-
-                        const estadoTexto = esSuspendido ? 'Evaluación Suspendida (Sin evaluación)' : (item.estado || 'Evaluado');
-                        const docRef = item.infFisc || item.infPas || 'Sin informe registrado';
-                        const tooltip = `${eps.cod}. ${eps.nombre}
-Año Calendario: ${y}
-${item.periodo} - ${item.anio}${esPt ? ' (Año en Transición)' : ''}
-Estado: ${estadoTexto}
-Rango: ${item.rango || 'N/D'}
-Quinquenio: ${item.quinquenio || 'N/D'}
-Documento: ${docRef}`;
-
-                        htmlCuerpo += `
-                            <div class="gantt-bloque-anio relative h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none ${estiloClase}" 
-                                 title="${escaparHtml(tooltip)}"
-                                 onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}')">
-                                ${iconoEstado}<span>${etiquetaAnio}</span>
-                            </div>
-                        `;
-                    } else {
-                        // Celda vacía en los años en que la EPS aún no iniciaba o tiene vacíos
-                        const esDecada = (y % 5 === 0);
-                        const bgVacio = esDecada ? 'bg-stone-100/70 border-stone-200' : 'bg-stone-50/50 border-stone-200/50';
-                        htmlCuerpo += `
-                            <div class="h-7 rounded ${bgVacio} border"></div>
-                        `;
-                    }
+                    const esDecada = (y % 5 === 0);
+                    const bgVacio = esDecada ? 'bg-stone-100/50 border-stone-200/60' : 'bg-stone-50/30 border-stone-200/30';
+                    htmlCuerpo += `<div class="h-7 rounded ${bgVacio} border"></div>`;
                 }
 
                 htmlCuerpo += `
+                            </div>
+
+                            <!-- Bloques de Años Regulatorios posicionados exactamente en sus meses de inicio -->
+                            <div class="absolute inset-0">
+                `;
+
+                eps.anios.forEach(item => {
+                    const cfgColor = COLORES_PERIODOS_GANTT[item.periodo] || {
+                        bg: 'bg-slate-600',
+                        border: 'border-slate-700',
+                        text: 'text-white',
+                        hex: '#475569'
+                    };
+
+                    const esPt = item.anio.startsWith('PT');
+                    const estado = String(item.estado || '').toLowerCase();
+                    const esSuspendido = estado.includes('suspend');
+                    const esEnCurso = estado.includes('curso');
+
+                    let estiloClase = '';
+                    let iconoEstado = '';
+                    let etiquetaAnio = item.anio.replace('Año ', 'A').replace('PT ', 'PT');
+
+                    if (esSuspendido) {
+                        estiloClase = 'bg-slate-300 text-slate-700 border-slate-400 font-bold shadow-2xs';
+                        iconoEstado = '<span class="text-[8.5px] mr-0.5" title="Evaluación suspendida">⏸</span>';
+                    } else if (esPt) {
+                        estiloClase = `${cfgColor.bg} ${cfgColor.text} border-2 border-amber-300 border-dashed ring-2 ring-amber-400/60 font-black shadow-xs`;
+                        iconoEstado = '';
+                    } else if (esEnCurso) {
+                        estiloClase = `${cfgColor.bg}/90 ${cfgColor.text} ${cfgColor.border} border-dashed shadow-2xs`;
+                        iconoEstado = '<span class="text-[8px] mr-0.5" title="En curso">⏳</span>';
+                    } else {
+                        estiloClase = `${cfgColor.bg} ${cfgColor.text} ${cfgColor.border} shadow-2xs font-black`;
+                    }
+
+                    const estadoTexto = esSuspendido ? 'Evaluación Suspendida (Sin evaluación)' : (item.estado || 'Evaluado');
+                    const docRef = item.infFisc || item.infPas || 'Sin informe registrado';
+                    const tooltip = `${eps.cod}. ${eps.nombre}
+${item.periodo} - ${item.anio}${esPt ? ' (Año en Transición)' : ''}
+Estado: ${estadoTexto}
+Rango Oficial: ${item.rango || 'N/D'}
+Quinquenio: ${item.quinquenio || 'N/D'}
+Documento: ${docRef}`;
+
+                    htmlCuerpo += `
+                        <div class="gantt-bloque-anio absolute top-0 h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none ${estiloClase}" 
+                             style="left: ${item.leftPct}%; width: ${item.widthPct}%;"
+                             title="${escaparHtml(tooltip)}"
+                             onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}')">
+                            ${iconoEstado}<span>${etiquetaAnio}</span>
+                        </div>
+                    `;
+                });
+
+                htmlCuerpo += `
+                            </div>
                         </div>
                     </div>
                 `;

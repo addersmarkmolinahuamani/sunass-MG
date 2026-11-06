@@ -381,11 +381,11 @@
             </div>
 
             <!-- LAS 4 TARJETAS EN FILA (Mismo ancho total 57cqw que la cápsula superior) -->
-            <div class="absolute" style="left: 26cqw; top: 39.5cqh; width: 57cqw; height: 39cqh; z-index: 20; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.1cqw;">
-                <!-- Tarjeta 1: Resultados de evaluación -->
-                <div onclick="navegarDesdePortada('tablero')" 
+            <div class="absolute" style="left: 26cqw; top: 39.5cqh; width: 57cqw; height: 39cqh; z-index: 20; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5cqw;">
+                <!-- Tarjeta 1: Evaluación y reportes (Fusionada) -->
+                <div onclick="navegarDesdePortada('evaluacion')" 
                      class="tarjeta-portada group" 
-                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.1cqw 1.6cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.3cqw 1.6cqh 1.3cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
                         <!-- Icono circular azul -->
                         <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
@@ -393,13 +393,13 @@
                         </div>
                         <!-- Título -->
                         <h3 style="font-size: 2.5cqh; font-weight: 800; color: #002b66; line-height: 1.18; margin-top: 1.0cqh;">
-                            Resultados de<br>evaluación
+                            Evaluación y<br>reportes
                         </h3>
                         <!-- Línea azul de acento -->
-                        <div style="width: 2.4cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
+                        <div style="width: 2.5cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
                         <!-- Descripción -->
-                        <p style="font-size: 1.68cqh; color: #334155; line-height: 1.30; font-weight: 500;">
-                            Consulta el nivel de cumplimiento, ICI e ICG de las metas de gestión por Empresa Prestadora.
+                        <p style="font-size: 1.62cqh; color: #334155; line-height: 1.32; font-weight: 500;">
+                            Consulta el cumplimiento de metas de gestión (ICI e ICG) y genera consultas y reportes dinámicos.
                         </p>
                     </div>
                     <!-- Flecha abajo a la derecha -->
@@ -410,10 +410,10 @@
                     </div>
                 </div>
 
-                <!-- Tarjeta 2: Documentos e informes regulatorios -->
+                <!-- Tarjeta 2: Informes y resoluciones -->
                 <div onclick="navegarDesdePortada('documentos')" 
                      class="tarjeta-portada group" 
-                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.1cqw 1.6cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.3cqw 1.6cqh 1.3cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
                         <!-- Icono circular azul -->
                         <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
@@ -431,7 +431,7 @@
                         </p>
                     </div>
                     <!-- Flecha abajo a la derecha -->
-                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 1.0cqh;">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 0.8cqh;">
                         <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
                             &rarr;
                         </span>
@@ -441,7 +441,7 @@
                 <!-- Tarjeta 3: Línea de tiempo regulatoria -->
                 <div onclick="abrirModalGantt()" 
                      class="tarjeta-portada group" 
-                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.1cqw 1.6cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.3cqw 1.6cqh 1.3cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
                         <!-- Icono circular azul -->
                         <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
@@ -456,34 +456,6 @@
                         <!-- Descripción -->
                         <p style="font-size: 1.68cqh; color: #334155; line-height: 1.30; font-weight: 500;">
                             Visualiza la cronología de periodos y años regulatorios de las 50 Empresas Prestadoras.
-                        </p>
-                    </div>
-                    <!-- Flecha abajo a la derecha -->
-                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 0.8cqh;">
-                        <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
-                            &rarr;
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Tarjeta 4: Creador de reportes -->
-                <div onclick="navegarDesdePortada('reportes')" 
-                     class="tarjeta-portada group" 
-                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.1cqw 1.6cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
-                    <div>
-                        <!-- Icono circular azul -->
-                        <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
-                            <svg style="width: 3.3cqh; height: 3.3cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        </div>
-                        <!-- Título -->
-                        <h3 style="font-size: 2.5cqh; font-weight: 800; color: #002b66; line-height: 1.18; margin-top: 1.0cqh;">
-                            Creador de<br>reportes
-                        </h3>
-                        <!-- Línea azul de acento -->
-                        <div style="width: 2.4cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
-                        <!-- Descripción -->
-                        <p style="font-size: 1.68cqh; color: #334155; line-height: 1.30; font-weight: 500;">
-                            Genera consultas personalizadas mediante tabla dinámica y exporta cuadro en formato Excel.
                         </p>
                     </div>
                     <!-- Flecha abajo a la derecha -->
@@ -695,15 +667,24 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
-            <!-- NAVEGACIÓN GENERAL (Activa cuando se está en Evaluación o Reportes) -->
-            <div id="nav-sidebar-general" class="space-y-1">
-                <div class="grid grid-cols-2 gap-1">
-                    <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer">📊 Evaluación</button>
-                    <button onclick="cambiarModulo('matriz')" id="btn-mod-documentos" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📚 Documentos</button>
+            <!-- NAVEGACIÓN GENERAL (Espacio de trabajo: Evaluación y Reportes) -->
+            <div id="nav-sidebar-general" class="space-y-1.5">
+                <div class="flex items-center justify-between px-1 mb-0.5">
+                    <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
+                        <span>📊</span> Evaluación y Reportes
+                    </span>
+                    <button onclick="cambiarModulo('matriz')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Ir al Centro de Documentos">
+                        <span>Documentos →</span>
+                    </button>
                 </div>
                 <div class="grid grid-cols-2 gap-1">
-                    <button onclick="abrirModalGantt()" id="btn-mod-gantt" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate cursor-pointer">📅 Gantt</button>
-                    <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">🛠️ Reportes</button>
+                    <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 px-1 text-xs font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer">📊 Evaluación</button>
+                    <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">🛠️ Reportes</button>
+                </div>
+                <div class="pt-0.5">
+                    <button onclick="abrirModalGantt()" id="btn-mod-gantt" class="w-full py-1.5 px-2 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate cursor-pointer flex items-center justify-center gap-1.5">
+                        <span>📅</span> Línea de Tiempo (Gantt)
+                    </button>
                 </div>
             </div>
 
@@ -713,8 +694,8 @@
                     <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
                         <span>📚</span> Documentos
                     </span>
-                    <button onclick="cambiarModulo('tablero')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Volver al Tablero de Evaluación">
-                        <span>← Evaluación</span>
+                    <button onclick="cambiarModulo('tablero')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Volver al espacio de Evaluación y Reportes">
+                        <span>← Eval. y Reportes</span>
                     </button>
                 </div>
                 <button onclick="cambiarModulo('matriz')" id="btn-doc-informes" 
@@ -891,25 +872,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Región / Departamento</label>
-                    <select id="filtro-region-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
-                        <option value="">Todas las regiones</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Tamaño de EPS</label>
-                    <select id="filtro-tamano-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
-                        <option value="">Todos los tamaños</option>
-                        <option value="GRANDE">Grande</option>
-                        <option value="MEDIANA">Mediana</option>
-                        <option value="PEQUEÑA">Pequeña</option>
-                        <option value="SEDAPAL">Sedapal</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Régimen</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Régimen</label>
                     <select id="filtro-regimen-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
                         <option value="">Todos los regímenes</option>
                         <option value="RAT">RAT</option>
@@ -918,7 +881,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">5. Estado de Vigencia</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Estado de Vigencia</label>
                     <select id="filtro-estado-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
                         <option value="">Todos los estados</option>
                         <option value="Vigente">Vigente</option>
@@ -927,7 +890,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">6. Tipo de Estudio</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Tipo de Estudio</label>
                     <select id="filtro-tipo-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
                         <option value="">Todos los tipos</option>
                         <option value="Definitivo">Definitivo</option>
@@ -989,25 +952,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Región / Departamento</label>
-                    <select id="filtro-region-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
-                        <option value="">Todas las regiones</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Tamaño de EPS</label>
-                    <select id="filtro-tamano-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
-                        <option value="">Todos los tamaños</option>
-                        <option value="GRANDE">Grande</option>
-                        <option value="MEDIANA">Mediana</option>
-                        <option value="PEQUEÑA">Pequeña</option>
-                        <option value="SEDAPAL">Sedapal</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">5. Régimen</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Régimen</label>
                     <select id="filtro-regimen-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
                         <option value="">Todos los regímenes</option>
                         <option value="RAT">RAT</option>
@@ -1016,7 +961,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">6. Estado</label>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Estado</label>
                     <select id="filtro-estado-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
                         <option value="">Todos los estados</option>
                         <option value="Vigente">Vigente</option>
@@ -1176,6 +1121,16 @@
                     <h1 class="text-3xl font-extrabold text-[#003366]">Resultados de Evaluación</h1>
                 </div>
                 <div class="flex items-center gap-2.5">
+                    <!-- Selector de vista en Evaluación y Reportes -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="cambiarModulo('tablero')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#003366] text-white shadow-xs flex items-center gap-1.5 transition">
+                            <span>📊 Evaluación</span>
+                        </button>
+                        <button onclick="cambiarModulo('reportes')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                            <span>🛠️ Reportes</span>
+                        </button>
+                    </div>
+
                     <!-- Acceso al Estudio Tarifario en Header -->
                     <div id="contenedor-header-estudio-tarifario" class="relative inline-block"></div>
                     
@@ -1829,8 +1784,8 @@
             </header>
 
             <main class="flex-1 p-6 sm:p-8 overflow-y-auto space-y-5">
-                <!-- TARJETAS KPI DE RESUMEN (RCD) -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- TARJETAS KPI DE RESUMEN (RCD - 3 Tarjetas) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
                         <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#003366] font-bold text-lg">⚖️</div>
                         <div>
@@ -1843,13 +1798,6 @@
                         <div>
                             <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">RCD Vigentes</div>
                             <div id="kpi-rcd-vigentes" class="text-xl font-black text-emerald-700">89</div>
-                        </div>
-                    </div>
-                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 font-bold text-lg">📝</div>
-                        <div>
-                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Proyectos en Consulta</div>
-                            <div id="kpi-rcd-proyectos" class="text-xl font-black text-amber-700">193</div>
                         </div>
                     </div>
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
@@ -1909,6 +1857,15 @@
                     <h1 class="text-3xl font-extrabold text-[#003366]">Generador dinámico de reportes</h1>
                 </div>
                 <div class="flex items-center gap-2.5">
+                    <!-- Selector de vista en Evaluación y Reportes -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                        <button onclick="cambiarModulo('tablero')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                            <span>📊 Evaluación</span>
+                        </button>
+                        <button onclick="cambiarModulo('reportes')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#003366] text-white shadow-xs flex items-center gap-1.5 transition">
+                            <span>🛠️ Reportes</span>
+                        </button>
+                    </div>
                     
                     <button onclick="exportarReportesExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Exportar el reporte actual a formato Excel (.xlsx)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -2068,7 +2025,7 @@
                 portada.classList.add('opacity-0', 'pointer-events-none');
             }
 
-            if (destino === 'tablero') {
+            if (destino === 'tablero' || destino === 'evaluacion') {
                 cambiarModulo('tablero');
                 const mainTablero = document.querySelector('#modulo-tablero main');
                 if (mainTablero) mainTablero.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2786,34 +2743,19 @@ Documento: ${docRef}`;
                 }
             });
 
-            const regiones = new Set();
-            const tamanos = new Set();
             const regimenes = new Set();
             const estados = new Set();
             const tipos = new Set();
 
             db_estudios_tarifarios.forEach(item => {
-                if (item.region) regiones.add(item.region);
-                if (item.tamano) tamanos.add(item.tamano);
                 if (item.regimen) regimenes.add(item.regimen);
                 if (item.estado) estados.add(item.estado);
                 if (item.tipo) tipos.add(item.tipo);
             });
 
-            const selRegion = document.getElementById('filtro-region-estudios');
-            const selTamano = document.getElementById('filtro-tamano-estudios');
             const selRegimen = document.getElementById('filtro-regimen-estudios');
             const selEstado = document.getElementById('filtro-estado-estudios');
             const selTipo = document.getElementById('filtro-tipo-estudios');
-
-            if (selRegion) {
-                selRegion.innerHTML = '<option value="">Todas las regiones</option>' +
-                    Array.from(regiones).sort().map(r => `<option value="${r}">${r}</option>`).join('');
-            }
-            if (selTamano) {
-                selTamano.innerHTML = '<option value="">Todos los tamaños</option>' +
-                    Array.from(tamanos).sort().map(t => `<option value="${t}">${t}</option>`).join('');
-            }
             if (selRegimen) {
                 selRegimen.innerHTML = '<option value="">Todos los regímenes</option>' +
                     Array.from(regimenes).sort().map(reg => `<option value="${reg}">${reg}</option>`).join('');
@@ -2834,13 +2776,9 @@ Documento: ${docRef}`;
 
         function limpiarFiltrosEstudios() {
             if (dropdownEpsEstudiosInstance) dropdownEpsEstudiosInstance.limpiar();
-            const region = document.getElementById('filtro-region-estudios');
-            const tamano = document.getElementById('filtro-tamano-estudios');
             const regimen = document.getElementById('filtro-regimen-estudios');
             const estado = document.getElementById('filtro-estado-estudios');
             const tipo = document.getElementById('filtro-tipo-estudios');
-            if (region) region.value = '';
-            if (tamano) tamano.value = '';
             if (regimen) regimen.value = '';
             if (estado) estado.value = '';
             if (tipo) tipo.value = '';
@@ -2861,8 +2799,6 @@ Documento: ${docRef}`;
             const epsSeleccionadas = dropdownEpsEstudiosInstance ? dropdownEpsEstudiosInstance.getValores() : [];
             const codigosSeleccionadosSet = new Set(epsSeleccionadas.map(c => String(c).padStart(3, '0')));
 
-            const filtroRegion = document.getElementById('filtro-region-estudios')?.value || '';
-            const filtroTamano = document.getElementById('filtro-tamano-estudios')?.value || '';
             const filtroRegimen = document.getElementById('filtro-regimen-estudios')?.value || '';
             const filtroEstado = document.getElementById('filtro-estado-estudios')?.value || '';
             const filtroTipo = document.getElementById('filtro-tipo-estudios')?.value || '';
@@ -3157,8 +3093,6 @@ Documento: ${docRef}`;
             });
 
             const selTipo = document.getElementById('filtro-tipo-rcd');
-            const selRegion = document.getElementById('filtro-region-rcd');
-            const selTamano = document.getElementById('filtro-tamano-rcd');
             const selRegimen = document.getElementById('filtro-regimen-rcd');
             const selEstado = document.getElementById('filtro-estado-rcd');
 
@@ -3171,14 +3105,6 @@ Documento: ${docRef}`;
                     <option value="Definitiva modificada">Definitivas modificadas</option>
                     <option value="Proyecto de modificatoria">Proyectos de modificatoria</option>
                 `;
-            }
-            if (selRegion) {
-                selRegion.innerHTML = '<option value="">Todas las regiones</option>' +
-                    Array.from(regiones).sort().map(r => `<option value="${r}">${r}</option>`).join('');
-            }
-            if (selTamano) {
-                selTamano.innerHTML = '<option value="">Todos los tamaños</option>' +
-                    Array.from(tamanos).sort().map(t => `<option value="${t}">${t}</option>`).join('');
             }
             if (selRegimen) {
                 selRegimen.innerHTML = '<option value="">Todos los regímenes</option>' +
@@ -3197,13 +3123,9 @@ Documento: ${docRef}`;
         function limpiarFiltrosRcd() {
             if (dropdownEpsRcdInstance) dropdownEpsRcdInstance.limpiar();
             const tipo = document.getElementById('filtro-tipo-rcd');
-            const region = document.getElementById('filtro-region-rcd');
-            const tamano = document.getElementById('filtro-tamano-rcd');
             const regimen = document.getElementById('filtro-regimen-rcd');
             const estado = document.getElementById('filtro-estado-rcd');
             if (tipo) tipo.value = 'Definitiva'; // restablece al valor solicitado por defecto
-            if (region) region.value = '';
-            if (tamano) tamano.value = '';
             if (regimen) regimen.value = '';
             if (estado) estado.value = '';
 
@@ -3225,8 +3147,6 @@ Documento: ${docRef}`;
 
             const selTipoElem = document.getElementById('filtro-tipo-rcd');
             const filtroTipo = selTipoElem ? selTipoElem.value : 'Definitiva';
-            const filtroRegion = document.getElementById('filtro-region-rcd')?.value || '';
-            const filtroTamano = document.getElementById('filtro-tamano-rcd')?.value || '';
             const filtroRegimen = document.getElementById('filtro-regimen-rcd')?.value || '';
             const filtroEstado = document.getElementById('filtro-estado-rcd')?.value || '';
 
@@ -3256,8 +3176,6 @@ Documento: ${docRef}`;
                     return false;
                 }
 
-                if (filtroRegion && item.region !== filtroRegion) return false;
-                if (filtroTamano && item.tamano !== filtroTamano) return false;
                 if (filtroRegimen && item.regimen !== filtroRegimen) return false;
 
                 if (filtroEstado) {
@@ -3579,10 +3497,9 @@ Documento: ${docRef}`;
                 if (p) p.classList.add('hidden');
             });
 
-            // Resetear estilos de botones generales
-            const inactiveGeneral = "py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer";
+            // Resetear estilos de botones de Evaluación y Reportes
+            const inactiveGeneral = "py-1.5 px-1 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer";
             if (btnTablero) btnTablero.className = inactiveGeneral;
-            if (btnDocumentos) btnDocumentos.className = inactiveGeneral;
             if (btnReportes) btnReportes.className = inactiveGeneral;
 
             // Resetear estilos de los 3 botones de Documentos
@@ -3680,7 +3597,7 @@ Documento: ${docRef}`;
                         else contServTablero.classList.add('hidden');
                     }
 
-                    if (btnTablero) btnTablero.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer";
+                    if (btnTablero) btnTablero.className = "py-1.5 px-1 text-xs font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer";
                 } else if (modulo === 'reportes') {
                     if (modReportes) {
                         modReportes.classList.replace('opacity-0', 'opacity-100');
@@ -3690,7 +3607,7 @@ Documento: ${docRef}`;
                     if (panelReportes) panelReportes.classList.remove('hidden');
                     if (contServTablero) contServTablero.classList.add('hidden');
                     if (contServMatriz) contServMatriz.classList.add('hidden');
-                    if (btnReportes) btnReportes.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer";
+                    if (btnReportes) btnReportes.className = "py-1.5 px-1 text-xs font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer";
                 }
             }
         }

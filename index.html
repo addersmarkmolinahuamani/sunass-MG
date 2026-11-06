@@ -410,29 +410,35 @@
                     </div>
                 </div>
 
-                <!-- Tarjeta 2: Matriz de informes y resoluciones -->
+                <!-- Tarjeta 2: Documentos e informes regulatorios -->
                 <div onclick="navegarDesdePortada('matriz')" 
                      class="tarjeta-portada group" 
-                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.1cqw 1.6cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
+                     style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 1.8cqh 1.1cqw 1.4cqh 1.1cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
                         <!-- Icono circular azul -->
-                        <div style="width: 6.2cqh; height: 6.2cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
-                            <svg style="width: 3.3cqh; height: 3.3cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <div style="width: 5.8cqh; height: 5.8cqh; background: #0060b8; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 3px 8px rgba(0, 50, 140, 0.3);" class="group-hover:scale-105 transition-transform">
+                            <svg style="width: 3.1cqh; height: 3.1cqh;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         </div>
                         <!-- Título -->
-                        <h3 style="font-size: 2.5cqh; font-weight: 800; color: #002b66; line-height: 1.18; margin-top: 1.0cqh;">
-                            Matriz de informes<br>y resoluciones
+                        <h3 style="font-size: 2.4cqh; font-weight: 800; color: #002b66; line-height: 1.18; margin-top: 0.9cqh;">
+                            Informes y<br>resoluciones
                         </h3>
                         <!-- Línea azul de acento -->
-                        <div style="width: 2.4cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
+                        <div style="width: 2.4cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.6cqh 0 0.6cqh 0;"></div>
                         <!-- Descripción -->
-                        <p style="font-size: 1.68cqh; color: #334155; line-height: 1.30; font-weight: 500;">
-                            Accede a los informes y resoluciones de Fiscalización, PAS y recursos administrativos emitidos por Sunass.
+                        <p style="font-size: 1.52cqh; color: #334155; line-height: 1.28; font-weight: 500;">
+                            Accede a los Informes de Fiscalización y PAS, Estudios Tarifarios y Resoluciones RCD.
                         </p>
+                        <!-- Pestañas rápidas integradas -->
+                        <div class="flex flex-wrap gap-1 mt-1.5" onclick="event.stopPropagation()">
+                            <button onclick="navegarDesdePortada('matriz')" class="px-1.5 py-0.5 text-[9.5px] font-bold rounded bg-blue-50 hover:bg-blue-600 hover:text-white text-[#003366] border border-blue-200 transition shadow-xs cursor-pointer">📑 Informes PAS</button>
+                            <button onclick="navegarDesdePortada('estudios')" class="px-1.5 py-0.5 text-[9.5px] font-bold rounded bg-blue-50 hover:bg-blue-600 hover:text-white text-[#003366] border border-blue-200 transition shadow-xs cursor-pointer">📘 Est. Tarifarios</button>
+                            <button onclick="navegarDesdePortada('rcd')" class="px-1.5 py-0.5 text-[9.5px] font-bold rounded bg-blue-50 hover:bg-blue-600 hover:text-white text-[#003366] border border-blue-200 transition shadow-xs cursor-pointer">⚖️ RCD</button>
+                        </div>
                     </div>
                     <!-- Flecha abajo a la derecha -->
-                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 0.8cqh;">
-                        <span style="font-size: 3.2cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
+                    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 0.5cqh;">
+                        <span style="font-size: 3.0cqh; font-weight: 900; color: #0060b8; transition: transform 0.2s ease;" class="group-hover:translate-x-1.5">
                             &rarr;
                         </span>
                     </div>
@@ -695,10 +701,17 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
-            <div class="grid grid-cols-3 gap-1">
+            <div class="grid grid-cols-2 gap-1 mb-1">
                 <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate">📊 Evaluación</button>
-                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">📑 Informes</button>
+                <button onclick="cambiarModulo('matriz')" id="btn-mod-matriz" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">📑 Informes PAS</button>
+            </div>
+            <div class="grid grid-cols-2 gap-1 mb-1">
+                <button onclick="cambiarModulo('estudios')" id="btn-mod-estudios" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">📘 Est. Tarifarios</button>
+                <button onclick="cambiarModulo('rcd')" id="btn-mod-rcd" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">⚖️ Resoluciones RCD</button>
+            </div>
+            <div class="grid grid-cols-2 gap-1 mb-1">
                 <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate">🛠️ Reportes</button>
+                <button onclick="abrirModalGantt()" id="btn-mod-gantt" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate">📅 Gantt</button>
             </div>
         </div>
         
@@ -827,6 +840,152 @@
                                 <!-- Generado dinámicamente por JS -->
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL DE FILTROS: ESTUDIOS TARIFARIOS -->
+            <div id="panel-filtros-estudios" class="hidden space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Buscar Empresa</label>
+                    <div class="relative">
+                        <input type="text" id="filtro-buscar-estudios" placeholder="Nombre o código EPS..." 
+                               oninput="aplicarFiltrosEstudios()"
+                               class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm placeholder-slate-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Región / Departamento</label>
+                    <select id="filtro-region-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="">Todas las regiones</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Tamaño de EPS</label>
+                    <select id="filtro-tamano-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los tamaños</option>
+                        <option value="GRANDE">Grande</option>
+                        <option value="MEDIANA">Mediana</option>
+                        <option value="PEQUEÑA">Pequeña</option>
+                        <option value="SEDAPAL">Sedapal</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Régimen</label>
+                    <select id="filtro-regimen-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los regímenes</option>
+                        <option value="RAT">RAT</option>
+                        <option value="NO RAT">No RAT</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">5. Estado de Vigencia</label>
+                    <select id="filtro-estado-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los estados</option>
+                        <option value="Vigente">Vigente</option>
+                        <option value="Antiguo">Antiguo</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">6. Tipo de Estudio</label>
+                    <select id="filtro-tipo-estudios" onchange="aplicarFiltrosEstudios()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los tipos</option>
+                        <option value="Definitivo">Definitivo</option>
+                        <option value="Definitivo modificado">Definitivo modificado</option>
+                    </select>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="limpiarFiltrosEstudios()" type="button" class="w-full py-2 px-3 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded transition flex items-center justify-center gap-1.5 shadow-sm">
+                        🔄 Limpiar Filtros
+                    </button>
+                </div>
+
+                <div class="p-3 bg-blue-950/60 rounded-lg border border-blue-800/40 text-[11px] text-blue-200">
+                    <div class="font-bold mb-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span> Resumen de Matriz
+                    </div>
+                    <div id="kpi-sidebar-estudios" class="text-slate-300 space-y-0.5">
+                        Mostrando 50 de 50 EPS
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANEL DE FILTROS: RESOLUCIONES DE CONSEJO DIRECTIVO (RCD) -->
+            <div id="panel-filtros-rcd" class="hidden space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Buscar Empresa o RCD</label>
+                    <div class="relative">
+                        <input type="text" id="filtro-buscar-rcd" placeholder="EPS o N° de resolución..." 
+                               oninput="aplicarFiltrosRcd()"
+                               class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm placeholder-slate-400">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Tipo de RCD (Vista)</label>
+                    <select id="filtro-tipo-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-amber-50 text-amber-950 font-bold border border-amber-300 text-xs focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
+                        <option value="Definitiva" selected>⭐ Solo Definitivas (Por defecto)</option>
+                        <option value="">Todas las resoluciones</option>
+                        <option value="Definitiva modificada">Definitivas modificadas</option>
+                        <option value="Proyecto">Proyectos tarifarios</option>
+                        <option value="Proyecto de modificatoria">Proyectos de modificatoria</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Región / Departamento</label>
+                    <select id="filtro-region-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
+                        <option value="">Todas las regiones</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">4. Tamaño de EPS</label>
+                    <select id="filtro-tamano-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los tamaños</option>
+                        <option value="GRANDE">Grande</option>
+                        <option value="MEDIANA">Mediana</option>
+                        <option value="PEQUEÑA">Pequeña</option>
+                        <option value="SEDAPAL">Sedapal</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">5. Régimen</label>
+                    <select id="filtro-regimen-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los regímenes</option>
+                        <option value="RAT">RAT</option>
+                        <option value="NO RAT">No RAT</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">6. Estado</label>
+                    <select id="filtro-estado-rcd" onchange="aplicarFiltrosRcd()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-indigo-500 shadow-sm cursor-pointer">
+                        <option value="">Todos los estados</option>
+                        <option value="Vigente">Vigente</option>
+                        <option value="Antigua">Antigua</option>
+                    </select>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="limpiarFiltrosRcd()" type="button" class="w-full py-2 px-3 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded transition flex items-center justify-center gap-1.5 shadow-sm">
+                        🔄 Limpiar Filtros
+                    </button>
+                </div>
+
+                <div class="p-3 bg-indigo-950/60 rounded-lg border border-indigo-800/40 text-[11px] text-indigo-200">
+                    <div class="font-bold mb-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Resumen de Resoluciones
+                    </div>
+                    <div id="kpi-sidebar-rcd" class="text-slate-300 space-y-0.5">
+                        Mostrando 50 de 50 EPS
                     </div>
                 </div>
             </div>
@@ -1220,8 +1379,25 @@
                     <button onclick="toggleSidebar()" type="button" class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-blue-900 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 flex items-center justify-center cursor-pointer" title="Contraer o expandir panel lateral">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                     </button>
-                    <h1 class="text-3xl font-extrabold text-[#003366]">Matriz de Informes y Resoluciones</h1>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#003366] leading-tight">Informes de Fiscalización y PAS</h1>
+                        <p class="text-xs text-slate-500 font-medium">Directorio normativo y expedientes sancionadores de Sunass</p>
+                    </div>
                 </div>
+
+                <!-- SELECTOR DE MATRICES DOCUMENTALES (Pestañas Superiores) -->
+                <div class="hidden lg:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/90 shadow-2xs gap-1">
+                    <button onclick="cambiarModulo('matriz')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#003366] text-white shadow-xs flex items-center gap-1.5 transition">
+                        <span>📑 Informes PAS</span>
+                    </button>
+                    <button onclick="cambiarModulo('estudios')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>📘 Estudios Tarifarios</span>
+                    </button>
+                    <button onclick="cambiarModulo('rcd')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>⚖️ Resoluciones RCD</span>
+                    </button>
+                </div>
+
                 <div class="flex items-center gap-2.5">
                     <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
                         🏠 Portada
@@ -1471,6 +1647,221 @@
             </main>
         </div>
 
+        <!-- ========================================================================= -->
+        <!-- MÓDULO: ESTUDIOS TARIFARIOS DE EMPRESAS PRESTADORAS                       -->
+        <!-- ========================================================================= -->
+        <div id="modulo-estudios" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+            <header class="bg-white px-8 py-4 flex justify-between items-center shadow-xs z-10 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" type="button" class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-blue-900 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 flex items-center justify-center cursor-pointer" title="Contraer o expandir panel lateral">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#003366] leading-tight">Estudios Tarifarios</h1>
+                        <p class="text-xs text-slate-500 font-medium">Matriz de periodos regulatorios y documentos oficiales aprobados por Sunass</p>
+                    </div>
+                </div>
+
+                <!-- SELECTOR DE MATRICES DOCUMENTALES (Pestañas Superiores) -->
+                <div class="hidden lg:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/90 shadow-2xs gap-1">
+                    <button onclick="cambiarModulo('matriz')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>📑 Informes PAS</span>
+                    </button>
+                    <button onclick="cambiarModulo('estudios')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#003366] text-white shadow-xs flex items-center gap-1.5 transition">
+                        <span>📘 Estudios Tarifarios</span>
+                    </button>
+                    <button onclick="cambiarModulo('rcd')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>⚖️ Resoluciones RCD</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                        🏠 Portada
+                    </button>
+                    <button onclick="exportarEstudiosExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-xs sm:text-sm cursor-pointer" title="Exportar la matriz actual a formato Excel (.xlsx)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar a Excel
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 p-6 sm:p-8 overflow-y-auto space-y-5">
+                <!-- TARJETAS KPI DE RESUMEN (Estudios Tarifarios) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#003366] font-bold text-lg">🏢</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Empresas Prestadoras</div>
+                            <div id="kpi-estudios-eps" class="text-xl font-black text-slate-800">50</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-lg">📘</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Estudios Registrados</div>
+                            <div id="kpi-estudios-total" class="text-xl font-black text-emerald-700">164</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-200 flex items-center justify-center text-teal-700 font-bold text-lg">🟢</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Estudios Vigentes</div>
+                            <div id="kpi-estudios-vigentes" class="text-xl font-black text-teal-700">50</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-lg">🔗</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Documentos Linkeados</div>
+                            <div id="kpi-estudios-links" class="text-xl font-black text-indigo-700">152</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DE LA TABLA MATRIZ DE ESTUDIOS -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div class="px-5 py-3.5 bg-slate-50/80 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-[#003366]"></span>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Matriz Cronológica de Estudios Tarifarios por Quinquenio</span>
+                            <span id="badge-contador-estudios" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-[#003366] border border-blue-200">50 EPS</span>
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium flex items-center gap-2">
+                            <span>💡 Haz clic sobre los años del quinquenio para abrir el Estudio Tarifario oficial</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[calc(100vh-320px)]">
+                        <table class="tabla-sunass w-full text-xs">
+                            <thead class="sticky top-0 z-30">
+                                <tr>
+                                    <th class="w-12 text-center sticky left-0 z-30 bg-[#001833]">N°</th>
+                                    <th class="w-64 min-w-[220px] text-left px-3 sticky left-[48px] z-30 bg-[#001833]">Empresa Prestadora</th>
+                                    <th class="w-36 text-center bg-[#003366]">I PR</th>
+                                    <th class="w-36 text-center bg-[#003366]">II PR</th>
+                                    <th class="w-36 text-center bg-[#003366]">III PR</th>
+                                    <th class="w-36 text-center bg-[#003366]">IV PR</th>
+                                    <th class="w-32 text-center bg-[#002244]">V PR</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-cuerpo-estudios" class="divide-y divide-gray-100">
+                                <tr><td colspan="10" class="text-center py-10 text-gray-400 font-medium">Cargando base de estudios tarifarios...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- MÓDULO: RESOLUCIONES DE CONSEJO DIRECTIVO (RCD)                           -->
+        <!-- ========================================================================= -->
+        <div id="modulo-rcd" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+            <header class="bg-white px-8 py-4 flex justify-between items-center shadow-xs z-10 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" type="button" class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-indigo-900 hover:bg-indigo-50 transition border border-transparent hover:border-indigo-100 flex items-center justify-center cursor-pointer" title="Contraer o expandir panel lateral">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                    </button>
+                    <div>
+                        <h1 class="text-2xl sm:text-3xl font-extrabold text-[#002b66] leading-tight">Resoluciones de Consejo Directivo (RCD)</h1>
+                        <p class="text-xs text-slate-500 font-medium">Resoluciones aprobatorias de metas de gestión y fórmulas tarifarias de Sunass</p>
+                    </div>
+                </div>
+
+                <!-- SELECTOR DE MATRICES DOCUMENTALES (Pestañas Superiores) -->
+                <div class="hidden lg:flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/90 shadow-2xs gap-1">
+                    <button onclick="cambiarModulo('matriz')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>📑 Informes PAS</span>
+                    </button>
+                    <button onclick="cambiarModulo('estudios')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-[#003366] hover:bg-white/80 transition flex items-center gap-1.5">
+                        <span>📘 Estudios Tarifarios</span>
+                    </button>
+                    <button onclick="cambiarModulo('rcd')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-[#003366] text-white shadow-xs flex items-center gap-1.5 transition">
+                        <span>⚖️ Resoluciones RCD</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2.5">
+                    <button onclick="volverAPortada()" class="px-3.5 py-2 border border-blue-200 rounded text-[#003366] bg-blue-50/80 hover:bg-blue-100 text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
+                        🏠 Portada
+                    </button>
+                    <button onclick="exportarRcdExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-xs sm:text-sm cursor-pointer" title="Exportar la matriz actual a formato Excel (.xlsx)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar a Excel
+                    </button>
+                </div>
+            </header>
+
+            <main class="flex-1 p-6 sm:p-8 overflow-y-auto space-y-5">
+                <!-- TARJETAS KPI DE RESUMEN (RCD) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#003366] font-bold text-lg">⚖️</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">RCD Definitivas</div>
+                            <div id="kpi-rcd-definitivas" class="text-xl font-black text-[#003366]">188</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 font-bold text-lg">🟢</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">RCD Vigentes</div>
+                            <div id="kpi-rcd-vigentes" class="text-xl font-black text-emerald-700">89</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 font-bold text-lg">📝</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Proyectos en Consulta</div>
+                            <div id="kpi-rcd-proyectos" class="text-xl font-black text-amber-700">193</div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 font-bold text-lg">📚</div>
+                        <div>
+                            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Resoluciones</div>
+                            <div id="kpi-rcd-total" class="text-xl font-black text-purple-700">381</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CONTENEDOR DE LA TABLA MATRIZ DE RCD -->
+                <div class="bg-white rounded-xl shadow-xs border border-gray-200 overflow-hidden">
+                    <div class="px-5 py-3.5 bg-slate-50/80 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-indigo-700"></span>
+                            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Matriz de Resoluciones de Consejo Directivo por Quinquenio</span>
+                            <span id="badge-contador-rcd" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-900 border border-indigo-200">50 EPS</span>
+                            <span id="badge-tipo-rcd" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">⭐ Solo Definitivas</span>
+                        </div>
+                        <div class="text-xs text-slate-500 font-medium flex items-center gap-2">
+                            <span>💡 Haz clic sobre el número de RCD para abrir la resolución oficial en SharePoint</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-[calc(100vh-320px)]">
+                        <table class="tabla-sunass w-full text-xs">
+                            <thead class="sticky top-0 z-30">
+                                <tr>
+                                    <th class="w-12 text-center sticky left-0 z-30 bg-[#001833]">N°</th>
+                                    <th class="w-64 min-w-[220px] text-left px-3 sticky left-[48px] z-30 bg-[#001833]">Empresa Prestadora</th>
+                                    <th class="w-40 text-center bg-[#003366]">I PR</th>
+                                    <th class="w-40 text-center bg-[#003366]">II PR</th>
+                                    <th class="w-40 text-center bg-[#003366]">III PR</th>
+                                    <th class="w-40 text-center bg-[#003366]">IV PR</th>
+                                    <th class="w-32 text-center bg-[#002244]">V PR</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-cuerpo-rcd" class="divide-y divide-gray-100">
+                                <tr><td colspan="10" class="text-center py-10 text-gray-400 font-medium">Cargando base de resoluciones...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+
         <!-- ========================================== -->
         <!-- MÓDULO 3: GENERADOR DE REPORTES            -->
         <!-- ========================================== -->
@@ -1517,7 +1908,8 @@
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
     <script src="fechas_informes.js?v=20261012_v5"></script>
-    <script src="estudios_tarifarios.js?v=20261014_v1"></script>
+    <script src="estudios_tarifarios.js?v=20261106_v2"></script>
+    <script src="resoluciones_cd.js?v=20261106_v2"></script>
     <script src="datos_sunass.js?v=20261012_v5"></script>
 
     <script>
@@ -1651,6 +2043,14 @@
                 cambiarModulo('matriz');
                 const mainMatriz = document.querySelector('#modulo-matriz main');
                 if (mainMatriz) mainMatriz.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (destino === 'estudios') {
+                cambiarModulo('estudios');
+                const mainEst = document.querySelector('#modulo-estudios main');
+                if (mainEst) mainEst.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (destino === 'rcd') {
+                cambiarModulo('rcd');
+                const mainRcd = document.querySelector('#modulo-rcd main');
+                if (mainRcd) mainRcd.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (destino === 'reportes') {
                 cambiarModulo('reportes');
             }
@@ -2313,6 +2713,677 @@ Documento: ${docRef}`;
             }
         }
 
+        
+        // =========================================================================
+        // MÓDULO 1: ESTUDIOS TARIFARIOS (CONTROLADOR Y RENDERIZADOR DE MATRIZ)
+        // =========================================================================
+
+        function inicializarFiltrosEstudios() {
+            if (typeof db_estudios_tarifarios === 'undefined' || !db_estudios_tarifarios.length) return;
+
+            const regiones = new Set();
+            const tamanos = new Set();
+            const regimenes = new Set();
+            const estados = new Set();
+            const tipos = new Set();
+
+            db_estudios_tarifarios.forEach(item => {
+                if (item.region) regiones.add(item.region);
+                if (item.tamano) tamanos.add(item.tamano);
+                if (item.regimen) regimenes.add(item.regimen);
+                if (item.estado) estados.add(item.estado);
+                if (item.tipo) tipos.add(item.tipo);
+            });
+
+            const selRegion = document.getElementById('filtro-region-estudios');
+            const selTamano = document.getElementById('filtro-tamano-estudios');
+            const selRegimen = document.getElementById('filtro-regimen-estudios');
+            const selEstado = document.getElementById('filtro-estado-estudios');
+            const selTipo = document.getElementById('filtro-tipo-estudios');
+
+            if (selRegion) {
+                selRegion.innerHTML = '<option value="">Todas las regiones</option>' +
+                    Array.from(regiones).sort().map(r => `<option value="${r}">${r}</option>`).join('');
+            }
+            if (selTamano) {
+                selTamano.innerHTML = '<option value="">Todos los tamaños</option>' +
+                    Array.from(tamanos).sort().map(t => `<option value="${t}">${t}</option>`).join('');
+            }
+            if (selRegimen) {
+                selRegimen.innerHTML = '<option value="">Todos los regímenes</option>' +
+                    Array.from(regimenes).sort().map(reg => `<option value="${reg}">${reg}</option>`).join('');
+            }
+            if (selEstado) {
+                selEstado.innerHTML = '<option value="">Todos los estados</option>' +
+                    Array.from(estados).sort().map(e => `<option value="${e}">${e}</option>`).join('');
+            }
+            if (selTipo) {
+                selTipo.innerHTML = '<option value="">Todos los tipos</option>' +
+                    Array.from(tipos).sort().map(tp => `<option value="${tp}">${tp}</option>`).join('');
+            }
+        }
+
+        function aplicarFiltrosEstudios() {
+            renderizarMatrizEstudios();
+        }
+
+        function limpiarFiltrosEstudios() {
+            const buscar = document.getElementById('filtro-buscar-estudios');
+            const region = document.getElementById('filtro-region-estudios');
+            const tamano = document.getElementById('filtro-tamano-estudios');
+            const regimen = document.getElementById('filtro-regimen-estudios');
+            const estado = document.getElementById('filtro-estado-estudios');
+            const tipo = document.getElementById('filtro-tipo-estudios');
+
+            if (buscar) buscar.value = '';
+            if (region) region.value = '';
+            if (tamano) tamano.value = '';
+            if (regimen) regimen.value = '';
+            if (estado) estado.value = '';
+            if (tipo) tipo.value = '';
+
+            renderizarMatrizEstudios();
+        }
+
+        function renderizarMatrizEstudios() {
+            const tbody = document.getElementById('tabla-cuerpo-estudios');
+            if (!tbody) return;
+
+            if (typeof db_estudios_tarifarios === 'undefined' || !db_estudios_tarifarios.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 italic">No hay datos de Estudios Tarifarios disponibles.</td></tr>';
+                return;
+            }
+
+            // Obtener valores de filtros
+            const filtroBuscar = (document.getElementById('filtro-buscar-estudios')?.value || '').trim().toLowerCase();
+            const filtroRegion = document.getElementById('filtro-region-estudios')?.value || '';
+            const filtroTamano = document.getElementById('filtro-tamano-estudios')?.value || '';
+            const filtroRegimen = document.getElementById('filtro-regimen-estudios')?.value || '';
+            const filtroEstado = document.getElementById('filtro-estado-estudios')?.value || '';
+            const filtroTipo = document.getElementById('filtro-tipo-estudios')?.value || '';
+
+            // Mapear todas las 50 EPS
+            const epsMap = new Map();
+            db_estudios_tarifarios.forEach(item => {
+                const cod = String(item.cod_ep || '').padStart(3, '0');
+                if (!epsMap.has(cod)) {
+                    epsMap.set(cod, {
+                        cod_ep: cod,
+                        num: parseInt(cod, 10) || 999,
+                        ep: item.ep,
+                        region: item.region || '',
+                        tamano: item.tamano || '',
+                        regimen: item.regimen || '',
+                        estudios: []
+                    });
+                }
+                epsMap.get(cod).estudios.push(item);
+            });
+
+            const todasEps = Array.from(epsMap.values()).sort((a, b) => a.num - b.num);
+
+            // Filtrar EPS
+            const epsFiltradas = todasEps.filter(item => {
+                // Filtro búsqueda texto (código o nombre EPS)
+                if (filtroBuscar) {
+                    const matchCod = item.cod_ep.toLowerCase().includes(filtroBuscar);
+                    const matchNom = (item.ep || '').toLowerCase().includes(filtroBuscar);
+                    if (!matchCod && !matchNom) return false;
+                }
+
+                // Filtro región
+                if (filtroRegion && item.region !== filtroRegion) return false;
+
+                // Filtro tamaño
+                if (filtroTamano && item.tamano !== filtroTamano) return false;
+
+                // Filtro régimen
+                if (filtroRegimen && item.regimen !== filtroRegimen) return false;
+
+                // Filtro estado
+                if (filtroEstado) {
+                    const tieneEstado = item.estudios.some(e => e.estado === filtroEstado);
+                    if (!tieneEstado) return false;
+                }
+
+                // Filtro tipo
+                if (filtroTipo) {
+                    const tieneTipo = item.estudios.some(e => e.tipo === filtroTipo);
+                    if (!tieneTipo) return false;
+                }
+
+                return true;
+            });
+
+            // Actualizar KPIs
+            const totalEstudiosVisibles = epsFiltradas.reduce((acc, curr) => acc + curr.estudios.length, 0);
+            const vigentesCount = epsFiltradas.reduce((acc, curr) => acc + curr.estudios.filter(e => e.estado === 'Vigente').length, 0);
+            const linksCount = epsFiltradas.reduce((acc, curr) => acc + curr.estudios.filter(e => e.link && e.link.trim()).length, 0);
+
+            const kpiEps = document.getElementById('kpi-estudios-eps');
+            const kpiTotal = document.getElementById('kpi-estudios-total');
+            const kpiVigentes = document.getElementById('kpi-estudios-vigentes');
+            const kpiLinks = document.getElementById('kpi-estudios-links');
+            const badgeContador = document.getElementById('badge-contador-estudios');
+
+            if (kpiEps) kpiEps.textContent = epsFiltradas.length;
+            if (kpiTotal) kpiTotal.textContent = totalEstudiosVisibles;
+            if (kpiVigentes) kpiVigentes.textContent = vigentesCount;
+            if (kpiLinks) kpiLinks.textContent = linksCount;
+            if (badgeContador) badgeContador.textContent = `${epsFiltradas.length} de ${todasEps.length} EPS`;
+
+            if (epsFiltradas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 italic">No se encontraron Empresas Prestadoras que coincidan con los filtros aplicados.</td></tr>';
+                return;
+            }
+
+            const columnasPeriodos = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR'];
+
+            // Construir filas
+            let html = '';
+            epsFiltradas.forEach((epsItem, idx) => {
+                const bgRow = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
+                const bgStickyN = idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]';
+                const bgStickyNom = idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]';
+
+                html += `<tr class="${bgRow} hover:bg-blue-50/50 transition-colors border-b border-gray-100">`;
+
+                // Col 0: N° (Sticky)
+                html += `<td class="py-3 px-3 text-center text-xs font-bold text-blue-900 border-r border-gray-200 ${bgStickyN}" style="position: sticky; left: 0; z-index: 10;">
+                    <span class="inline-block px-1.5 py-0.5 rounded bg-blue-100/70 text-blue-900 font-mono text-[11px] shadow-2xs">${epsItem.cod_ep}</span>
+                </td>`;
+
+                // Col 1: EPS (Sticky)
+                const tagTamano = epsItem.tamano ? `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">${epsItem.tamano}</span>` : '';
+                const tagRegimen = epsItem.regimen ? `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold ${epsItem.regimen === 'RAT' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-blue-100 text-blue-800 border border-blue-200'}">${epsItem.regimen}</span>` : '';
+                const tagRegion = epsItem.region ? `<span class="text-[10.5px] text-gray-500 font-medium">📍 ${epsItem.region}</span>` : '';
+
+                html += `<td class="py-3 px-3.5 text-left border-r border-gray-200 ${bgStickyNom}" style="position: sticky; left: 48px; z-index: 10; min-width: 260px; max-width: 320px;">
+                    <div class="font-bold text-xs text-gray-900 leading-tight">${epsItem.ep}</div>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        ${tagRegion}
+                        ${tagTamano}
+                        ${tagRegimen}
+                    </div>
+                </td>`;
+
+                // Columnas I PR a V PR
+                columnasPeriodos.forEach(colPR => {
+                    // Buscar estudios que correspondan a este periodo
+                    // Para II PR incluye 'II PR' y 'II PR - C'
+                    // Para III PR incluye 'III PR' y 'III PR - C'
+                    let matchEstudios = [];
+                    if (colPR === 'II PR') {
+                        matchEstudios = epsItem.estudios.filter(e => e.periodo === 'II PR' || e.periodo === 'II PR - C');
+                    } else if (colPR === 'III PR') {
+                        matchEstudios = epsItem.estudios.filter(e => e.periodo === 'III PR' || e.periodo === 'III PR - C');
+                    } else {
+                        matchEstudios = epsItem.estudios.filter(e => e.periodo === colPR);
+                    }
+
+                    // Si hay filtro de estado o tipo activo, aplicar sobre las celdas
+                    if (filtroEstado) matchEstudios = matchEstudios.filter(e => e.estado === filtroEstado);
+                    if (filtroTipo) matchEstudios = matchEstudios.filter(e => e.tipo === filtroTipo);
+
+                    if (matchEstudios.length === 0) {
+                        html += `<td class="py-3 px-2 text-center text-gray-300 text-xs border-r border-gray-100">-</td>`;
+                    } else {
+                        html += `<td class="py-2 px-2 text-center border-r border-gray-100 align-middle">
+                            <div class="flex flex-col items-center justify-center gap-1.5">`;
+
+                        matchEstudios.forEach(est => {
+                            const isVigente = est.estado === 'Vigente';
+                            const isModif = (est.periodo && est.periodo.includes('- C')) || (est.tipo && est.tipo.toLowerCase().includes('modificad'));
+                            const quinquenioTexto = est.quinquenio || 'Ver Estudio';
+
+                            const tooltip = `Empresa: ${epsItem.ep}\nPeriodo: ${est.periodo}\nQuinquenio: ${est.quinquenio || 'S/D'}\nTipo: ${est.tipo || 'S/D'}\nEstado: ${est.estado || 'S/D'}\nFecha Aprobación: ${est.fecha_aprobacion || 'S/F'}`;
+
+                            if (est.link && est.link.trim() !== '') {
+                                const badgeColorClass = isVigente
+                                    ? 'bg-blue-50 text-blue-800 border-blue-300 hover:bg-blue-100 hover:border-blue-500 shadow-xs'
+                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-300';
+
+                                html += `<a href="${est.link}" target="_blank" rel="noopener noreferrer"
+                                    title="${tooltip.replace(/"/g, '&quot;')}"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold border transition-all transform hover:-translate-y-0.5 cursor-pointer ${badgeColorClass}">
+                                    <svg class="w-3.5 h-3.5 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <span>${quinquenioTexto}</span>
+                                    ${isModif ? '<span class="text-[9px] font-extrabold bg-amber-100 text-amber-800 px-1 py-0.2 rounded border border-amber-300">Modif</span>' : ''}
+                                    <svg class="w-3 h-3 text-blue-400 opacity-80 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                </a>`;
+                            } else {
+                                html += `<span title="${tooltip.replace(/"/g, '&quot;')}" class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-600 border border-gray-200">
+                                    <span>${quinquenioTexto}</span>
+                                    ${isModif ? '<span class="text-[9px] font-bold bg-amber-100 text-amber-800 px-1 rounded">Modif</span>' : ''}
+                                </span>`;
+                            }
+                        });
+
+                        html += `</div></td>`;
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function exportarEstudiosExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('La librería SheetJS (XLSX) no está cargada.');
+                return;
+            }
+
+            if (typeof db_estudios_tarifarios === 'undefined' || !db_estudios_tarifarios.length) {
+                alert('No hay datos para exportar.');
+                return;
+            }
+
+            // Mapear todas las 50 EPS
+            const epsMap = new Map();
+            db_estudios_tarifarios.forEach(item => {
+                const cod = String(item.cod_ep || '').padStart(3, '0');
+                if (!epsMap.has(cod)) {
+                    epsMap.set(cod, {
+                        cod_ep: cod,
+                        num: parseInt(cod, 10) || 999,
+                        ep: item.ep,
+                        region: item.region || '',
+                        tamano: item.tamano || '',
+                        regimen: item.regimen || '',
+                        estudios: []
+                    });
+                }
+                epsMap.get(cod).estudios.push(item);
+            });
+
+            const todasEps = Array.from(epsMap.values()).sort((a, b) => a.num - b.num);
+
+            const filasExcel = [
+                ['Cod. EPS', 'Empresa Prestadora', 'Región', 'Tamaño', 'Régimen', 'I PR', 'II PR', 'III PR', 'IV PR', 'V PR']
+            ];
+
+            todasEps.forEach(epsItem => {
+                const getPeriodText = (colPR) => {
+                    let matches = [];
+                    if (colPR === 'II PR') {
+                        matches = epsItem.estudios.filter(e => e.periodo === 'II PR' || e.periodo === 'II PR - C');
+                    } else if (colPR === 'III PR') {
+                        matches = epsItem.estudios.filter(e => e.periodo === 'III PR' || e.periodo === 'III PR - C');
+                    } else {
+                        matches = epsItem.estudios.filter(e => e.periodo === colPR);
+                    }
+                    if (!matches.length) return '-';
+                    return matches.map(m => m.quinquenio || m.periodo).join(' | ');
+                };
+
+                filasExcel.push([
+                    epsItem.cod_ep,
+                    epsItem.ep,
+                    epsItem.region,
+                    epsItem.tamano,
+                    epsItem.regimen,
+                    getPeriodText('I PR'),
+                    getPeriodText('II PR'),
+                    getPeriodText('III PR'),
+                    getPeriodText('IV PR'),
+                    getPeriodText('V PR')
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(filasExcel);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Estudios Tarifarios');
+            XLSX.writeFile(wb, 'SUNASS_Matriz_Estudios_Tarifarios.xlsx');
+        }
+
+
+        // =========================================================================
+        // MÓDULO 2: RESOLUCIONES DE CONSEJO DIRECTIVO (RCD) (CONTROLADOR Y MATRIZ)
+        // =========================================================================
+
+        function inicializarFiltrosRcd() {
+            if (typeof db_resoluciones_cd === 'undefined' || !db_resoluciones_cd.length) return;
+
+            const regiones = new Set();
+            const tamanos = new Set();
+            const regimenes = new Set();
+            const estados = new Set();
+            const tipos = new Set();
+
+            db_resoluciones_cd.forEach(item => {
+                if (item.region) regiones.add(item.region);
+                if (item.tamano) tamanos.add(item.tamano);
+                if (item.regimen) regimenes.add(item.regimen);
+                if (item.estado) estados.add(item.estado);
+                if (item.tipo) tipos.add(item.tipo);
+            });
+
+            const selTipo = document.getElementById('filtro-tipo-rcd');
+            const selRegion = document.getElementById('filtro-region-rcd');
+            const selTamano = document.getElementById('filtro-tamano-rcd');
+            const selRegimen = document.getElementById('filtro-regimen-rcd');
+            const selEstado = document.getElementById('filtro-estado-rcd');
+
+            if (selTipo) {
+                // Por defecto: Definitiva seleccionado
+                selTipo.innerHTML = `
+                    <option value="Definitiva" selected>⭐ Solo Definitivas (Por defecto)</option>
+                    <option value="">Todas las resoluciones</option>
+                    <option value="Proyecto">Proyectos</option>
+                    <option value="Definitiva modificada">Definitivas modificadas</option>
+                    <option value="Proyecto de modificatoria">Proyectos de modificatoria</option>
+                `;
+            }
+            if (selRegion) {
+                selRegion.innerHTML = '<option value="">Todas las regiones</option>' +
+                    Array.from(regiones).sort().map(r => `<option value="${r}">${r}</option>`).join('');
+            }
+            if (selTamano) {
+                selTamano.innerHTML = '<option value="">Todos los tamaños</option>' +
+                    Array.from(tamanos).sort().map(t => `<option value="${t}">${t}</option>`).join('');
+            }
+            if (selRegimen) {
+                selRegimen.innerHTML = '<option value="">Todos los regímenes</option>' +
+                    Array.from(regimenes).sort().map(reg => `<option value="${reg}">${reg}</option>`).join('');
+            }
+            if (selEstado) {
+                selEstado.innerHTML = '<option value="">Todos los estados</option>' +
+                    Array.from(estados).sort().map(e => `<option value="${e}">${e}</option>`).join('');
+            }
+        }
+
+        function aplicarFiltrosRcd() {
+            renderizarMatrizRcd();
+        }
+
+        function limpiarFiltrosRcd() {
+            const buscar = document.getElementById('filtro-buscar-rcd');
+            const tipo = document.getElementById('filtro-tipo-rcd');
+            const region = document.getElementById('filtro-region-rcd');
+            const tamano = document.getElementById('filtro-tamano-rcd');
+            const regimen = document.getElementById('filtro-regimen-rcd');
+            const estado = document.getElementById('filtro-estado-rcd');
+
+            if (buscar) buscar.value = '';
+            if (tipo) tipo.value = 'Definitiva'; // restablece al valor solicitado por defecto
+            if (region) region.value = '';
+            if (tamano) tamano.value = '';
+            if (regimen) regimen.value = '';
+            if (estado) estado.value = '';
+
+            renderizarMatrizRcd();
+        }
+
+        function renderizarMatrizRcd() {
+            const tbody = document.getElementById('tabla-cuerpo-rcd');
+            if (!tbody) return;
+
+            if (typeof db_resoluciones_cd === 'undefined' || !db_resoluciones_cd.length) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 italic">No hay datos de Resoluciones de Consejo Directivo (RCD) disponibles.</td></tr>';
+                return;
+            }
+
+            // Obtener valores de filtros
+            const filtroBuscar = (document.getElementById('filtro-buscar-rcd')?.value || '').trim().toLowerCase();
+            // Tipo por defecto: 'Definitiva' si no se especifica o está cargando
+            const selTipoElem = document.getElementById('filtro-tipo-rcd');
+            const filtroTipo = selTipoElem ? selTipoElem.value : 'Definitiva';
+            const filtroRegion = document.getElementById('filtro-region-rcd')?.value || '';
+            const filtroTamano = document.getElementById('filtro-tamano-rcd')?.value || '';
+            const filtroRegimen = document.getElementById('filtro-regimen-rcd')?.value || '';
+            const filtroEstado = document.getElementById('filtro-estado-rcd')?.value || '';
+
+            // Mapear todas las 50 EPS
+            const epsMap = new Map();
+            db_resoluciones_cd.forEach(item => {
+                const cod = String(item.cod_ep || '').padStart(3, '0');
+                if (!epsMap.has(cod)) {
+                    epsMap.set(cod, {
+                        cod_ep: cod,
+                        num: parseInt(cod, 10) || 999,
+                        ep: item.ep,
+                        region: item.region || '',
+                        tamano: item.tamano || '',
+                        regimen: item.regimen || '',
+                        resoluciones: []
+                    });
+                }
+                epsMap.get(cod).resoluciones.push(item);
+            });
+
+            const todasEps = Array.from(epsMap.values()).sort((a, b) => a.num - b.num);
+
+            // Filtrar EPS
+            const epsFiltradas = todasEps.filter(item => {
+                if (filtroBuscar) {
+                    const matchCod = item.cod_ep.toLowerCase().includes(filtroBuscar);
+                    const matchNom = (item.ep || '').toLowerCase().includes(filtroBuscar);
+                    if (!matchCod && !matchNom) return false;
+                }
+
+                if (filtroRegion && item.region !== filtroRegion) return false;
+                if (filtroTamano && item.tamano !== filtroTamano) return false;
+                if (filtroRegimen && item.regimen !== filtroRegimen) return false;
+
+                if (filtroEstado) {
+                    const tieneEstado = item.resoluciones.some(r => r.estado === filtroEstado);
+                    if (!tieneEstado) return false;
+                }
+
+                if (filtroTipo) {
+                    const tieneTipo = item.resoluciones.some(r => r.tipo === filtroTipo);
+                    if (!tieneTipo) return false;
+                }
+
+                return true;
+            });
+
+            // Contar métricas
+            let totalDefinitivas = 0;
+            let totalVigentes = 0;
+            let totalProyectos = 0;
+            let totalVisibles = 0;
+
+            epsFiltradas.forEach(eps => {
+                eps.resoluciones.forEach(r => {
+                    if (r.tipo === 'Definitiva') totalDefinitivas++;
+                    if (r.estado === 'Vigente') totalVigentes++;
+                    if (r.tipo && r.tipo.toLowerCase().includes('proyecto')) totalProyectos++;
+                    
+                    if (!filtroTipo || r.tipo === filtroTipo) {
+                        totalVisibles++;
+                    }
+                });
+            });
+
+            const kpiDef = document.getElementById('kpi-rcd-definitivas');
+            const kpiVig = document.getElementById('kpi-rcd-vigentes');
+            const kpiProy = document.getElementById('kpi-rcd-proyectos');
+            const kpiTot = document.getElementById('kpi-rcd-total');
+            const badgeCont = document.getElementById('badge-contador-rcd');
+            const badgeTipo = document.getElementById('badge-tipo-rcd');
+
+            if (kpiDef) kpiDef.textContent = totalDefinitivas;
+            if (kpiVig) kpiVig.textContent = totalVigentes;
+            if (kpiProy) kpiProy.textContent = totalProyectos;
+            if (kpiTot) kpiTot.textContent = totalVisibles;
+            if (badgeCont) badgeCont.textContent = `${epsFiltradas.length} de ${todasEps.length} EPS`;
+            if (badgeTipo) {
+                badgeTipo.textContent = filtroTipo ? `Filtro: ${filtroTipo}` : 'Todas las resoluciones';
+            }
+
+            if (epsFiltradas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-400 italic">No se encontraron Resoluciones que coincidan con los filtros aplicados.</td></tr>';
+                return;
+            }
+
+            const columnasPeriodos = ['I PR', 'II PR', 'III PR', 'IV PR', 'V PR'];
+
+            let html = '';
+            epsFiltradas.forEach((epsItem, idx) => {
+                const bgRow = idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/60';
+                const bgStickyN = idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]';
+                const bgStickyNom = idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]';
+
+                html += `<tr class="${bgRow} hover:bg-indigo-50/40 transition-colors border-b border-gray-100">`;
+
+                // Col 0: N° (Sticky)
+                html += `<td class="py-3 px-3 text-center text-xs font-bold text-indigo-900 border-r border-gray-200 ${bgStickyN}" style="position: sticky; left: 0; z-index: 10;">
+                    <span class="inline-block px-1.5 py-0.5 rounded bg-indigo-100/70 text-indigo-900 font-mono text-[11px] shadow-2xs">${epsItem.cod_ep}</span>
+                </td>`;
+
+                // Col 1: EPS (Sticky)
+                const tagTamano = epsItem.tamano ? `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold bg-gray-100 text-gray-600 border border-gray-200">${epsItem.tamano}</span>` : '';
+                const tagRegimen = epsItem.regimen ? `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-semibold ${epsItem.regimen === 'RAT' ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-indigo-100 text-indigo-800 border border-indigo-200'}">${epsItem.regimen}</span>` : '';
+                const tagRegion = epsItem.region ? `<span class="text-[10.5px] text-gray-500 font-medium">📍 ${epsItem.region}</span>` : '';
+
+                html += `<td class="py-3 px-3.5 text-left border-r border-gray-200 ${bgStickyNom}" style="position: sticky; left: 48px; z-index: 10; min-width: 260px; max-width: 320px;">
+                    <div class="font-bold text-xs text-gray-900 leading-tight">${epsItem.ep}</div>
+                    <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                        ${tagRegion}
+                        ${tagTamano}
+                        ${tagRegimen}
+                    </div>
+                </td>`;
+
+                // Columnas I PR a V PR
+                columnasPeriodos.forEach(colPR => {
+                    let matchRcd = epsItem.resoluciones.filter(r => r.periodo === colPR);
+
+                    if (filtroTipo) {
+                        matchRcd = matchRcd.filter(r => r.tipo === filtroTipo);
+                    }
+                    if (filtroEstado) {
+                        matchRcd = matchRcd.filter(r => r.estado === filtroEstado);
+                    }
+
+                    if (matchRcd.length === 0) {
+                        html += `<td class="py-3 px-2 text-center text-gray-300 text-xs border-r border-gray-100">-</td>`;
+                    } else {
+                        html += `<td class="py-2 px-2 text-center border-r border-gray-100 align-middle">
+                            <div class="flex flex-col items-center justify-center gap-1.5">`;
+
+                        matchRcd.forEach(rcdItem => {
+                            const tooltip = `Empresa: ${epsItem.ep}\nPeriodo: ${rcdItem.periodo}\nResolución: RCD N° ${rcdItem.rcd_num || 'S/N'}\nTipo: ${rcdItem.tipo}\nEstado: ${rcdItem.estado || 'S/D'}\nQuinquenio: ${rcdItem.quinquenio || 'S/D'}\nPublicado: ${rcdItem.fecha_publicacion || 'S/F'}`;
+
+                            let badgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 hover:border-emerald-500';
+                            let tipoTag = '';
+
+                            if (rcdItem.tipo === 'Definitiva') {
+                                badgeStyle = 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100 hover:border-emerald-500 shadow-2xs';
+                            } else if (rcdItem.tipo === 'Definitiva modificada') {
+                                badgeStyle = 'bg-purple-50 text-purple-800 border-purple-300 hover:bg-purple-100 hover:border-purple-500 shadow-2xs';
+                                tipoTag = '<span class="text-[9px] font-extrabold bg-purple-200/80 text-purple-900 px-1 py-0.2 rounded">Modif</span>';
+                            } else if (rcdItem.tipo === 'Proyecto') {
+                                badgeStyle = 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100 hover:border-amber-500 shadow-2xs';
+                                tipoTag = '<span class="text-[9px] font-extrabold bg-amber-200/80 text-amber-900 px-1 py-0.2 rounded">Proy</span>';
+                            } else if (rcdItem.tipo === 'Proyecto de modificatoria') {
+                                badgeStyle = 'bg-slate-50 text-slate-800 border-slate-300 hover:bg-slate-100 hover:border-slate-500 shadow-2xs';
+                                tipoTag = '<span class="text-[9px] font-extrabold bg-slate-200 text-slate-800 px-1 py-0.2 rounded">Proy Mod</span>';
+                            }
+
+                            const rcdLabel = rcdItem.rcd_num ? `RCD ${rcdItem.rcd_num}` : 'Resolución';
+                            const quinquenioSub = rcdItem.quinquenio ? `<span class="text-[9.5px] opacity-75 font-normal">(${rcdItem.quinquenio})</span>` : '';
+
+                            if (rcdItem.link && rcdItem.link.trim() !== '') {
+                                html += `<a href="${rcdItem.link}" target="_blank" rel="noopener noreferrer"
+                                    title="${tooltip.replace(/"/g, '&quot;')}"
+                                    class="inline-flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-bold border transition-all transform hover:-translate-y-0.5 cursor-pointer ${badgeStyle}">
+                                    <div class="flex items-center gap-1">
+                                        <svg class="w-3 h-3 flex-shrink-0 opacity-80" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+                                        <span>${rcdLabel}</span>
+                                        ${tipoTag}
+                                        <svg class="w-2.5 h-2.5 opacity-60 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </div>
+                                    ${quinquenioSub}
+                                </a>`;
+                            } else {
+                                html += `<div title="${tooltip.replace(/"/g, '&quot;')}" class="inline-flex flex-col items-center justify-center px-2 py-1 rounded-lg text-xs font-semibold border ${badgeStyle}">
+                                    <div class="flex items-center gap-1">
+                                        <span>${rcdLabel}</span>
+                                        ${tipoTag}
+                                    </div>
+                                    ${quinquenioSub}
+                                </div>`;
+                            }
+                        });
+
+                        html += `</div></td>`;
+                    }
+                });
+
+                html += `</tr>`;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function exportarRcdExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('La librería SheetJS (XLSX) no está cargada.');
+                return;
+            }
+
+            if (typeof db_resoluciones_cd === 'undefined' || !db_resoluciones_cd.length) {
+                alert('No hay datos para exportar.');
+                return;
+            }
+
+            const epsMap = new Map();
+            db_resoluciones_cd.forEach(item => {
+                const cod = String(item.cod_ep || '').padStart(3, '0');
+                if (!epsMap.has(cod)) {
+                    epsMap.set(cod, {
+                        cod_ep: cod,
+                        num: parseInt(cod, 10) || 999,
+                        ep: item.ep,
+                        region: item.region || '',
+                        tamano: item.tamano || '',
+                        regimen: item.regimen || '',
+                        resoluciones: []
+                    });
+                }
+                epsMap.get(cod).resoluciones.push(item);
+            });
+
+            const todasEps = Array.from(epsMap.values()).sort((a, b) => a.num - b.num);
+            const filtroTipo = document.getElementById('filtro-tipo-rcd')?.value || '';
+
+            const filasExcel = [
+                ['Cod. EPS', 'Empresa Prestadora', 'Región', 'Tamaño', 'Régimen', 'I PR', 'II PR', 'III PR', 'IV PR', 'V PR']
+            ];
+
+            todasEps.forEach(epsItem => {
+                const getPeriodText = (colPR) => {
+                    let matches = epsItem.resoluciones.filter(r => r.periodo === colPR);
+                    if (filtroTipo) matches = matches.filter(r => r.tipo === filtroTipo);
+                    if (!matches.length) return '-';
+                    return matches.map(m => `RCD ${m.rcd_num} (${m.tipo}) [${m.quinquenio}]`).join(' | ');
+                };
+
+                filasExcel.push([
+                    epsItem.cod_ep,
+                    epsItem.ep,
+                    epsItem.region,
+                    epsItem.tamano,
+                    epsItem.regimen,
+                    getPeriodText('I PR'),
+                    getPeriodText('II PR'),
+                    getPeriodText('III PR'),
+                    getPeriodText('IV PR'),
+                    getPeriodText('V PR')
+                ]);
+            });
+
+            const ws = XLSX.utils.aoa_to_sheet(filasExcel);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Resoluciones RCD');
+            XLSX.writeFile(wb, 'SUNASS_Matriz_Resoluciones_RCD.xlsx');
+        }
+
+
         function initDashboard() {
             if (dashboardIniciado) return;
 
@@ -2336,6 +3407,14 @@ Documento: ${docRef}`;
             llenarFiltrosTablero();
             dibujarOpcionesColumnas();
             generarReporte();
+
+            // Inicializar filtros y matrices de Estudios Tarifarios y RCD
+            if (typeof db_estudios_tarifarios !== 'undefined') {
+                inicializarFiltrosEstudios();
+            }
+            if (typeof db_resoluciones_cd !== 'undefined') {
+                inicializarFiltrosRcd();
+            }
         }
 
         function toggleSidebar() {
@@ -2374,24 +3453,38 @@ Documento: ${docRef}`;
             const modTablero = document.getElementById('modulo-tablero');
             const modMatriz = document.getElementById('modulo-matriz');
             const modReportes = document.getElementById('modulo-reportes');
+            const modEstudios = document.getElementById('modulo-estudios');
+            const modRcd = document.getElementById('modulo-rcd');
+
             const panelTablero = document.getElementById('panel-filtros-tablero');
             const panelReportes = document.getElementById('panel-filtros-reportes');
+            const panelEstudios = document.getElementById('panel-filtros-estudios');
+            const panelRcd = document.getElementById('panel-filtros-rcd');
+
             const btnTablero = document.getElementById('btn-mod-tablero');
             const btnMatriz = document.getElementById('btn-mod-matriz');
+            const btnEstudios = document.getElementById('btn-mod-estudios');
+            const btnRcd = document.getElementById('btn-mod-rcd');
             const btnReportes = document.getElementById('btn-mod-reportes');
 
             // Ocultar todos los módulos principales
-            [modTablero, modMatriz, modReportes].forEach(m => {
+            [modTablero, modMatriz, modReportes, modEstudios, modRcd].forEach(m => {
                 if (m) {
                     m.classList.remove('opacity-100', 'z-10');
                     m.classList.add('opacity-0', 'z-0', 'pointer-events-none');
                 }
             });
 
+            // Ocultar todos los paneles de filtros laterales
+            [panelTablero, panelReportes, panelEstudios, panelRcd].forEach(p => {
+                if (p) p.classList.add('hidden');
+            });
+
             // Resetear estilos de los botones del menú lateral
-            if (btnTablero) btnTablero.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
-            if (btnMatriz) btnMatriz.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
-            if (btnReportes) btnReportes.className = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+            const inactiveSidebarClass = "py-1.5 text-[11px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center";
+            [btnTablero, btnMatriz, btnEstudios, btnRcd, btnReportes].forEach(btn => {
+                if (btn) btn.className = inactiveSidebarClass;
+            });
 
             // Cerrar cualquier dropdown abierto
             document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
@@ -2407,7 +3500,6 @@ Documento: ${docRef}`;
                     modTablero.classList.remove('pointer-events-none');
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
-                if (panelReportes) panelReportes.classList.add('hidden');
                 const contEpsTablero = document.getElementById('contenedor-filtro-eps');
                 const contEpsMatriz = document.getElementById('contenedor-filtro-eps-matriz');
                 if (contEpsTablero) contEpsTablero.classList.remove('hidden');
@@ -2417,7 +3509,6 @@ Documento: ${docRef}`;
                 if (contPerTablero) contPerTablero.classList.remove('hidden');
                 if (contPerMatriz) contPerMatriz.classList.add('hidden');
 
-                // Asegurar que el filtro de matriz esté estrictamente oculto en tablero
                 if (contServMatriz) contServMatriz.classList.add('hidden');
 
                 const codTablero = normalizarCodigoEps(document.getElementById('filtro-eps') ? document.getElementById('filtro-eps').value : "");
@@ -2434,7 +3525,6 @@ Documento: ${docRef}`;
                     modMatriz.classList.remove('pointer-events-none');
                 }
                 if (panelTablero) panelTablero.classList.remove('hidden');
-                if (panelReportes) panelReportes.classList.add('hidden');
                 const contEpsTablero = document.getElementById('contenedor-filtro-eps');
                 const contEpsMatriz = document.getElementById('contenedor-filtro-eps-matriz');
                 if (contEpsTablero) contEpsTablero.classList.add('hidden');
@@ -2444,7 +3534,6 @@ Documento: ${docRef}`;
                 if (contPerTablero) contPerTablero.classList.add('hidden');
                 if (contPerMatriz) contPerMatriz.classList.remove('hidden');
 
-                // Asegurar que el filtro de tablero esté estrictamente oculto en matriz
                 if (contServTablero) contServTablero.classList.add('hidden');
 
                 if (btnMatriz) btnMatriz.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-emerald-600 text-white transition-colors shadow-sm text-center truncate";
@@ -2455,6 +3544,24 @@ Documento: ${docRef}`;
                     aplicarEstadoGuardadoResumenDocs();
                 }
                 renderizarMatrizInformes();
+            } else if (modulo === 'estudios') {
+                if (modEstudios) {
+                    modEstudios.classList.replace('opacity-0', 'opacity-100');
+                    modEstudios.classList.replace('z-0', 'z-10');
+                    modEstudios.classList.remove('pointer-events-none');
+                }
+                if (panelEstudios) panelEstudios.classList.remove('hidden');
+                if (btnEstudios) btnEstudios.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-blue-700 text-white transition-colors shadow-sm text-center truncate";
+                renderizarMatrizEstudios();
+            } else if (modulo === 'rcd') {
+                if (modRcd) {
+                    modRcd.classList.replace('opacity-0', 'opacity-100');
+                    modRcd.classList.replace('z-0', 'z-10');
+                    modRcd.classList.remove('pointer-events-none');
+                }
+                if (panelRcd) panelRcd.classList.remove('hidden');
+                if (btnRcd) btnRcd.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate";
+                renderizarMatrizRcd();
             } else if (modulo === 'reportes') {
                 if (modReportes) {
                     modReportes.classList.replace('opacity-0', 'opacity-100');
@@ -2462,7 +3569,6 @@ Documento: ${docRef}`;
                     modReportes.classList.remove('pointer-events-none');
                 }
                 if (panelReportes) panelReportes.classList.remove('hidden');
-                if (panelTablero) panelTablero.classList.add('hidden');
                 if (contServTablero) contServTablero.classList.add('hidden');
                 if (contServMatriz) contServMatriz.classList.add('hidden');
                 if (btnReportes) btnReportes.className = "py-1.5 px-1 text-[10.5px] font-bold rounded bg-indigo-600 text-white transition-colors shadow-sm text-center truncate";

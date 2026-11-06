@@ -398,7 +398,7 @@
                         <!-- Línea azul de acento -->
                         <div style="width: 2.5cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
                         <!-- Descripción -->
-                        <p style="font-size: 1.62cqh; color: #334155; line-height: 1.32; font-weight: 500;">
+                        <p style="font-size: 2.05cqh; color: #334155; line-height: 1.42; font-weight: 500;">
                             Consulta el cumplimiento de metas de gestión (ICI e ICG) y genera consultas y reportes dinámicos.
                         </p>
                     </div>
@@ -426,7 +426,7 @@
                         <!-- Línea azul de acento -->
                         <div style="width: 2.5cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.8cqh 0 0.8cqh 0;"></div>
                         <!-- Descripción -->
-                        <p style="font-size: 1.55cqh; color: #334155; line-height: 1.35; font-weight: 500;">
+                        <p style="font-size: 2.05cqh; color: #334155; line-height: 1.42; font-weight: 500;">
                             Accede a los Informes de Fiscalización y PAS, Estudios Tarifarios y Resoluciones de Consejo Directivo.
                         </p>
                     </div>
@@ -454,7 +454,7 @@
                         <!-- Línea azul de acento -->
                         <div style="width: 2.4cqw; height: 0.35cqh; background: #002b66; border-radius: 2px; margin: 0.7cqh 0 0.7cqh 0;"></div>
                         <!-- Descripción -->
-                        <p style="font-size: 1.68cqh; color: #334155; line-height: 1.30; font-weight: 500;">
+                        <p style="font-size: 2.05cqh; color: #334155; line-height: 1.42; font-weight: 500;">
                             Visualiza la cronología de periodos y años regulatorios de las 50 Empresas Prestadoras.
                         </p>
                     </div>
@@ -2829,12 +2829,6 @@ Documento: ${docRef}`;
                 if (codigosSeleccionadosSet.size > 0 && !codigosSeleccionadosSet.has(item.cod_ep)) {
                     return false;
                 }
-
-                // Filtro región
-                if (filtroRegion && item.region !== filtroRegion) return false;
-
-                // Filtro tamaño
-                if (filtroTamano && item.tamano !== filtroTamano) return false;
 
                 // Filtro régimen
                 if (filtroRegimen && item.regimen !== filtroRegimen) return false;

@@ -337,6 +337,27 @@
                 </h2>
             </div>
 
+            <!-- NAVEGACIÓN DEDICADA DE LÍNEA DE TIEMPO REGULATORIA -->
+            <div id="nav-sidebar-gantt" class="hidden flex flex-col gap-1.5">
+                <div class="flex items-center justify-between px-1 mb-0.5">
+                    <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
+                        <span>📅</span> Línea de Tiempo
+                    </span>
+                    <button onclick="cambiarModulo('tablero')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Volver al espacio de Evaluación y Reportes">
+                        <span>← Eval. y Reportes</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="cambiarModulo('tablero')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📊 Evaluación</button>
+                    <button onclick="cambiarModulo('matriz')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📚 Documentos</button>
+                </div>
+                <div class="pt-0.5">
+                    <div class="w-full py-1.5 px-2 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-default flex items-center justify-center gap-1.5">
+                        <span>📅</span> Línea de Tiempo Regulatoria
+                    </div>
+                </div>
+            </div>
+
             <!-- PERSONAJE OFICIAL SUNASS (Alineado en la base con las tarjetas, a la izquierda) -->
             <div class="absolute" style="left: 6.5cqw; bottom: 21.5cqh; height: 48cqh; width: 19cqw; display: flex; align-items: flex-end; justify-content: center; z-index: 20;">
                 <img src="personaje_sunass.png" 
@@ -439,7 +460,7 @@
                 </div>
 
                 <!-- Tarjeta 3: Línea de tiempo regulatoria -->
-                <div onclick="abrirModalGantt()" 
+                <div onclick="navegarDesdePortada('gantt')" 
                      class="tarjeta-portada group" 
                      style="background: #ffffff; border-radius: 2.2cqh; box-shadow: 0 10px 25px -4px rgba(0, 30, 80, 0.22); padding: 2.0cqh 1.3cqw 1.6cqh 1.3cqw; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; border: 1px solid rgba(226, 232, 240, 0.8);">
                     <div>
@@ -512,143 +533,6 @@
     <!-- ========================================================================= -->
     <!-- MODAL DIAGRAMA GANTT: LÍNEA DE TIEMPO REGULATORIA (TEMA CLARO CÁLIDO)      -->
     <!-- ========================================================================= -->
-    <div id="modal-gantt-linea-tiempo" class="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-sm hidden" role="dialog" aria-modal="true">
-        <div class="relative w-full max-w-[96vw] xl:max-w-[1450px] h-[92vh] bg-[#fbfbfa] border border-stone-300 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-800">
-            
-            <!-- Encabezado del Modal (Estilo Claro Cálido Institucional) -->
-            <div class="px-6 py-3.5 border-b border-stone-200 bg-white flex flex-wrap items-center justify-between gap-4 shrink-0 shadow-xs">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 shrink-0 shadow-xs">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="text-base font-black text-[#002b66] tracking-tight">Línea de Tiempo Regulatoria de Empresas Prestadoras</h3>
-                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-[#003366] border border-blue-200 rounded-full">Diagrama Gantt Cronológico</span>
-                        </div>
-                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029) con posicionamiento mensual interno. <strong class="text-blue-800">Haz clic en los años para expandir uno o varios a la vez mes a mes (Ene - Dic)</strong>, y vuelve a hacer clic para contraerlos.</p>
-                    </div>
-                </div>
-
-                <!-- Buscador rápido y Botón de cierre -->
-                <div class="flex items-center gap-3">
-                    <div class="relative w-64">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-2.5 pointer-events-none text-slate-400 text-xs">🔍</span>
-                        <input type="text" id="input-buscar-gantt" oninput="filtrarGanttPorEps(this.value)" placeholder="Buscar EPS por código o nombre..." class="w-full pl-8 pr-3 py-1.5 bg-stone-50 text-slate-800 text-xs rounded-lg border border-stone-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition placeholder-slate-400 shadow-xs">
-                    </div>
-                    <button onclick="cerrarModalGantt()" type="button" class="p-2 text-slate-400 hover:text-slate-700 hover:bg-stone-100 rounded-lg transition" title="Cerrar modal (Esc)">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Barra de Leyenda de Periodos Regulatorios y Convenciones -->
-            <div class="px-6 py-2.5 bg-[#f5f5f3] border-b border-stone-200 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 select-none">
-                <!-- Leyenda de Periodos -->
-                <div class="flex items-center gap-2.5 flex-wrap">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Periodos Regulatorios:</span>
-                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 border border-blue-200 rounded shadow-xs">
-                        <span class="w-3 h-3 rounded-xs bg-[#1d4ed8]"></span>
-                        <span class="text-[11px] font-bold text-blue-900">I PR</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 border border-emerald-200 rounded shadow-xs">
-                        <span class="w-3 h-3 rounded-xs bg-[#047857]"></span>
-                        <span class="text-[11px] font-bold text-emerald-900">II PR</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded shadow-xs">
-                        <span class="w-3 h-3 rounded-xs bg-[#6d28d9]"></span>
-                        <span class="text-[11px] font-bold text-purple-900">III PR</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded shadow-xs">
-                        <span class="w-3 h-3 rounded-xs bg-[#b45309]"></span>
-                        <span class="text-[11px] font-bold text-amber-900">IV PR</span>
-                    </div>
-                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-rose-50 border border-rose-200 rounded shadow-xs">
-                        <span class="w-3 h-3 rounded-xs bg-[#be123c]"></span>
-                        <span class="text-[11px] font-bold text-rose-900">V PR</span>
-                    </div>
-                </div>
-
-                <!-- Indicador interactivo: Zoom mes a mes -->
-                <div id="badge-zoom-gantt" class="hidden lg:flex items-center gap-1.5 px-2.5 py-1 bg-sky-50/90 border border-sky-300 rounded-lg text-sky-900 shadow-2xs select-none" title="Haz clic sobre cualquier año en el encabezado para desplegar o contraer sus 12 meses">
-                    <span class="text-xs">📅</span>
-                    <span id="texto-zoom-gantt" class="text-[11px] font-bold">Clic en los años para ver mes a mes</span>
-                </div>
-
-                <!-- Control Checkbox FEN (Fenómeno de El Niño) -->
-                <div class="flex items-center gap-2 px-2.5 py-1 bg-red-50/90 border border-red-300 rounded-lg shadow-2xs">
-                    <label class="flex items-center gap-2 cursor-pointer select-none" title="Activar/desactivar franja del Fenómeno de El Niño (Noviembre 2026 a Abril 2027) para ver años regulatorios impactados">
-                        <input type="checkbox" id="chk-fen-toggle" onchange="toggleFranjaFen(this.checked)" class="w-4 h-4 text-red-600 bg-white border-red-400 rounded focus:ring-red-500 cursor-pointer">
-                        <div class="flex items-center gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-                            <span class="text-xs font-black text-red-800 tracking-tight">FEN</span>
-                            <span class="text-[10px] text-red-700 font-semibold hidden sm:inline">(Nov 2026 - Abr 2027)</span>
-                        </div>
-                    </label>
-                </div>
-
-                <!-- Leyenda de Estados y Transición -->
-                <div class="flex items-center gap-3 flex-wrap">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">Convenciones:</span>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-4 h-3.5 rounded-xs bg-amber-50 border-2 border-amber-500 border-dashed flex items-center justify-center text-[9px] font-black text-amber-800">PT</span>
-                        <span class="text-[11px] text-slate-700 font-medium">Año en Transición (PT)</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-3.5 h-3.5 rounded-xs bg-slate-300 border border-slate-400 flex items-center justify-center text-[8.5px] text-slate-700 font-bold">⏸</span>
-                        <span class="text-[11px] text-slate-700 font-medium">Evaluación Suspendida</span>
-                    </div>
-                    <div class="flex items-center gap-1.5">
-                        <span class="w-3.5 h-3.5 rounded-xs bg-sky-100 border border-sky-400 border-dashed flex items-center justify-center text-[8px] text-sky-800">⏳</span>
-                        <span class="text-[11px] text-slate-700 font-medium">En curso</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Cuerpo Principal: Contenedor con Scroll Unificado (Cabecera y Filas sincronizadas en scroll horizontal) -->
-            <div id="contenedor-scroll-gantt" class="flex-1 overflow-auto gantt-scroll-area pt-0 px-0 pb-4 bg-[#f8f8f6]">
-                <div class="min-w-[1440px] pb-2">
-                    
-                    <!-- Barra de Cabecera (Eje X: Años Calendario 2006 al 2029) - Sticky a top:0 para sincronía perfecta -->
-                    <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs h-10">
-                        <!-- Columna Fija: EPS (Eje Y) -->
-                        <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
-                            <span>Empresa Prestadora</span>
-                            <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
-                        </div>
-                        <!-- Eje X: Años Calendario (2006 al 2029) -->
-                        <div class="flex-1 min-w-[1152px] relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
-                            <!-- Los años se renderizan dinámicamente -->
-                        </div>
-                    </div>
-
-                    <!-- Lista de Filas de cada Empresa Prestadora (Eje Y) -->
-                    <div id="gantt-cuerpo-filas" class="divide-y divide-stone-200 bg-white border-x border-b border-stone-300 shadow-xs">
-                        <!-- Las filas se renderizan dinámicamente -->
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Pie del Modal: Resumen global y botón cerrar -->
-            <div class="px-6 py-3 border-t border-stone-200 bg-white flex items-center justify-between gap-4 text-xs shrink-0 shadow-xs">
-                <div class="flex items-center gap-4 text-slate-600">
-                    <span>Total Evaluadas: <strong class="text-slate-900 font-bold">50 EPS</strong></span>
-                    <span>•</span>
-                    <span>Rango Temporal: <strong class="text-slate-900 font-bold">2006 al 2029</strong></span>
-                    <span>•</span>
-                    <span class="italic text-slate-500">Pasa el cursor sobre cada celda para ver periodo, año, rango oficial de fechas e informe emitido. Haz clic para ir a la Matriz.</span>
-                </div>
-                <button onclick="cerrarModalGantt()" type="button" class="px-4 py-1.5 bg-stone-100 hover:bg-stone-200 text-slate-700 hover:text-slate-900 rounded-lg font-bold text-xs transition border border-stone-300 shadow-xs">
-                    Cerrar
-                </button>
-            </div>
-
-        </div>
-    </div>
-
     <!-- Panel Lateral Izquierdo -->
     <div id="panel-lateral" class="w-72 bg-[#002244] text-white flex flex-col shadow-xl z-20 shrink-0 relative select-none">
         <div class="p-3 border-b border-blue-900 bg-[#001c38] flex items-center justify-between gap-2">
@@ -682,7 +566,7 @@
                     <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">🛠️ Reportes</button>
                 </div>
                 <div class="pt-0.5">
-                    <button onclick="abrirModalGantt()" id="btn-mod-gantt" class="w-full py-1.5 px-2 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate cursor-pointer flex items-center justify-center gap-1.5">
+                    <button onclick="navegarDesdePortada('gantt')" id="btn-mod-gantt" class="w-full py-1.5 px-2 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate cursor-pointer flex items-center justify-center gap-1.5">
                         <span>📅</span> Línea de Tiempo (Gantt)
                     </button>
                 </div>
@@ -1091,6 +975,73 @@
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Configurar Columnas</label>
                     <div class="space-y-1.5 text-sm max-h-48 overflow-y-auto pr-1" id="contenedor-columnas">
                         <!-- Generado dinámicamente por JS -->
+                    </div>
+                </div>
+
+            
+            </div>
+
+            <!-- PANEL DE FILTROS: LÍNEA DE TIEMPO REGULATORIA (GANTT) -->
+            <div id="panel-filtros-gantt" class="hidden space-y-4">
+                <!-- 1. Empresa Prestadora (PowerBI Dropdown con buscador y Todas) -->
+                <div class="relative" id="contenedor-filtro-eps-gantt">
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">1. Empresa Prestadora</label>
+                    <div class="relative" id="dropdown-eps-gantt">
+                        <button type="button" id="btn-trigger-eps-gantt"
+                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
+                            <span class="truncate pr-2" id="lbl-trigger-eps-gantt">Todas</span>
+                            <svg id="arrow-trigger-eps-gantt" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+                        <div id="menu-dropdown-eps-gantt" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
+                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input type="text" id="input-buscar-eps-gantt" placeholder="Buscar empresa..." autocomplete="off"
+                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
+                                <button type="button" id="btn-limpiar-eps-gantt" class="hidden text-slate-400 hover:text-slate-600 p-0.5">✕</button>
+                            </div>
+                            <div id="lista-opciones-eps-gantt" class="max-h-56 overflow-y-auto divide-y divide-slate-100 p-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Franja Fen (2026 - 2027) -->
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">2. Franja Fen</label>
+                    <select id="filtro-fen-gantt" onchange="cambiarFiltroFenGantt(this.value)" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-medium focus:ring-2 focus:ring-blue-500 shadow-sm cursor-pointer">
+                        <option value="false">Ocultar Franja FEN</option>
+                        <option value="true">Mostrar Franja FEN (2026 - 2027)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Expansión de Años (Zoom Mes a Mes) -->
+                <div>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">3. Expansión Temporal</label>
+                    <div class="flex gap-1.5">
+                        <button onclick="contraerTodosLosAniosGantt()" type="button" class="flex-1 py-2 px-2 text-[11px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded transition text-center shadow-xs cursor-pointer">
+                            ▲ Contraer todo
+                        </button>
+                        <button onclick="expandirTodosLosAniosGantt()" type="button" class="flex-1 py-2 px-2 text-[11px] font-bold text-blue-300 hover:text-white bg-blue-900/60 hover:bg-blue-800 border border-blue-700/60 rounded transition text-center shadow-xs cursor-pointer">
+                            ▼ Expandir todo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button onclick="limpiarFiltrosGantt()" type="button" class="w-full py-2 px-3 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer">
+                        🔄 Limpiar Filtros
+                    </button>
+                </div>
+
+                <div class="p-3 bg-blue-950/60 rounded-lg border border-blue-800/40 text-[11px] text-blue-200">
+                    <div class="font-bold mb-1 flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-blue-400"></span> Resumen de Cronología
+                    </div>
+                    <div id="kpi-sidebar-gantt" class="text-slate-300 space-y-0.5">
+                        Mostrando 50 de 50 EPS
                     </div>
                 </div>
             </div>
@@ -1894,6 +1845,108 @@
             </main>
         </div>
 
+        <!-- ========================================== -->
+        <!-- MÓDULO: LÍNEA DE TIEMPO REGULATORIA (GANTT)-->
+        <!-- ========================================== -->
+        <div id="modulo-gantt" class="flex-1 flex flex-col h-full w-full absolute inset-0 z-0 bg-[#f4f7f6] overflow-hidden transition-opacity duration-300 opacity-0 pointer-events-none">
+            <!-- Cabecera Institucional Superior -->
+            <header class="bg-white px-8 py-4 flex justify-between items-center shadow-xs z-10 border-b border-gray-200 shrink-0">
+                <div class="flex items-center gap-3">
+                    <button onclick="toggleSidebar()" type="button" class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-blue-900 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 flex items-center justify-center cursor-pointer" title="Contraer o expandir panel lateral">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <h1 class="text-2xl font-black text-[#003366] tracking-tight">Línea de Tiempo Regulatoria</h1>
+                            <span class="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider bg-blue-100 text-[#003366] border border-blue-200 rounded-full">Diagrama Gantt Cronológico</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Eje temporal en años calendario (2006 al 2029) con posicionamiento mensual interno. Haz clic en los años para expandir mes a mes (Ene - Dic).</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <!-- Badge indicador de años expandidos -->
+                    <div id="badge-zoom-gantt" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 border border-sky-300 rounded-lg text-sky-900 text-xs font-bold shadow-2xs select-none">
+                        <span>📅 Vista estándar (años)</span>
+                    </div>
+
+                    <!-- Switch Franja FEN -->
+                    <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-900 text-xs font-bold cursor-pointer hover:bg-red-100 transition shadow-2xs select-none">
+                        <input type="checkbox" id="chk-franja-fen" onchange="toggleFranjaFen(this.checked)" class="w-3.5 h-3.5 rounded text-red-600 focus:ring-red-500 cursor-pointer">
+                        <span>Franja FEN (2026 - 2027)</span>
+                    </label>
+                </div>
+            </header>
+
+            <!-- Barra de Leyenda de Periodos Regulatorios y Convenciones -->
+            <div class="px-8 py-2.5 bg-[#f8fafc] border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shrink-0 select-none">
+                <!-- Leyenda de Periodos -->
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Periodos Regulatorios:</span>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-blue-50 border border-blue-200 rounded shadow-xs">
+                        <span class="w-3 h-3 rounded-xs bg-[#1d4ed8]"></span>
+                        <span class="text-[11px] font-bold text-blue-900">I PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-50 border border-emerald-200 rounded shadow-xs">
+                        <span class="w-3 h-3 rounded-xs bg-[#047857]"></span>
+                        <span class="text-[11px] font-bold text-emerald-900">II PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-purple-50 border border-purple-200 rounded shadow-xs">
+                        <span class="w-3 h-3 rounded-xs bg-[#6d28d9]"></span>
+                        <span class="text-[11px] font-bold text-purple-900">III PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded shadow-xs">
+                        <span class="w-3 h-3 rounded-xs bg-[#b45309]"></span>
+                        <span class="text-[11px] font-bold text-amber-900">IV PR</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 px-2 py-0.5 bg-rose-50 border border-rose-200 rounded shadow-xs">
+                        <span class="w-3 h-3 rounded-xs bg-[#be123c]"></span>
+                        <span class="text-[11px] font-bold text-rose-900">V PR</span>
+                    </div>
+                </div>
+
+                <!-- Leyenda de Estados y Transición -->
+                <div class="flex items-center gap-3 flex-wrap">
+                    <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Convenciones:</span>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-4 h-3.5 rounded-xs bg-amber-50 border-2 border-amber-500 border-dashed flex items-center justify-center text-[9px] font-black text-amber-800">PT</span>
+                        <span class="text-[11px] text-slate-700 font-medium">Año en Transición (PT)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-xs bg-slate-300 border border-slate-400 flex items-center justify-center text-[8.5px] text-slate-700 font-bold">⏸</span>
+                        <span class="text-[11px] text-slate-700 font-medium">Evaluación Suspendida</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-3.5 h-3.5 rounded-xs bg-sky-100 border border-sky-400 border-dashed flex items-center justify-center text-[8px] text-sky-800">⏳</span>
+                        <span class="text-[11px] text-slate-700 font-medium">En curso</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuerpo Principal con Scroll Sincronizado para el Diagrama Gantt -->
+            <main class="flex-1 overflow-auto gantt-scroll-area p-6 bg-[#f8fafc]" id="contenedor-scroll-gantt">
+                <div class="min-w-[1440px] pb-6">
+                    <!-- Barra de Cabecera (Eje X: Años Calendario 2006 al 2029) - Sticky a top:0 -->
+                    <div id="gantt-header-eje-x" class="sticky top-0 z-30 flex items-stretch bg-[#eaeaea] border-b-2 border-stone-300 select-none shadow-xs h-10">
+                        <!-- Columna Fija: EPS (Eje Y) -->
+                        <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
+                            <span>Empresa Prestadora</span>
+                            <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">50</span>
+                        </div>
+                        <!-- Eje X: Años Calendario (2006 al 2029) -->
+                        <div class="flex-1 min-w-[1152px] relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
+                            <!-- Los años se renderizan dinámicamente -->
+                        </div>
+                    </div>
+
+                    <!-- Lista de Filas de cada Empresa Prestadora (Eje Y) -->
+                    <div id="gantt-cuerpo-filas" class="divide-y divide-stone-200 bg-white border-x border-b border-stone-300 shadow-xs">
+                        <!-- Las filas se renderizan dinámicamente -->
+                    </div>
+                </div>
+            </main>
+        </div>
+
     </div>
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
@@ -2029,6 +2082,10 @@
                 cambiarModulo('tablero');
                 const mainTablero = document.querySelector('#modulo-tablero main');
                 if (mainTablero) mainTablero.scrollTo({ top: 0, behavior: 'smooth' });
+            } else if (destino === 'gantt') {
+                cambiarModulo('gantt');
+                const mainGantt = document.querySelector('#modulo-gantt main');
+                if (mainGantt) mainGantt.scrollTo({ top: 0, behavior: 'smooth' });
             } else if (destino === 'matriz' || destino === 'documentos') {
                 cambiarModulo('matriz');
                 const mainMatriz = document.querySelector('#modulo-matriz main');
@@ -2347,27 +2404,84 @@
         }
 
         function abrirModalGantt() {
-            const modal = document.getElementById('modal-gantt-linea-tiempo');
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            renderizarDiagramaGantt();
+            cambiarModulo('gantt');
+        }
 
-            const inputBuscar = document.getElementById('input-buscar-gantt');
-            if (inputBuscar) {
-                inputBuscar.value = '';
-                filtroQueryGantt = '';
-                setTimeout(() => inputBuscar.focus(), 60);
-            }
+        function cerrarModalGantt() {
+            cambiarModulo('tablero');
+        }
+
+        function inicializarFiltrosGantt() {
+            if (dropdownEpsGanttInstance) return;
+            const listaEps = prepararDatosGantt();
+            if (!listaEps || !listaEps.length) return;
+
+            const epsMapGantt = new Map();
+            listaEps.forEach(item => {
+                const cod = String(item.cod || '').padStart(3, '0');
+                if (!epsMapGantt.has(cod)) {
+                    epsMapGantt.set(cod, {
+                        value: cod,
+                        label: `${cod}. ${item.nombre}`,
+                        searchText: `${cod} ${item.nombre}`
+                    });
+                }
+            });
+            const opcionesGanttEps = Array.from(epsMapGantt.values()).sort((a, b) => parseInt(a.value, 10) - parseInt(b.value, 10));
+
+            dropdownEpsGanttInstance = crearDropdownPowerBI({
+                idContenedor: 'contenedor-filtro-eps-gantt',
+                idTrigger: 'btn-trigger-eps-gantt',
+                idLabel: 'lbl-trigger-eps-gantt',
+                idArrow: 'arrow-trigger-eps-gantt',
+                idMenu: 'menu-dropdown-eps-gantt',
+                idInput: 'input-buscar-eps-gantt',
+                idBtnLimpiar: 'btn-limpiar-eps-gantt',
+                idLista: 'lista-opciones-eps-gantt',
+                opciones: opcionesGanttEps,
+                esMultiple: true,
+                permitirTodas: true,
+                textoTodas: "Todas",
+                valorInicial: [],
+                onSelect: () => {
+                    renderizarDiagramaGantt();
+                }
+            });
         }
 
         function toggleFranjaFen(activado) {
             mostrarFranjaFen = Boolean(activado);
+            const selFen = document.getElementById('filtro-fen-gantt');
+            if (selFen) selFen.value = String(mostrarFranjaFen);
+            const chkFen = document.getElementById('chk-franja-fen');
+            if (chkFen) chkFen.checked = mostrarFranjaFen;
             renderizarDiagramaGantt();
         }
 
-        function cerrarModalGantt() {
-            const modal = document.getElementById('modal-gantt-linea-tiempo');
-            if (modal) modal.classList.add('hidden');
+        function cambiarFiltroFenGantt(val) {
+            toggleFranjaFen(val === 'true');
+        }
+
+        function expandirTodosLosAniosGantt() {
+            for (let y = ANIO_MIN_GANTT; y <= ANIO_MAX_GANTT; y++) {
+                aniosExpandidosGantt.add(y);
+            }
+            renderizarDiagramaGantt();
+        }
+
+        function contraerTodosLosAniosGantt() {
+            aniosExpandidosGantt.clear();
+            renderizarDiagramaGantt();
+        }
+
+        function limpiarFiltrosGantt() {
+            if (dropdownEpsGanttInstance) dropdownEpsGanttInstance.limpiar();
+            mostrarFranjaFen = false;
+            const chkFen = document.getElementById('chk-franja-fen');
+            if (chkFen) chkFen.checked = false;
+            const selFen = document.getElementById('filtro-fen-gantt');
+            if (selFen) selFen.value = 'false';
+            contraerTodosLosAniosGantt();
         }
 
         function filtrarGanttPorEps(query) {
@@ -2416,15 +2530,27 @@
                 }
             }
 
-            // 1. Filtrar EPS según búsqueda
+            // 1. Filtrar EPS según Dropdown PowerBI y búsqueda
+            const epsSeleccionadas = dropdownEpsGanttInstance ? dropdownEpsGanttInstance.getValores() : [];
+            const codigosSeleccionadosSet = new Set(epsSeleccionadas.map(c => String(c).padStart(3, '0')));
+
             const epsFiltradas = listaEps.filter(eps => {
-                if (!filtroQueryGantt) return true;
-                const texto = `${eps.cod} ${eps.nombre}`.toLowerCase();
-                return texto.includes(filtroQueryGantt);
+                if (codigosSeleccionadosSet.size > 0 && !codigosSeleccionadosSet.has(eps.cod)) {
+                    return false;
+                }
+                if (filtroQueryGantt) {
+                    const texto = `${eps.cod} ${eps.nombre}`.toLowerCase();
+                    if (!texto.includes(filtroQueryGantt)) return false;
+                }
+                return true;
             });
 
             if (contadorEl) {
                 contadorEl.textContent = `${epsFiltradas.length}`;
+            }
+            const kpiSidebarGantt = document.getElementById('kpi-sidebar-gantt');
+            if (kpiSidebarGantt) {
+                kpiSidebarGantt.textContent = `Mostrando ${epsFiltradas.length} de ${listaEps.length} EPS`;
             }
 
             // 2. Renderizar encabezado Eje X (Años Calendario 2006 al 2029 con soporte interactivo de expansión múltiple)
@@ -3460,15 +3586,18 @@ Documento: ${docRef}`;
             const modReportes = document.getElementById('modulo-reportes');
             const modEstudios = document.getElementById('modulo-estudios');
             const modRcd = document.getElementById('modulo-rcd');
+            const modGantt = document.getElementById('modulo-gantt');
 
             const panelTablero = document.getElementById('panel-filtros-tablero');
             const panelReportes = document.getElementById('panel-filtros-reportes');
             const panelEstudios = document.getElementById('panel-filtros-estudios');
             const panelRcd = document.getElementById('panel-filtros-rcd');
+            const panelGantt = document.getElementById('panel-filtros-gantt');
 
-            // Nav general vs Nav Documentos
+            // Barras de navegación lateral
             const navGeneral = document.getElementById('nav-sidebar-general');
             const navDocs = document.getElementById('nav-sidebar-documentos');
+            const navGantt = document.getElementById('nav-sidebar-gantt');
 
             const btnTablero = document.getElementById('btn-mod-tablero');
             const btnDocumentos = document.getElementById('btn-mod-documentos');
@@ -3479,7 +3608,7 @@ Documento: ${docRef}`;
             const btnDocRcd = document.getElementById('btn-doc-rcd');
 
             // Ocultar todos los módulos principales
-            [modTablero, modMatriz, modReportes, modEstudios, modRcd].forEach(m => {
+            [modTablero, modMatriz, modReportes, modEstudios, modRcd, modGantt].forEach(m => {
                 if (m) {
                     m.classList.remove('opacity-100', 'z-10');
                     m.classList.add('opacity-0', 'z-0', 'pointer-events-none');
@@ -3487,9 +3616,14 @@ Documento: ${docRef}`;
             });
 
             // Ocultar todos los paneles de filtros laterales
-            [panelTablero, panelReportes, panelEstudios, panelRcd].forEach(p => {
+            [panelTablero, panelReportes, panelEstudios, panelRcd, panelGantt].forEach(p => {
                 if (p) p.classList.add('hidden');
             });
+
+            // Ocultar barras de navegación
+            if (navGeneral) navGeneral.classList.add('hidden');
+            if (navDocs) navDocs.classList.add('hidden');
+            if (navGantt) navGantt.classList.add('hidden');
 
             // Resetear estilos de botones de Evaluación y Reportes
             const inactiveGeneral = "py-1.5 px-1 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer";
@@ -3508,6 +3642,20 @@ Documento: ${docRef}`;
 
             const contServTablero = document.getElementById('contenedor-filtro-servicio-tablero');
             const contServMatriz = document.getElementById('contenedor-filtro-servicio-matriz');
+
+            if (modulo === 'gantt') {
+                if (modGantt) {
+                    modGantt.classList.replace('opacity-0', 'opacity-100');
+                    modGantt.classList.replace('z-0', 'z-10');
+                    modGantt.classList.remove('pointer-events-none');
+                }
+                if (panelGantt) panelGantt.classList.remove('hidden');
+                if (navGantt) navGantt.classList.remove('hidden');
+
+                if (typeof inicializarFiltrosGantt === 'function') inicializarFiltrosGantt();
+                renderizarDiagramaGantt();
+                return;
+            }
 
             const esModuloDocumental = (modulo === 'matriz' || modulo === 'estudios' || modulo === 'rcd' || modulo === 'documentos');
 
@@ -3614,6 +3762,7 @@ Documento: ${docRef}`;
         let dropdownMetaReportesInstance = null;
         let dropdownEpsEstudiosInstance = null;
         let dropdownEpsRcdInstance = null;
+        let dropdownEpsGanttInstance = null;
 
         function crearDropdownPowerBI({
             idContenedor,

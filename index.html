@@ -830,7 +830,7 @@
                     <div class="relative" id="dropdown-tipo-rcd">
                         <button type="button" id="btn-trigger-tipo-rcd"
                                 class="w-full p-2.5 bg-amber-50 text-amber-950 rounded flex items-center justify-between text-xs font-bold shadow-sm hover:bg-amber-100/70 border border-amber-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-left transition select-none">
-                            <span class="truncate pr-2" id="lbl-trigger-tipo-rcd">⭐ Definitiva</span>
+                            <span class="truncate pr-2" id="lbl-trigger-tipo-rcd">Definitiva</span>
                             <svg id="arrow-trigger-tipo-rcd" class="w-4 h-4 text-amber-700 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -3228,10 +3228,10 @@ Documento: ${docRef}`;
 
             // Inicializar Dropdown PowerBI de Tipo de RCD (Selección múltiple)
             const opcionesTipoRcd = [
-                { value: 'Definitiva', label: '⭐ Definitiva', searchText: 'definitiva' },
-                { value: 'Definitiva modificada', label: '🔄 Definitiva modificada', searchText: 'definitiva modificada' },
-                { value: 'Proyecto', label: '📄 Proyecto', searchText: 'proyecto tarifario' },
-                { value: 'Proyecto de modificatoria', label: '📝 Proyecto de modificatoria', searchText: 'proyecto de modificatoria' }
+                { value: 'Definitiva', label: 'Definitiva', searchText: 'definitiva' },
+                { value: 'Definitiva modificada', label: 'Definitiva modificada', searchText: 'definitiva modificada' },
+                { value: 'Proyecto', label: 'Proyecto', searchText: 'proyecto tarifario' },
+                { value: 'Proyecto de modificatoria', label: 'Proyecto de modificatoria', searchText: 'proyecto de modificatoria' }
             ];
 
             dropdownTipoRcdInstance = crearDropdownPowerBI({

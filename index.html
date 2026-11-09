@@ -827,7 +827,7 @@
                     <div class="relative" id="dropdown-tipo-rcd">
                         <button type="button" id="btn-trigger-tipo-rcd"
                                 class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer text-left transition select-none">
-                            <span class="truncate pr-2" id="lbl-trigger-tipo-rcd">Definitiva</span>
+                            <span class="truncate pr-2" id="lbl-trigger-tipo-rcd">2 seleccionadas</span>
                             <svg id="arrow-trigger-tipo-rcd" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                             </svg>
@@ -1990,12 +1990,6 @@
                     <div id="badge-zoom-gantt" class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-sky-50 border border-sky-300 rounded-lg text-sky-900 text-xs font-bold shadow-2xs select-none">
                         <span>📅 Vista estándar (años)</span>
                     </div>
-
-                    <!-- Control de Franja en Cabecera -->
-                    <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-red-200 bg-red-50 text-red-900 text-xs font-bold cursor-pointer hover:bg-red-100 transition shadow-2xs select-none" title="Activar u ocultar la franja temporal en el cronograma">
-                        <input type="checkbox" id="chk-franja-fen" onchange="toggleFranjaActiva(this.checked)" class="w-3.5 h-3.5 rounded text-red-600 focus:ring-red-500 cursor-pointer" checked>
-                        <span id="lbl-franja-top-texto">Franja FEN (Nov 26 - Abr 27)</span>
-                    </label>
                 </div>
             </header>
 
@@ -2685,27 +2679,50 @@
             configFranjaGantt.activa = Boolean(activa);
             mostrarFranjaFen = configFranjaGantt.activa;
             
-            const chkTop = document.getElementById('chk-franja-fen');
-            if (chkTop) chkTop.checked = configFranjaGantt.activa;
             const chkSide = document.getElementById('franja-activa-toggle');
             if (chkSide) chkSide.checked = configFranjaGantt.activa;
 
-            const esFen = (configFranjaGantt.anioInicio === 2026 && configFranjaGantt.mesInicio === 11 && configFranjaGantt.anioFin === 2027 && configFranjaGantt.mesFin === 4 && configFranjaGantt.activa);
-            const chkFenLateral = document.getElementById('chk-preset-fen-lateral');
-            if (chkFenLateral) chkFenLateral.checked = esFen;
-
+            const esFen = (configFranjaGantt.anioInicio === 2026 && configFranjaGantt.mesInicio === 11 && configFranjaGantt.anioFin === 2027 && configFranjaGantt.mesFin === 4);
             const lblEstado = document.getElementById('lbl-estado-franja');
-            if (lblEstado) lblEstado.textContent = configFranjaGantt.activa ? (esFen ? 'Activa (FEN)' : 'Activa') : 'Oculta';
+            if (lblEstado) {
+                lblEstado.textContent = configFranjaGantt.activa ? (esFen ? 'Activa (FEN)' : 'Activa') : 'Inactiva';
+            }
 
             renderizarDiagramaGantt();
         }
 
         function togglePresetFenLateral(checked) {
             if (checked) {
-                aplicarPresetFen();
+                // Al marcar FEN, carga los valores de FEN sin alterar el estado activo/inactivo de la franja
+                configFranjaGantt.mesInicio = 11;
+                configFranjaGantt.anioInicio = 2026;
+                configFranjaGantt.mesFin = 4;
+                configFranjaGantt.anioFin = 2027;
+                configFranjaGantt.nombre = 'FEN (Nov 2026 - Abr 2027)';
+
+                const mI = document.getElementById('franja-mes-inicio');
+                if (mI) mI.value = 11;
+                const aI = document.getElementById('franja-anio-inicio');
+                if (aI) aI.value = 2026;
+                const mF = document.getElementById('franja-mes-fin');
+                if (mF) mF.value = 4;
+                const aF = document.getElementById('franja-anio-fin');
+                if (aF) aF.value = 2027;
             } else {
-                toggleFranjaActiva(false);
+                // Al desmarcar FEN, NO se apaga la franja: permanece activa o inactiva según su switch
+                configFranjaGantt.nombre = `Franja (${NOMBRES_MESES_CORTOS_GANTT[configFranjaGantt.mesInicio-1]} ${configFranjaGantt.anioInicio} - ${NOMBRES_MESES_CORTOS_GANTT[configFranjaGantt.mesFin-1]} ${configFranjaGantt.anioFin})`;
             }
+
+            const chkFenLateral = document.getElementById('chk-preset-fen-lateral');
+            if (chkFenLateral) chkFenLateral.checked = Boolean(checked);
+
+            const esFen = (configFranjaGantt.anioInicio === 2026 && configFranjaGantt.mesInicio === 11 && configFranjaGantt.anioFin === 2027 && configFranjaGantt.mesFin === 4 && checked);
+            const lblEstado = document.getElementById('lbl-estado-franja');
+            if (lblEstado) {
+                lblEstado.textContent = configFranjaGantt.activa ? (esFen ? 'Activa (FEN)' : 'Activa') : 'Inactiva';
+            }
+
+            renderizarDiagramaGantt();
         }
 
         function toggleFranjaFen(activado) {
@@ -2717,33 +2734,7 @@
         }
 
         function aplicarPresetFen() {
-            configFranjaGantt.activa = true;
-            configFranjaGantt.mesInicio = 11;
-            configFranjaGantt.anioInicio = 2026;
-            configFranjaGantt.mesFin = 4;
-            configFranjaGantt.anioFin = 2027;
-            configFranjaGantt.nombre = 'FEN (Nov 2026 - Abr 2027)';
-
-            const chkSide = document.getElementById('franja-activa-toggle');
-            if (chkSide) chkSide.checked = true;
-            const chkTop = document.getElementById('chk-franja-fen');
-            if (chkTop) chkTop.checked = true;
-            const chkFenLateral = document.getElementById('chk-preset-fen-lateral');
-            if (chkFenLateral) chkFenLateral.checked = true;
-
-            const mI = document.getElementById('franja-mes-inicio');
-            if (mI) mI.value = 11;
-            const aI = document.getElementById('franja-anio-inicio');
-            if (aI) aI.value = 2026;
-            const mF = document.getElementById('franja-mes-fin');
-            if (mF) mF.value = 4;
-            const aF = document.getElementById('franja-anio-fin');
-            if (aF) aF.value = 2027;
-
-            const lblEstado = document.getElementById('lbl-estado-franja');
-            if (lblEstado) lblEstado.textContent = 'Activa (FEN)';
-
-            renderizarDiagramaGantt();
+            togglePresetFenLateral(true);
         }
 
         function actualizarFranjaPersonalizada() {
@@ -2752,7 +2743,7 @@
             const mF = parseInt(document.getElementById('franja-mes-fin')?.value || '4', 10);
             const aF = parseInt(document.getElementById('franja-anio-fin')?.value || '2027', 10);
 
-            configFranjaGantt.activa = true;
+            // Actualizar rango temporal sin alterar el switch activo/inactivo
             configFranjaGantt.mesInicio = mI;
             configFranjaGantt.anioInicio = aI;
             configFranjaGantt.mesFin = mF;
@@ -2761,15 +2752,14 @@
             const esFen = (aI === 2026 && mI === 11 && aF === 2027 && mF === 4);
             configFranjaGantt.nombre = esFen ? 'FEN (Nov 2026 - Abr 2027)' : `Franja (${NOMBRES_MESES_CORTOS_GANTT[mI-1]} ${aI} - ${NOMBRES_MESES_CORTOS_GANTT[mF-1]} ${aF})`;
 
-            const chkSide = document.getElementById('franja-activa-toggle');
-            if (chkSide) chkSide.checked = true;
-            const chkTop = document.getElementById('chk-franja-fen');
-            if (chkTop) chkTop.checked = true;
+            // Sincronizar el checkbox FEN según el rango seleccionado
             const chkFenLateral = document.getElementById('chk-preset-fen-lateral');
             if (chkFenLateral) chkFenLateral.checked = esFen;
 
             const lblEstado = document.getElementById('lbl-estado-franja');
-            if (lblEstado) lblEstado.textContent = esFen ? 'Activa (FEN)' : 'Activa';
+            if (lblEstado) {
+                lblEstado.textContent = configFranjaGantt.activa ? (esFen ? 'Activa (FEN)' : 'Activa') : 'Inactiva';
+            }
 
             renderizarDiagramaGantt();
         }
@@ -3735,7 +3725,7 @@ Documento: ${docRef}`;
                 esMultiple: true,
                 permitirTodas: true,
                 textoTodas: "Todas las resoluciones",
-                valorInicial: ['Definitiva'],
+                valorInicial: ['Definitiva', 'Definitiva modificada'],
                 onSelect: () => {
                     renderizarMatrizRcd();
                 }
@@ -3759,7 +3749,7 @@ Documento: ${docRef}`;
 
         function limpiarFiltrosRcd() {
             if (dropdownEpsRcdInstance) dropdownEpsRcdInstance.limpiar();
-            if (dropdownTipoRcdInstance) dropdownTipoRcdInstance.setValor(['Definitiva']);
+            if (dropdownTipoRcdInstance) dropdownTipoRcdInstance.setValor(['Definitiva', 'Definitiva modificada']);
             const regimen = document.getElementById('filtro-regimen-rcd');
             const estado = document.getElementById('filtro-estado-rcd');
             if (regimen) regimen.value = '';
@@ -3781,7 +3771,7 @@ Documento: ${docRef}`;
             const epsSeleccionadas = dropdownEpsRcdInstance ? dropdownEpsRcdInstance.getValores() : [];
             const codigosSeleccionadosSet = new Set(epsSeleccionadas.map(c => String(c).padStart(3, '0')));
 
-            const tiposSeleccionados = dropdownTipoRcdInstance ? dropdownTipoRcdInstance.getValores() : ['Definitiva'];
+            const tiposSeleccionados = dropdownTipoRcdInstance ? dropdownTipoRcdInstance.getValores() : ['Definitiva', 'Definitiva modificada'];
             const tiposSeleccionadosSet = new Set(tiposSeleccionados);
 
             const filtroRegimen = document.getElementById('filtro-regimen-rcd')?.value || '';

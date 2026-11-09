@@ -337,27 +337,6 @@
                 </h2>
             </div>
 
-            <!-- NAVEGACIÓN DEDICADA DE LÍNEA DE TIEMPO REGULATORIA -->
-            <div id="nav-sidebar-gantt" class="hidden flex flex-col gap-1.5">
-                <div class="flex items-center justify-between px-1 mb-0.5">
-                    <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
-                        <span>📅</span> Línea de Tiempo
-                    </span>
-                    <button onclick="cambiarModulo('tablero')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Volver al espacio de Evaluación y Reportes">
-                        <span>← Eval. y Reportes</span>
-                    </button>
-                </div>
-                <div class="grid grid-cols-2 gap-1">
-                    <button onclick="cambiarModulo('tablero')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📊 Evaluación</button>
-                    <button onclick="cambiarModulo('matriz')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📚 Documentos</button>
-                </div>
-                <div class="pt-0.5">
-                    <div class="w-full py-1.5 px-2 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-default flex items-center justify-center gap-1.5">
-                        <span>📅</span> Línea de Tiempo Regulatoria
-                    </div>
-                </div>
-            </div>
-
             <!-- PERSONAJE OFICIAL SUNASS (Alineado en la base con las tarjetas, a la izquierda) -->
             <div class="absolute" style="left: 6.5cqw; bottom: 21.5cqh; height: 48cqh; width: 19cqw; display: flex; align-items: flex-end; justify-content: center; z-index: 20;">
                 <img src="personaje_sunass.png" 
@@ -565,14 +544,9 @@
                     <button onclick="cambiarModulo('tablero')" id="btn-mod-tablero" class="py-1.5 px-1 text-xs font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-pointer">📊 Evaluación</button>
                     <button onclick="cambiarModulo('reportes')" id="btn-mod-reportes" class="py-1.5 px-1 text-xs font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">🛠️ Reportes</button>
                 </div>
-                <div class="pt-0.5">
-                    <button onclick="navegarDesdePortada('gantt')" id="btn-mod-gantt" class="w-full py-1.5 px-2 text-[10.5px] font-bold rounded text-blue-300 hover:text-white bg-slate-800/80 hover:bg-blue-900/60 border border-slate-700/60 transition-colors text-center truncate cursor-pointer flex items-center justify-center gap-1.5">
-                        <span>📅</span> Línea de Tiempo (Gantt)
-                    </button>
-                </div>
             </div>
 
-            <!-- NAVEGACIÓN DEDICADA DE DOCUMENTOS (Activa únicamente en el espacio de trabajo de Documentos: solo los 3 botones solicitados) -->
+            <!-- NAVEGACIÓN DEDICADA DE DOCUMENTOS (Horizontal) -->
             <div id="nav-sidebar-documentos" class="hidden flex flex-col gap-1.5">
                 <div class="flex items-center justify-between px-1 mb-0.5">
                     <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
@@ -582,21 +556,44 @@
                         <span>← Eval. y Reportes</span>
                     </button>
                 </div>
-                <button onclick="cambiarModulo('matriz')" id="btn-doc-informes" 
-                        class="w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left bg-emerald-600 text-white shadow-sm cursor-pointer">
-                    <span class="text-sm">📄</span>
-                    <span class="truncate">Informes</span>
-                </button>
-                <button onclick="cambiarModulo('estudios')" id="btn-doc-estudios" 
-                        class="w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer">
-                    <span class="text-sm">📘</span>
-                    <span class="truncate">Estudios Tarifarios</span>
-                </button>
-                <button onclick="cambiarModulo('rcd')" id="btn-doc-rcd" 
-                        class="w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer">
-                    <span class="text-sm">⚖️</span>
-                    <span class="truncate">Resoluciones de Consejo Directivo</span>
-                </button>
+                <div class="grid grid-cols-3 gap-1">
+                    <button onclick="cambiarModulo('matriz')" id="btn-doc-informes" 
+                            class="py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center bg-emerald-600 text-white shadow-sm cursor-pointer" title="Informes de Fiscalización y PAS">
+                        <span class="text-xs">📄</span>
+                        <span class="truncate w-full mt-0.5">Informes</span>
+                    </button>
+                    <button onclick="cambiarModulo('estudios')" id="btn-doc-estudios" 
+                            class="py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer" title="Estudios Tarifarios">
+                        <span class="text-xs">📘</span>
+                        <span class="truncate w-full mt-0.5">Estudios Tarif.</span>
+                    </button>
+                    <button onclick="cambiarModulo('rcd')" id="btn-doc-rcd" 
+                            class="py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer" title="Resoluciones de Consejo Directivo">
+                        <span class="text-xs">⚖️</span>
+                        <span class="truncate w-full mt-0.5">Resol. Cons. Dir.</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- NAVEGACIÓN DEDICADA DE LÍNEA DE TIEMPO REGULATORIA (GANTT) -->
+            <div id="nav-sidebar-gantt" class="hidden flex flex-col gap-1.5">
+                <div class="flex items-center justify-between px-1 mb-0.5">
+                    <span class="text-[9.5px] font-extrabold text-blue-300 uppercase tracking-wider flex items-center gap-1">
+                        <span>📅</span> Cronograma
+                    </span>
+                    <button onclick="cambiarModulo('tablero')" class="text-[10px] text-blue-300 hover:text-white flex items-center gap-0.5 transition font-semibold cursor-pointer" title="Volver al espacio de Evaluación y Reportes">
+                        <span>← Eval. y Reportes</span>
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-1">
+                    <button onclick="cambiarModulo('tablero')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📊 Evaluación</button>
+                    <button onclick="cambiarModulo('matriz')" class="py-1.5 px-1 text-[10.5px] font-bold rounded text-gray-400 hover:text-white transition-colors text-center truncate cursor-pointer">📚 Documentos</button>
+                </div>
+                <div class="pt-0.5">
+                    <div class="w-full py-1.5 px-2 text-[11px] font-bold rounded bg-blue-600 text-white transition-colors shadow-sm text-center truncate cursor-default flex items-center justify-center gap-1.5">
+                        <span>📅</span> Línea de Tiempo Regulatoria
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -1209,9 +1206,9 @@
                     <!-- Acceso al Estudio Tarifario en Header -->
                     <div id="contenedor-header-estudio-tarifario" class="relative inline-block"></div>
                     
-                    <button onclick="window.print()" class="px-4 py-2 border border-gray-300 rounded text-gray-600 bg-white hover:bg-gray-50 text-sm font-medium flex items-center gap-2 shadow-sm transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        Imprimir / PDF
+                    <button onclick="exportarEvaluacionExcel()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Exportar el cuadro de cumplimiento de metas actual a Excel (.xlsx)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Exportar a Excel
                     </button>
                 </div>
             </header>
@@ -3218,6 +3215,22 @@ Documento: ${docRef}`;
                 portada.classList.add('opacity-100', 'pointer-events-auto');
                 portada.scrollTo({ top: 0, behavior: 'smooth' });
             }
+
+            // Ocultar todos los módulos principales para asegurar que la portada quede 100% limpia
+            ['modulo-tablero', 'modulo-matriz', 'modulo-reportes', 'modulo-estudios', 'modulo-rcd', 'modulo-gantt'].forEach(id => {
+                const m = document.getElementById(id);
+                if (m) {
+                    m.classList.remove('opacity-100', 'z-10');
+                    m.classList.add('opacity-0', 'z-0', 'pointer-events-none');
+                }
+            });
+
+            // Ocultar todas las barras de navegación lateral
+            ['nav-sidebar-general', 'nav-sidebar-documentos', 'nav-sidebar-gantt'].forEach(id => {
+                const nav = document.getElementById(id);
+                if (nav) nav.classList.add('hidden');
+            });
+
             // Cerrar cualquier dropdown abierto
             document.querySelectorAll('[id^="menu-dropdown-"]').forEach(m => m.classList.add('hidden'));
             document.querySelectorAll('[id^="arrow-trigger-"]').forEach(a => a.classList.remove('rotate-180'));
@@ -3517,6 +3530,64 @@ Documento: ${docRef}`;
             });
 
             tbody.innerHTML = html;
+        }
+
+        function exportarEvaluacionExcel() {
+            if (typeof XLSX === 'undefined') {
+                alert('La librería SheetJS (XLSX) no está cargada.');
+                return;
+            }
+
+            const tabla = document.querySelector('#modulo-tablero table.tabla-sunass');
+            if (!tabla) {
+                alert('No se encontró la tabla de resultados para exportar.');
+                return;
+            }
+
+            // Datos del contexto actual
+            const selEps = document.getElementById('filtro-eps');
+            let nombreEps = 'EPS';
+            if (selEps && selEps.selectedOptions && selEps.selectedOptions[0]) {
+                nombreEps = selEps.selectedOptions[0].text.trim();
+            } else if (selEps && selEps.value) {
+                nombreEps = selEps.value;
+            }
+
+            const periodo = document.getElementById('filtro-periodo')?.value || 'PR';
+            const etapaActual = (typeof etapaSeleccionadaGlobal !== 'undefined' ? etapaSeleccionadaGlobal : 'Resultado_Actual').replace(/_/g, ' ');
+            const fecha = new Date().toISOString().slice(0, 10);
+
+            // Clonar la tabla para manipularla sin alterar la vista
+            const clon = tabla.cloneNode(true);
+
+            // Convertir la tabla HTML completa (con encabezados agrupados y cuerpo) a hoja de cálculo
+            const ws = XLSX.utils.table_to_sheet(clon, { raw: false });
+
+            // Ajustar automáticamente el ancho de las columnas según contenido
+            const colWidths = [];
+            const trs = tabla.querySelectorAll('tr');
+            trs.forEach(tr => {
+                const cells = tr.querySelectorAll('th, td');
+                cells.forEach((cell, idx) => {
+                    const text = (cell.innerText || '').trim();
+                    const len = text.length;
+                    colWidths[idx] = Math.max(colWidths[idx] || 8, Math.min(len + 3, 60));
+                });
+            });
+            ws['!cols'] = colWidths.map(w => ({ wch: w }));
+
+            // Crear el libro de trabajo y adjuntar la hoja
+            const wb = XLSX.utils.book_new();
+            const nombreHoja = (periodo + ' - ' + etapaActual).slice(0, 31).replace(/[\\/?*[\]]/g, '');
+            XLSX.utils.book_append_sheet(wb, ws, nombreHoja || "Cumplimiento Metas");
+
+            // Nombre de archivo descriptivo
+            const epsLimpia = nombreEps.replace(/[^a-zA-Z0-9áéíóúÁÉÍÓÚñÑ_ -]/g, '').trim().replace(/\s+/g, '_');
+            const periodoLimpio = periodo.replace(/\s+/g, '_');
+            const etapaLimpia = etapaActual.replace(/\s+/g, '_');
+            const nombreArchivo = `SUNASS_Cumplimiento_Metas_${epsLimpia}_${periodoLimpio}_${etapaLimpia}_${fecha}.xlsx`;
+
+            XLSX.writeFile(wb, nombreArchivo);
         }
 
         function exportarEstudiosExcel() {
@@ -4083,8 +4154,8 @@ Documento: ${docRef}`;
             if (btnTablero) btnTablero.className = inactiveGeneral;
             if (btnReportes) btnReportes.className = inactiveGeneral;
 
-            // Resetear estilos de los 3 botones de Documentos
-            const inactiveDoc = "w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer";
+            // Resetear estilos de los 3 botones de Documentos (Horizontales)
+            const inactiveDoc = "py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center text-gray-300 hover:text-white hover:bg-slate-800/80 cursor-pointer";
             if (btnDocInformes) btnDocInformes.className = inactiveDoc;
             if (btnDocEstudios) btnDocEstudios.className = inactiveDoc;
             if (btnDocRcd) btnDocRcd.className = inactiveDoc;
@@ -4135,7 +4206,7 @@ Documento: ${docRef}`;
 
                     if (contServTablero) contServTablero.classList.add('hidden');
 
-                    if (btnDocInformes) btnDocInformes.className = "w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left bg-emerald-600 text-white shadow-sm cursor-pointer";
+                    if (btnDocInformes) btnDocInformes.className = "py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center bg-emerald-600 text-white shadow-sm cursor-pointer";
 
                     if (typeof actualizarPeriodosMatriz === 'function') {
                         actualizarPeriodosMatriz();
@@ -4151,7 +4222,7 @@ Documento: ${docRef}`;
                         modEstudios.classList.remove('pointer-events-none');
                     }
                     if (panelEstudios) panelEstudios.classList.remove('hidden');
-                    if (btnDocEstudios) btnDocEstudios.className = "w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left bg-blue-600 text-white shadow-sm cursor-pointer";
+                    if (btnDocEstudios) btnDocEstudios.className = "py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center bg-blue-600 text-white shadow-sm cursor-pointer";
                     renderizarMatrizEstudios();
                 } else if (modulo === 'rcd') {
                     if (modRcd) {
@@ -4160,7 +4231,7 @@ Documento: ${docRef}`;
                         modRcd.classList.remove('pointer-events-none');
                     }
                     if (panelRcd) panelRcd.classList.remove('hidden');
-                    if (btnDocRcd) btnDocRcd.className = "w-full py-2 px-2.5 text-xs font-bold rounded-lg transition-all flex items-center gap-2 text-left bg-indigo-600 text-white shadow-sm cursor-pointer";
+                    if (btnDocRcd) btnDocRcd.className = "py-2 px-1 text-[10.5px] font-bold rounded-lg transition-all flex flex-col items-center justify-center text-center bg-indigo-600 text-white shadow-sm cursor-pointer";
                     renderizarMatrizRcd();
                 }
             } else {

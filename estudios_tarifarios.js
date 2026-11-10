@@ -394,7 +394,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -411,7 +411,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -428,7 +428,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1686,7 +1686,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -1703,7 +1703,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -1720,7 +1720,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -2128,7 +2128,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -2145,7 +2145,7 @@ const db_estudios_tarifarios = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -2253,7 +2253,7 @@ const db_estudios_tarifarios = [
     "tamano": "PEQUEÑA",
     "periodo": "II PR",
     "fecha_aprobacion": null,
-    "quinquenio": "",
+    "quinquenio": null,
     "inicio_periodo": null,
     "fin_periodo": null,
     "estado": "Antiguo",

@@ -1043,7 +1043,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1063,7 +1063,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1083,7 +1083,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1103,7 +1103,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1123,7 +1123,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -1143,7 +1143,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "009",
-    "ep": "EMAPA PASCO  S.A.",
+    "ep": "EMAPA PASCO  S.A.",
     "region": "Pasco",
     "regimen": "No RAT",
     "tamano": "PEQUEÑA",
@@ -4483,7 +4483,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4503,7 +4503,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4523,7 +4523,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4543,7 +4543,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4563,7 +4563,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4583,7 +4583,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4603,7 +4603,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4623,7 +4623,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -4643,7 +4643,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "030",
-    "ep": "SEDAPAR  S.A.",
+    "ep": "SEDAPAR  S.A.",
     "region": "Arequipa",
     "regimen": "No RAT",
     "tamano": "GRANDE",
@@ -5723,7 +5723,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -5743,7 +5743,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -5763,7 +5763,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -5783,7 +5783,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",
@@ -5803,7 +5803,7 @@ const db_resoluciones_cd = [
   },
   {
     "cod_ep": "038",
-    "ep": "EPS EMPSSAPAL  S.A.",
+    "ep": "EPS EMPSSAPAL  S.A.",
     "region": "Cusco",
     "regimen": "No RAT",
     "tamano": "MEDIANA",

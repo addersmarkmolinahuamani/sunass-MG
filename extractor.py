@@ -617,7 +617,11 @@ def extraer_todas_las_eps_dinamico():
                         for k in metricas[s].keys():
                             if isinstance(k, int):
                                 anios_nums.add(k)
-                    anios_ordenados = [f"Año {a}" for a in sorted(anios_nums)]
+                    tiene_en_informes = (cod_ep_num, periodo_reg_romano, "Año 1", tipo_servicio) in dict_inf
+                    anios_ordenados = [
+                        f"Año {a}" for a in sorted(anios_nums)
+                        if not tiene_en_informes or (cod_ep_num, periodo_reg_romano, f"Año {a}", tipo_servicio) in dict_inf
+                    ]
                     
                     pts_encontrados = set()
                     for s in ('Meta', 'Ejecutado', 'ICI'):

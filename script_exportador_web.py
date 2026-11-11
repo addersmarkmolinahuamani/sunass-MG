@@ -41,6 +41,7 @@ def exportar_base_web():
         if 'Tipo_Servicio' in cols_inf_presentes:
             subset_cols.append('Tipo_Servicio')
         df_inf = df[cols_inf_presentes].drop_duplicates(subset=subset_cols)
+        df_inf = df_inf[~df_inf['Año_Regulatorio'].isin(['Año Base', 'Acumulado'])]
         registros_informes = df_inf.to_dict(orient='records')
         
         print(f"Escribiendo {len(registros_metas)} metas y {len(registros_informes)} registros de informes en '{ruta_salida}'...")

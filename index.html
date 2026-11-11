@@ -2132,10 +2132,10 @@
     </div>
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
-    <script src="fechas_informes.js?v=20261110_v2"></script>
-    <script src="estudios_tarifarios.js?v=20261110_v2"></script>
-    <script src="resoluciones_cd.js?v=20261110_v2"></script>
-    <script src="datos_sunass.js?v=20261110_v2"></script>
+    <script src="fechas_informes.js?v=20261110_v3"></script>
+    <script src="estudios_tarifarios.js?v=20261110_v3"></script>
+    <script src="resoluciones_cd.js?v=20261110_v3"></script>
+    <script src="datos_sunass.js?v=20261110_v3"></script>
 
     <script>
         let db_global = [];
@@ -2859,11 +2859,11 @@
                         res.primerAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
                     }
 
-                    if ((regularIdx > 0 && regularIdx === maxRegularIdx - 1) || (anioStr === 'Año 4')) {
+                    if ((regularIdx > 0 && regularIdx === maxRegularIdx - 1) || (maxRegularIdx < 0 && anioStr === 'Año 4')) {
                         res.penultimoAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
                     }
 
-                    if ((regularIdx > 0 && regularIdx === maxRegularIdx) || (anioStr === 'Año 5' || anioStr === 'Año 6')) {
+                    if ((regularIdx > 0 && regularIdx === maxRegularIdx) || (maxRegularIdx < 0 && (anioStr === 'Año 5' || anioStr === 'Año 6'))) {
                         res.ultimoAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
                     }
                 });
@@ -5381,7 +5381,39 @@ Documento: ${docRef}`;
             }
         }
 
-        function actualizarTarjetaTemporalidad(codEpsParam, periodo, ptColumns = []) {
+        function obtenerAniosBaseNums(codEpsParam, periodo, tipoServicio = 'Agua y Saneamiento') {
+            const codEps = normalizarCodigoEps(codEpsParam);
+            const srv = tipoServicio || 'Agua y Saneamiento';
+            if (typeof MAPA_ANIOS_PERIODO !== 'undefined') {
+                const claveSrv = `${codEps}_${periodo}_${srv}`;
+                const claveGen = `${codEps}_${periodo}`;
+                const listaMapa = MAPA_ANIOS_PERIODO[claveSrv] || MAPA_ANIOS_PERIODO[claveGen];
+                if (Array.isArray(listaMapa) && listaMapa.length > 0) {
+                    return [...listaMapa];
+                }
+            }
+            if (db_informes && Array.isArray(db_informes)) {
+                const nums = new Set();
+                db_informes.forEach(item => {
+                    if (normalizarCodigoEps(item.Cod_EP) !== codEps) return;
+                    if (item.Periodo_Regulatorio !== periodo) return;
+                    if ((codEps === '026' || codEps === '028') && srv) {
+                        if ((item.Tipo_Servicio || 'Agua y Saneamiento') !== srv) return;
+                    }
+                    const m = String(item.Año_Regulatorio || '').trim().match(/^Año\s*(\d+)$/i);
+                    if (m) {
+                        const n = parseInt(m[1], 10);
+                        if (n >= 1 && n <= 5) nums.add(n);
+                    }
+                });
+                if (nums.size > 0) {
+                    return Array.from(nums).sort((a, b) => a - b);
+                }
+            }
+            return [1, 2, 3, 4, 5];
+        }
+
+        function actualizarTarjetaTemporalidad(codEpsParam, periodo, ptColumns = [], aniosBaseNums = null) {
             const cardEpsQuinquenioBadge = document.getElementById('card-eps-quinquenio-badge');
             const cardAniosGrid = document.getElementById('card-anios-grid');
             const cardAniosConteo = document.getElementById('card-anios-conteo');
@@ -5401,7 +5433,10 @@ Documento: ${docRef}`;
             }
 
             if (cardAniosGrid) {
-                const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                const nums = (Array.isArray(aniosBaseNums) && aniosBaseNums.length > 0)
+                    ? aniosBaseNums
+                    : obtenerAniosBaseNums(codEps, periodo);
+                const aniosBase = nums.map(n => 'Año ' + n);
                 const aniosTotales = [...aniosBase, ...(Array.isArray(ptColumns) ? ptColumns : [])];
                 
                 let htmlAnios = '';
@@ -5454,12 +5489,15 @@ Documento: ${docRef}`;
                 return na - nb;
             });
 
+            const aniosBaseNums = obtenerAniosBaseNums(codEps, periodoSelect, tipoServicioSelect);
+
             // Actualizar tarjeta de Periodo Regulatorio y sus Años (Vigencia y Temporalidad)
-            actualizarTarjetaTemporalidad(codEps, periodoSelect, ptColumns);
+            actualizarTarjetaTemporalidad(codEps, periodoSelect, ptColumns, aniosBaseNums);
 
             // Actualizar dinámicamente la cabecera de la tabla
             const thead = document.getElementById('tabla-cabecera') || document.querySelector('.tabla-sunass thead');
             if (thead) {
+                const thAniosBase = aniosBaseNums.map(n => `<th class="w-12">Año ${n}</th>`).join('');
                 let thPtObtenido = '';
                 let thPtIci = '';
                 ptColumns.forEach(pt => {
@@ -5472,18 +5510,18 @@ Documento: ${docRef}`;
                         <th rowspan="2" class="w-10">N°</th>
                         <th rowspan="2" class="w-1/4 min-w-[280px]">Metas de gestión / Localidad</th>
                         <th rowspan="2" class="w-20">Unidad<br>medida</th>
-                        <th colspan="7">Valor meta</th>
-                        <th colspan="${6 + ptColumns.length}">Valor obtenido</th>
-                        <th colspan="${5 + ptColumns.length}">Índice de Cumplimiento (ICI)</th>
+                        <th colspan="${2 + aniosBaseNums.length}">Valor meta</th>
+                        <th colspan="${1 + aniosBaseNums.length + ptColumns.length}">Valor obtenido</th>
+                        <th colspan="${aniosBaseNums.length + ptColumns.length}">Índice de Cumplimiento (ICI)</th>
                     </tr>
                     <tr class="text-[11px] uppercase tracking-wider bg-[#002244]">
                         <th class="w-14 bg-[#001833]">Año Base</th>
-                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        ${thAniosBase}
                         <th class="w-14 bg-[#001833]">Acum.</th>
-                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        ${thAniosBase}
                         ${thPtObtenido}
                         <th class="w-14 bg-[#001833]">Acum.</th>
-                        <th class="w-12">Año 1</th><th class="w-12">Año 2</th><th class="w-12">Año 3</th><th class="w-12">Año 4</th><th class="w-12">Año 5</th>
+                        ${thAniosBase}
                         ${thPtIci}
                     </tr>
                 `;
@@ -5494,16 +5532,16 @@ Documento: ${docRef}`;
             const tbody = document.getElementById('tabla-cuerpo');
             tbody.innerHTML = '';
 
-            const totalCols = 21 + (ptColumns.length * 2);
+            const totalCols = 6 + (aniosBaseNums.length * 3) + (ptColumns.length * 2);
             if (datosFiltrados.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${totalCols}" class="text-center py-10 text-amber-600 font-bold">No hay metas registradas en la etapa '${etapaActual.replace('_', ' ')}' para este periodo.</td></tr>`;
                 document.getElementById('kpi-total-metas').innerText = "0";
                 if (miGraficoICG) miGraficoICG.destroy();
-                dibujarGraficosIci([], []);
+                dibujarGraficosIci([], [], aniosBaseNums);
                 return;
             }
 
-            // Construir Pivot con Año Base, Años 1..5, PT y Acumulado
+            // Construir Pivot con Año Base, Años Base del periodo, PT y Acumulado
             const metasPivot = new Map();
             datosFiltrados.forEach(fila => {
                 const clave = fila.ID_Meta_General + "|" + fila.Descripcion_Especifica;
@@ -5576,21 +5614,25 @@ Documento: ${docRef}`;
                     <td class="text-center text-gray-500">${fila.unidad === '-' || !fila.unidad ? '' : fila.unidad}</td>
                 `;
 
-                // 1. Valor Meta: Año Base + Años 1..5 + Acumulado
+                // 1. Valor Meta: Año Base + Años Base del Periodo + Acumulado
                 html += `<td class="text-center bg-slate-50 font-medium text-slate-700">${formNum(fila.base)}</td>`;
-                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.meta[i])}</td>`;
+                aniosBaseNums.forEach(i => {
+                    html += `<td class="text-center">${formNum(fila.meta[i])}</td>`;
+                });
                 html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.meta_acum)}</td>`;
 
-                // 2. Valor Obtenido: Años 1..5 + PTs + Acumulado
-                for (let i = 1; i <= 5; i++) html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+                // 2. Valor Obtenido: Años Base del Periodo + PTs + Acumulado
+                aniosBaseNums.forEach(i => {
+                    html += `<td class="text-center">${formNum(fila.ejec[i])}</td>`;
+                });
                 ptColumns.forEach(pt => {
                     const valPt = fila.ejec_pt[pt];
                     html += `<td class="text-center bg-slate-50/50">${formNum(valPt)}</td>`;
                 });
                 html += `<td class="text-center bg-blue-50/60 font-bold text-blue-900">${formNum(fila.ejec_acum)}</td>`;
 
-                // 3. ICI: Años 1..5 + PTs
-                for (let i = 1; i <= 5; i++) {
+                // 3. ICI: Años Base del Periodo + PTs
+                aniosBaseNums.forEach(i => {
                     let iciVal = fila.ici[i];
                     if (iciVal !== null && iciVal !== undefined && iciVal !== "" && iciVal !== "-") {
                         const claseColor = obtenerColorIci(iciVal);
@@ -5598,7 +5640,7 @@ Documento: ${docRef}`;
                     } else {
                         html += `<td class="text-center text-gray-300">-</td>`;
                     }
-                }
+                });
                 ptColumns.forEach(pt => {
                     let iciVal = fila.ici_pt[pt];
                     if (iciVal !== null && iciVal !== undefined && iciVal !== "" && iciVal !== "-") {
@@ -5620,15 +5662,16 @@ Documento: ${docRef}`;
                 trIcg.className = 'icg-row shadow-md'; 
                 let htmlIcg = `<td class="text-center">-</td><td class="tracking-wide">${filaIcg.descripcion}</td><td class="text-center text-blue-200">%</td>`;
                 
-                // Meta: 7 celdas
-                for (let i = 1; i <= 7; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
+                // Meta: 2 (Año Base + Acum) + Años Base del Periodo
+                const celdasMeta = 2 + aniosBaseNums.length;
+                for (let i = 1; i <= celdasMeta; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
                 
-                // Obtenido: 5 (Años 1..5) + PTs + 1 (Acum)
-                const celdasObt = 6 + ptColumns.length;
+                // Obtenido: Años Base del Periodo + PTs + 1 (Acum)
+                const celdasObt = 1 + aniosBaseNums.length + ptColumns.length;
                 for (let i = 1; i <= celdasObt; i++) htmlIcg += `<td class="text-center border-[#003366] text-[#003366]">-</td>`;
                 
-                // ICI: Años 1..5
-                for (let i = 1; i <= 5; i++) {
+                // ICI: Años Base del Periodo
+                aniosBaseNums.forEach(i => {
                     let val = filaIcg.ici[i];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIcg(val);
@@ -5636,7 +5679,7 @@ Documento: ${docRef}`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }
-                }
+                });
 
                 // ICI: PTs
                 ptColumns.forEach(pt => {
@@ -5653,8 +5696,8 @@ Documento: ${docRef}`;
                 tbody.appendChild(trIcg);
             }
 
-            dibujarGrafico(filaIcg, ptColumns);
-            dibujarGraficosIci(metasNormales, ptColumns);
+            dibujarGrafico(filaIcg, ptColumns, aniosBaseNums);
+            dibujarGraficosIci(metasNormales, ptColumns, aniosBaseNums);
         }
 
         // ========================================================
@@ -5972,7 +6015,7 @@ Documento: ${docRef}`;
                         item.Periodo_Regulatorio === periodo &&
                         (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz) : true)
                     );
-                    const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                    const aniosBase = obtenerAniosBaseNums(codEps, periodo, tipoServicioMatriz || 'Agua y Saneamiento').map(n => 'Año ' + n);
                     const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
                         const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
                         const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;
@@ -6179,29 +6222,30 @@ Documento: ${docRef}`;
             tbody.innerHTML = html;
         }
 
-        function dibujarGrafico(datosIcg, ptColumns = []) {
+        function dibujarGrafico(datosIcg, ptColumns = [], aniosBaseNums = [1, 2, 3, 4, 5]) {
             const canvasEl = document.getElementById('graficoICG');
             if (!canvasEl) return;
             const ctx = canvasEl.getContext('2d');
             if (miGraficoICG) miGraficoICG.destroy();
 
-            const etiquetas = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
-            let valores = [null, null, null, null, null];
+            const nums = (Array.isArray(aniosBaseNums) && aniosBaseNums.length > 0) ? aniosBaseNums : [1, 2, 3, 4, 5];
+            const etiquetas = nums.map(n => 'Año ' + n);
+            let valores = new Array(nums.length).fill(null);
             let coloresPuntos = [];
 
             if (datosIcg) {
-                for (let i = 1; i <= 5; i++) {
+                nums.forEach((i, idx) => {
                     let val = datosIcg.ici[i];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let num = parseFloat(val);
-                        valores[i-1] = num;
+                        valores[idx] = num;
                         if (num >= 100) coloresPuntos.push('#00b050'); 
                         else if (num >= 85) coloresPuntos.push('#eab308'); 
                         else coloresPuntos.push('#ff0000'); 
                     } else {
                         coloresPuntos.push('#cbd5e1'); 
                     }
-                }
+                });
 
                 if (ptColumns && ptColumns.length > 0) {
                     ptColumns.forEach(pt => {
@@ -6302,7 +6346,7 @@ Documento: ${docRef}`;
             });
         }
 
-        function dibujarGraficosIci(metasNormales, ptColumns = []) {
+        function dibujarGraficosIci(metasNormales, ptColumns = [], aniosBaseNums = [1, 2, 3, 4, 5]) {
             const contenedorEps = document.getElementById('contenedor-graficos-ici-eps');
             const contenedorLoc = document.getElementById('contenedor-graficos-ici-localidad');
             if (!contenedorEps || !contenedorLoc) return;
@@ -6326,13 +6370,13 @@ Documento: ${docRef}`;
             if (badgeLoc) badgeLoc.innerText = `${metasLocalidad.length} metas por localidad`;
 
             // 1. Renderizar Recuadro 1: Nivel Empresa Prestadora
-            renderizarGrupoGraficosIci(metasEps, contenedorEps, 'eps', ptColumns);
+            renderizarGrupoGraficosIci(metasEps, contenedorEps, 'eps', ptColumns, aniosBaseNums);
 
             // 2. Renderizar Recuadro 2: Nivel Localidad
-            renderizarGrupoGraficosIci(metasLocalidad, contenedorLoc, 'loc', ptColumns);
+            renderizarGrupoGraficosIci(metasLocalidad, contenedorLoc, 'loc', ptColumns, aniosBaseNums);
         }
 
-        function renderizarGrupoGraficosIci(metas, contenedor, prefijo, ptColumns = []) {
+        function renderizarGrupoGraficosIci(metas, contenedor, prefijo, ptColumns = [], aniosBaseNums = [1, 2, 3, 4, 5]) {
             if (!metas || metas.length === 0) {
                 const mensaje = prefijo === 'loc'
                     ? 'No se registran metas de gestión desagregadas a nivel de localidad para el periodo y etapa seleccionados.'
@@ -6340,6 +6384,8 @@ Documento: ${docRef}`;
                 contenedor.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 font-medium italic bg-slate-50/70 rounded-lg border border-slate-200">${mensaje}</div>`;
                 return;
             }
+
+            const nums = (Array.isArray(aniosBaseNums) && aniosBaseNums.length > 0) ? aniosBaseNums : [1, 2, 3, 4, 5];
 
             let htmlTarjetas = '';
             metas.forEach((meta, idx) => {
@@ -6350,13 +6396,13 @@ Documento: ${docRef}`;
 
                 // Calcular último valor evaluado para badge de estado
                 let ultimoValorValido = null;
-                for (let i = 1; i <= 5; i++) {
+                nums.forEach(i => {
                     const v = meta.ici[i];
                     if (v !== null && v !== undefined && v !== "" && v !== "-") {
                         const num = parseFloat(v);
                         if (!isNaN(num)) ultimoValorValido = num;
                     }
-                }
+                });
                 if (ptColumns && ptColumns.length > 0 && meta.ici_pt) {
                     ptColumns.forEach(pt => {
                         const v = meta.ici_pt[pt];
@@ -6419,17 +6465,17 @@ Documento: ${docRef}`;
                 if (!canvasEl) return;
                 const ctx = canvasEl.getContext('2d');
 
-                const etiquetas = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
-                let valores = [null, null, null, null, null];
+                const etiquetas = nums.map(n => 'Año ' + n);
+                let valores = new Array(nums.length).fill(null);
                 let coloresPuntos = [];
                 let maxNum = 100;
 
-                for (let i = 1; i <= 5; i++) {
+                nums.forEach((i, idxNum) => {
                     let val = meta.ici[i];
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let num = parseFloat(val);
                         if (!isNaN(num)) {
-                            valores[i-1] = num;
+                            valores[idxNum] = num;
                             if (num > maxNum) maxNum = num;
                             if (num >= 100) coloresPuntos.push('#00b050');
                             else if (num >= 80) coloresPuntos.push('#eab308');
@@ -6440,7 +6486,7 @@ Documento: ${docRef}`;
                     } else {
                         coloresPuntos.push('#cbd5e1');
                     }
-                }
+                });
 
                 if (ptColumns && ptColumns.length > 0) {
                     ptColumns.forEach(pt => {
@@ -6947,7 +6993,7 @@ Documento: ${docRef}`;
                         (esEpsConServicios && (codEps === '026' || codEps === '028') && tipoServicioMatriz ? ((item.Tipo_Servicio || 'Agua y Saneamiento') === tipoServicioMatriz) : true)
                     );
 
-                    const aniosBase = ['Año 1', 'Año 2', 'Año 3', 'Año 4', 'Año 5'];
+                    const aniosBase = obtenerAniosBaseNums(codEps, periodo, tipoServicioMatriz || 'Agua y Saneamiento').map(n => 'Año ' + n);
                     const ptYears = [...new Set(informesPeriodo.map(inf => inf.Año_Regulatorio).filter(a => a && a.startsWith('PT')))].sort((a, b) => {
                         const na = parseInt(a.replace(/\D/g, ''), 10) || 0;
                         const nb = parseInt(b.replace(/\D/g, ''), 10) || 0;

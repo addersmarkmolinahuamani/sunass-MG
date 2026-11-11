@@ -984,7 +984,7 @@
                 
                 <div class="border-t border-blue-800 pt-3 mt-2">
                     <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Configurar Columnas</label>
-                    <div class="space-y-1.5 text-sm max-h-48 overflow-y-auto pr-1" id="contenedor-columnas">
+                    <div class="space-y-1.5 text-sm max-h-56 overflow-y-auto pr-1" id="contenedor-columnas">
                         <!-- Generado dinámicamente por JS -->
                     </div>
                 </div>
@@ -2152,12 +2152,14 @@
             { id: 'Departamento', nombre: 'Departamento', activa: false },
             { id: 'Tamano_EPS', nombre: 'Tamaño EPS', activa: false },
             { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: true },
+            { id: 'Quinquenio', nombre: 'Rango Periodo', activa: true },
             { id: 'Etapa', nombre: 'Etapa', activa: false },
             { id: 'Nivel_Evaluacion', nombre: 'Nivel', activa: false },
             { id: 'ID_Meta_General', nombre: 'ID Meta', activa: false },
             { id: 'Descripcion_Especifica', nombre: 'Descripción de Meta', activa: true },
             { id: 'Unidad_Medida', nombre: 'Unidad', activa: false },
             { id: 'Año_Regulatorio', nombre: 'Año / Periodo', activa: true },
+            { id: 'Rango_Anio', nombre: 'Rango Año', activa: true },
             { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: false },
             { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: false },
             { id: 'ICI', nombre: 'ICI (%)', activa: true },
@@ -2250,6 +2252,65 @@
             });
 
             return listaDocs;
+        }
+
+        function obtenerQuinquenioFila(fila) {
+            if (!fila) return '-';
+            const codEps = normalizarCodigoEps(fila.Cod_EP);
+            const periodo = String(fila.Periodo_Regulatorio || '').trim();
+            const anio = String(fila.Año_Regulatorio || '').trim();
+            if (!codEps || !periodo) return '-';
+
+            const key = generarClaveInforme(fila.Cod_EP, periodo, anio, fila.Tipo_Servicio);
+            const fallbackKey = `${codEps}_${periodo}_${anio}`;
+            const registroDoc = mapaInformesLookup.get(key) || mapaInformesLookup.get(fallbackKey);
+            if (registroDoc && registroDoc.Quinquenio && String(registroDoc.Quinquenio).trim() !== '') {
+                return String(registroDoc.Quinquenio).trim();
+            }
+
+            const clavePR = `${codEps}_${periodo}`;
+            if (typeof MAPA_QUINQUENIOS !== 'undefined' && MAPA_QUINQUENIOS[clavePR]) {
+                return String(MAPA_QUINQUENIOS[clavePR]).trim();
+            }
+
+            if (db_informes && Array.isArray(db_informes)) {
+                const infMatch = db_informes.find(i => normalizarCodigoEps(i.Cod_EP) === codEps && i.Periodo_Regulatorio === periodo && i.Quinquenio);
+                if (infMatch && infMatch.Quinquenio) return String(infMatch.Quinquenio).trim();
+            }
+
+            if (typeof db_estudios_tarifarios !== 'undefined' && Array.isArray(db_estudios_tarifarios)) {
+                const etMatch = db_estudios_tarifarios.find(e => normalizarCodigoEps(e.cod_ep) === codEps && e.periodo === periodo && e.quinquenio);
+                if (etMatch && etMatch.quinquenio) return String(etMatch.quinquenio).trim();
+            }
+
+            return '-';
+        }
+
+        function obtenerRangoAnioFila(fila) {
+            if (!fila) return '-';
+            const codEps = normalizarCodigoEps(fila.Cod_EP);
+            const periodo = String(fila.Periodo_Regulatorio || '').trim();
+            const anio = String(fila.Año_Regulatorio || '').trim();
+            if (!codEps || !periodo || !anio) return '-';
+
+            const key = generarClaveInforme(fila.Cod_EP, periodo, anio, fila.Tipo_Servicio);
+            const fallbackKey = `${codEps}_${periodo}_${anio}`;
+            const registroDoc = mapaInformesLookup.get(key) || mapaInformesLookup.get(fallbackKey);
+            if (registroDoc && registroDoc.Rango_Anio && String(registroDoc.Rango_Anio).trim() !== '') {
+                return String(registroDoc.Rango_Anio).trim();
+            }
+
+            const claveAn = `${codEps}_${periodo}_${anio}`;
+            if (typeof MAPA_RANGOS_ANIOS !== 'undefined' && MAPA_RANGOS_ANIOS[claveAn]) {
+                return String(MAPA_RANGOS_ANIOS[claveAn]).trim();
+            }
+
+            if (db_informes && Array.isArray(db_informes)) {
+                const infMatch = db_informes.find(i => normalizarCodigoEps(i.Cod_EP) === codEps && i.Periodo_Regulatorio === periodo && i.Año_Regulatorio === anio && i.Rango_Anio);
+                if (infMatch && infMatch.Rango_Anio) return String(infMatch.Rango_Anio).trim();
+            }
+
+            return '-';
         }
 
 
@@ -6634,6 +6695,20 @@ Documento: ${docRef}`;
                                     `).join('') +
                                 `</div>`;
                             }
+                        } else if (col.id === 'Quinquenio') {
+                            const quinq = obtenerQuinquenioFila(fila);
+                            if (!quinq || quinq === '-') {
+                                cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
+                            } else {
+                                cellHtml = `<span class="inline-block px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 text-[11px] font-bold whitespace-nowrap">${escaparHtml(quinq)}</span>`;
+                            }
+                        } else if (col.id === 'Rango_Anio') {
+                            const rangoAn = obtenerRangoAnioFila(fila);
+                            if (!rangoAn || rangoAn === '-') {
+                                cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
+                            } else {
+                                cellHtml = `<span class="inline-block font-semibold text-slate-600 text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs whitespace-nowrap">${escaparHtml(rangoAn)}</span>`;
+                            }
                         } else {
                             let valor = fila[col.id];
                             if (valor === null || valor === undefined || valor === "") valor = '-';
@@ -6683,6 +6758,10 @@ Documento: ${docRef}`;
                         const links = docs.filter(d => d.link && d.link.startsWith('http')).map(d => d.link);
                         if (links.length === 0) return '-';
                         return links.join("\n");
+                    } else if (col.id === 'Quinquenio') {
+                        return obtenerQuinquenioFila(fila);
+                    } else if (col.id === 'Rango_Anio') {
+                        return obtenerRangoAnioFila(fila);
                     } else {
                         let valor = fila[col.id];
                         if (valor === null || valor === undefined || valor === '') return '';

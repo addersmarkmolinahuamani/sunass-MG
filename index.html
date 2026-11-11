@@ -2082,7 +2082,7 @@
                 <!-- Tarjeta 1: Primer año regulatorio -->
                 <div id="card-franja-primer-anio" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer hover:border-blue-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas con Primer año regulatorio (A1) en la franja" onclick="filtrarPorCategoriaFranja('primer_anio')">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 font-black text-xs shadow-2xs">
+                        <div class="w-9 h-9 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-700 font-black text-xs shadow-2xs shrink-0">
                             A1
                         </div>
                         <div>
@@ -2096,41 +2096,43 @@
                 </div>
 
                 <!-- Tarjeta 2: Penúltimo año regulatorio -->
-                <div id="card-franja-penultimo-anio" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer hover:border-indigo-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas con Penúltimo año regulatorio (A4) en la franja" onclick="filtrarPorCategoriaFranja('penultimo_anio')">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-black text-xs shadow-2xs">
-                            A4
+                <div id="card-franja-penultimo-anio" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between gap-2 cursor-pointer hover:border-indigo-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas en su Penúltimo año regulatorio (A2, A3 o A4 según la duración del periodo)" onclick="filtrarPorCategoriaFranja('penultimo_anio')">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-lg bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-700 font-black text-xs shadow-2xs shrink-0" title="Año n-1 del periodo regulatorio">
+                            <span class="leading-none">A<sub class="text-[8px] font-extrabold">n-1</sub></span>
                         </div>
-                        <div>
-                            <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider">Penúltimo año regulatorio</div>
+                        <div class="min-w-0">
+                            <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider truncate">Penúltimo año regulatorio</div>
                             <div class="flex items-baseline gap-1 mt-0.5">
                                 <span id="kpi-franja-penultimo-anio" class="text-lg font-black text-indigo-900">0</span>
                                 <span class="text-[10.5px] font-bold text-slate-400">EPS</span>
                             </div>
                         </div>
                     </div>
+                    <span class="hidden sm:inline-block text-[9.5px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200/80 shrink-0" title="Equivale a A2 (PR de 3 años), A3 (PR de 4 años) o A4 (PR de 5 años)">A2·A3·A4</span>
                 </div>
 
                 <!-- Tarjeta 3: Último año regulatorio -->
-                <div id="card-franja-ultimo-anio" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer hover:border-purple-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas con Último año regulatorio (A5 / A6) en la franja" onclick="filtrarPorCategoriaFranja('ultimo_anio')">
-                    <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 font-black text-xs shadow-2xs">
-                            A5
+                <div id="card-franja-ultimo-anio" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between gap-2 cursor-pointer hover:border-purple-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas en su Último año regulatorio (A3, A4 o A5 según la duración del periodo)" onclick="filtrarPorCategoriaFranja('ultimo_anio')">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-lg bg-purple-50 border border-purple-200 flex items-center justify-center text-purple-700 font-black text-xs shadow-2xs shrink-0" title="Año n (cierre) del periodo regulatorio">
+                            <span class="leading-none">A<sub class="text-[8.5px] font-extrabold">n</sub></span>
                         </div>
-                        <div>
-                            <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider">Último año regulatorio</div>
+                        <div class="min-w-0">
+                            <div class="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider truncate">Último año regulatorio</div>
                             <div class="flex items-baseline gap-1 mt-0.5">
                                 <span id="kpi-franja-ultimo-anio" class="text-lg font-black text-purple-900">0</span>
                                 <span class="text-[10.5px] font-bold text-slate-400">EPS</span>
                             </div>
                         </div>
                     </div>
+                    <span class="hidden sm:inline-block text-[9.5px] font-bold text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200/80 shrink-0" title="Equivale a A3 (PR de 3 años), A4 (PR de 4 años) o A5 (PR de 5 años)">A3·A4·A5</span>
                 </div>
 
                 <!-- Tarjeta 4: Años en transición -->
                 <div id="card-franja-transicion" class="bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer hover:border-amber-400 hover:shadow-xs transition" title="Haz clic para filtrar empresas con Años en transición (PT) en la franja" onclick="filtrarPorCategoriaFranja('transicion')">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-center text-amber-800 font-black text-xs shadow-2xs">
+                        <div class="w-9 h-9 rounded-lg bg-amber-50 border border-amber-300 flex items-center justify-center text-amber-800 font-black text-xs shadow-2xs shrink-0">
                             PT
                         </div>
                         <div>
@@ -2593,44 +2595,64 @@
                 return 99;
             };
 
-            // Filtrar preferentemente servicio principal 'Agua y Saneamiento' para EPS con servicios múltiples
+            // Excluir Año Base, Acumulado y filas 'AS N' duplicadas dentro de Agua y Saneamiento
+            // (los años de Aguas Subterráneas ya existen como registros propios con Tipo_Servicio = 'Aguas Subterráneas')
             const fuenteFiltrada = fuente.filter(item => {
                 const anio = String(item.Año_Regulatorio || '').trim();
-                if (!anio || anio === 'Año Base' || anio === 'Acumulado') return false;
-                const serv = item.Tipo_Servicio || 'Agua y Saneamiento';
-                return serv === 'Agua y Saneamiento';
+                if (!anio || anio === 'Año Base' || anio === 'Acumulado' || /^AS\s*\d+/i.test(anio)) return false;
+                return true;
             });
 
-            const mapEps = new Map();
+            const serviciosPorCod = new Map();
+            const nombrePrincipalPorCod = new Map();
+            const mapFilas = new Map();
 
             fuenteFiltrada.forEach(item => {
                 const rawCod = String(item.Cod_EP || '').trim();
                 if (!rawCod) return;
 
                 const codPadded = normalizarCodigoEps(rawCod);
+                const servNorm = normalizarTipoServicioDoc(item.Tipo_Servicio);
                 let nombre = String(item.Nombre_EPS || '').trim();
                 if (codPadded === '008') nombre = 'UE AGUA TUMBES';
                 const numCod = parseInt(codPadded, 10);
 
-                if (!mapEps.has(codPadded)) {
-                    mapEps.set(codPadded, {
+                if (!serviciosPorCod.has(codPadded)) serviciosPorCod.set(codPadded, new Set());
+                serviciosPorCod.get(codPadded).add(servNorm);
+
+                if (servNorm === 'Agua y Saneamiento' || !nombrePrincipalPorCod.has(codPadded)) {
+                    if (nombre) nombrePrincipalPorCod.set(codPadded, nombre);
+                }
+
+                const rowKey = `${codPadded}|||${servNorm}`;
+                if (!mapFilas.has(rowKey)) {
+                    mapFilas.set(rowKey, {
+                        rowKey: rowKey,
                         cod: codPadded,
                         num: isNaN(numCod) ? 9999 : numCod,
-                        nombre: nombre,
+                        nombre: nombrePrincipalPorCod.get(codPadded) || nombre,
+                        tipoServicio: servNorm,
+                        esMultiServicio: false,
                         rawItems: []
                     });
                 }
 
-                mapEps.get(codPadded).rawItems.push(item);
+                mapFilas.get(rowKey).rawItems.push(item);
             });
 
             const mapQ = (typeof MAPA_QUINQUENIOS !== 'undefined') ? MAPA_QUINQUENIOS : {};
             const mapR = (typeof MAPA_RANGOS_ANIOS !== 'undefined') ? MAPA_RANGOS_ANIOS : {};
 
-            // Asignar a cada año regulatorio su posición temporal real con 12 divisiones internas por año
-            const listaEps = Array.from(mapEps.values()).sort((a, b) => a.num - b.num);
+            const ordServicio = { 'Agua y Saneamiento': 0, 'Aguas Subterráneas': 1 };
+            const listaEps = Array.from(mapFilas.values()).sort((a, b) => {
+                if (a.num !== b.num) return a.num - b.num;
+                return (ordServicio[a.tipoServicio] ?? 9) - (ordServicio[b.tipoServicio] ?? 9);
+            });
 
             listaEps.forEach(eps => {
+                eps.nombre = nombrePrincipalPorCod.get(eps.cod) || eps.nombre;
+                eps.esMultiServicio = (serviciosPorCod.get(eps.cod)?.size || 1) > 1;
+
                 // Agrupar por Periodo Regulatorio
                 const porPeriodo = {};
                 eps.rawItems.forEach(it => {
@@ -2675,7 +2697,7 @@
                     // Si no se dedujo de Rango_Anio, buscar en Quinquenio oficial
                     if (baseYear === null) {
                         const claveQ = `${eps.cod}_${pr}`;
-                        const qm = String(mapQ[claveQ] || itemsUnicos[0].Quinquenio || '').match(/\d{4}/);
+                        const qm = String(itemsUnicos[0].Quinquenio || mapQ[claveQ] || '').match(/\d{4}/);
                         if (qm) {
                             baseYear = parseInt(qm[0], 10);
                             baseMonth = 0;
@@ -2914,7 +2936,11 @@
                 primerAnio: new Map(),
                 penultimoAnio: new Map(),
                 ultimoAnio: new Map(),
-                transicion: new Map()
+                transicion: new Map(),
+                primerAnioRows: new Set(),
+                penultimoAnioRows: new Set(),
+                ultimoAnioRows: new Set(),
+                transicionRows: new Set()
             };
 
             const fuente = (listaEps && listaEps.length) ? listaEps : prepararDatosGantt();
@@ -2934,21 +2960,26 @@
                     const regularItems = itemsDelPeriodo.filter(x => !x.anio.startsWith('PT'));
                     const maxRegularIdx = regularItems.length - 1;
                     const regularIdx = regularItems.findIndex(x => x.anio === a.anio);
+                    const rowId = eps.rowKey || `${eps.cod}|||${eps.tipoServicio || 'Agua y Saneamiento'}`;
 
                     if (anioStr.startsWith('PT')) {
                         res.transicion.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
+                        res.transicionRows.add(rowId);
                     }
 
                     if (regularIdx === 0 || anioStr === 'Año 1') {
                         res.primerAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
+                        res.primerAnioRows.add(rowId);
                     }
 
                     if ((regularIdx > 0 && regularIdx === maxRegularIdx - 1) || (maxRegularIdx < 0 && anioStr === 'Año 4')) {
                         res.penultimoAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
+                        res.penultimoAnioRows.add(rowId);
                     }
 
                     if ((regularIdx > 0 && regularIdx === maxRegularIdx) || (maxRegularIdx < 0 && (anioStr === 'Año 5' || anioStr === 'Año 6'))) {
                         res.ultimoAnio.set(eps.cod, { cod: eps.cod, nombre: eps.nombre, anio: a.anio, periodo: a.periodo, rango: a.rango });
+                        res.ultimoAnioRows.add(rowId);
                     }
                 });
             });
@@ -3037,7 +3068,11 @@
                 primerAnio: new Map(),
                 penultimoAnio: new Map(),
                 ultimoAnio: new Map(),
-                transicion: new Map()
+                transicion: new Map(),
+                primerAnioRows: new Set(),
+                penultimoAnioRows: new Set(),
+                ultimoAnioRows: new Set(),
+                transicionRows: new Set()
             };
 
             if (configFranjaGantt.activa) {
@@ -3069,9 +3104,9 @@
                 const c = mapCards[k];
                 if (!c) return;
                 if (filtroCategoriaFranja === k && configFranjaGantt.activa) {
-                    c.className = "bg-blue-50/90 p-3 rounded-xl border-2 border-blue-600 shadow-md flex items-center justify-between cursor-pointer transition";
+                    c.className = "bg-blue-50/90 p-3 rounded-xl border-2 border-blue-600 shadow-md flex items-center justify-between gap-2 cursor-pointer transition";
                 } else {
-                    c.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between cursor-pointer hover:border-blue-400 hover:shadow-xs transition";
+                    c.className = "bg-white p-3 rounded-xl border border-slate-200 shadow-2xs flex items-center justify-between gap-2 cursor-pointer hover:border-blue-400 hover:shadow-xs transition";
                 }
             });
 
@@ -3084,7 +3119,7 @@
                     : `Franja (${NOMBRES_MESES_CORTOS_GANTT[configFranjaGantt.mesInicio-1]} ${configFranjaGantt.anioInicio} - ${NOMBRES_MESES_CORTOS_GANTT[configFranjaGantt.mesFin-1]} ${configFranjaGantt.anioFin})`;
             }
 
-            // 1. Filtrar EPS según Dropdown PowerBI, categoría de franja y búsqueda
+            // 1. Filtrar filas (EPS / Servicio) según Dropdown PowerBI, categoría de franja y búsqueda
             const epsSeleccionadas = dropdownEpsGanttInstance ? dropdownEpsGanttInstance.getValores() : [];
             const codigosSeleccionadosSet = new Set(epsSeleccionadas.map(c => String(c).padStart(3, '0')));
 
@@ -3093,24 +3128,30 @@
                     return false;
                 }
                 if (filtroQueryGantt) {
-                    const texto = `${eps.cod} ${eps.nombre}`.toLowerCase();
+                    const texto = `${eps.cod} ${eps.nombre} ${eps.tipoServicio || ''}`.toLowerCase();
                     if (!texto.includes(filtroQueryGantt)) return false;
                 }
                 if (filtroCategoriaFranja && configFranjaGantt.activa) {
-                    if (filtroCategoriaFranja === 'primer_anio' && !analisisFranja.primerAnio.has(eps.cod)) return false;
-                    if (filtroCategoriaFranja === 'penultimo_anio' && !analisisFranja.penultimoAnio.has(eps.cod)) return false;
-                    if (filtroCategoriaFranja === 'ultimo_anio' && !analisisFranja.ultimoAnio.has(eps.cod)) return false;
-                    if (filtroCategoriaFranja === 'transicion' && !analisisFranja.transicion.has(eps.cod)) return false;
+                    const rk = eps.rowKey || `${eps.cod}|||${eps.tipoServicio || 'Agua y Saneamiento'}`;
+                    if (filtroCategoriaFranja === 'primer_anio' && !analisisFranja.primerAnioRows.has(rk)) return false;
+                    if (filtroCategoriaFranja === 'penultimo_anio' && !analisisFranja.penultimoAnioRows.has(rk)) return false;
+                    if (filtroCategoriaFranja === 'ultimo_anio' && !analisisFranja.ultimoAnioRows.has(rk)) return false;
+                    if (filtroCategoriaFranja === 'transicion' && !analisisFranja.transicionRows.has(rk)) return false;
                 }
                 return true;
             });
 
+            const totalUniqueEps = new Set(listaEps.map(e => e.cod)).size;
+            const filteredUniqueEps = new Set(epsFiltradas.map(e => e.cod)).size;
+
             if (contadorEl) {
-                contadorEl.textContent = `${epsFiltradas.length}`;
+                contadorEl.textContent = `${filteredUniqueEps}`;
             }
             const kpiSidebarGantt = document.getElementById('kpi-sidebar-gantt');
             if (kpiSidebarGantt) {
-                kpiSidebarGantt.textContent = `Mostrando ${epsFiltradas.length} de ${listaEps.length} EPS`;
+                kpiSidebarGantt.textContent = (epsFiltradas.length !== filteredUniqueEps)
+                    ? `Mostrando ${filteredUniqueEps} de ${totalUniqueEps} EPS (${epsFiltradas.length} filas)`
+                    : `Mostrando ${filteredUniqueEps} de ${totalUniqueEps} EPS`;
             }
 
             // 2. Renderizar encabezado Eje X (Años Calendario 2006 al 2029 con soporte interactivo de expansión múltiple)
@@ -3119,7 +3160,7 @@
                 let htmlHeader = `
                     <div class="w-72 shrink-0 font-black text-xs text-[#002b66] tracking-wider uppercase flex items-center justify-between pl-4 pr-4 select-none sticky left-0 z-30 bg-[#eaeaea] h-full border-r-2 border-stone-300 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                         <span>Empresa Prestadora</span>
-                        <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs">${epsFiltradas.length}</span>
+                        <span id="gantt-contador-eps" class="text-[10px] text-blue-700 font-black bg-blue-100 px-2 py-0.5 rounded border border-blue-200 shadow-2xs" title="${filteredUniqueEps} Empresas Prestadoras (${epsFiltradas.length} filas)">${filteredUniqueEps}</span>
                     </div>
                     <div style="min-width: ${minTrackWidth}px;" class="flex-1 relative flex items-center text-center font-black text-[11px] text-slate-700 h-full">
                 `;
@@ -3198,17 +3239,31 @@
 
             epsFiltradas.forEach((eps, epsIdx) => {
                 const bgFila = (epsIdx % 2 === 0) ? 'bg-white' : 'bg-[#fafaf8]';
+                const rowHeightClass = eps.esMultiServicio ? 'h-11' : 'h-9';
+                const badgeServ = eps.esMultiServicio
+                    ? (eps.tipoServicio === 'Aguas Subterráneas'
+                        ? `<span class="inline-block w-fit px-1.5 py-0.2 rounded bg-teal-50 text-teal-800 border border-teal-300 text-[9px] font-bold leading-tight">Aguas Subterráneas</span>`
+                        : `<span class="inline-block w-fit px-1.5 py-0.2 rounded bg-sky-50 text-sky-800 border border-sky-200 text-[9px] font-bold leading-tight">Agua y Saneamiento</span>`)
+                    : '';
+                const labelEpsHtml = eps.esMultiServicio
+                    ? `<div class="flex flex-col justify-center min-w-0 gap-0.5">
+                           <span class="text-[11.5px] font-bold text-slate-700 group-hover:text-blue-950 truncate leading-tight" title="${escaparHtml(eps.nombre)} (${escaparHtml(eps.tipoServicio)})">
+                               ${escaparHtml(eps.nombre)}
+                           </span>
+                           ${badgeServ}
+                       </div>`
+                    : `<span class="text-xs font-bold text-slate-700 group-hover:text-blue-950 truncate" title="${escaparHtml(eps.nombre)}">
+                           ${escaparHtml(eps.nombre)}
+                       </span>`;
 
                 htmlCuerpo += `
-                    <div class="flex items-center h-9 hover:bg-amber-50/60 transition-colors group ${bgFila}">
-                        <!-- Columna Y: Código y Nombre EPS (Sticky left) -->
+                    <div class="flex items-center ${rowHeightClass} hover:bg-amber-50/60 transition-colors group ${bgFila}">
+                        <!-- Columna Y: Código, Nombre EPS y Tipo de Servicio (Sticky left) -->
                         <div class="w-72 shrink-0 pl-4 pr-3 flex items-center gap-2 select-none sticky left-0 z-20 ${bgFila} group-hover:bg-amber-50/95 transition-colors h-full self-stretch border-r-2 border-stone-200 shadow-[3px_0_6px_-2px_rgba(0,0,0,0.12)]">
                             <span class="inline-block px-1.5 py-0.5 rounded bg-blue-50 text-[#003366] border border-blue-200 text-[10.5px] font-black shrink-0">
                                 ${eps.cod}
                             </span>
-                            <span class="text-xs font-bold text-slate-700 group-hover:text-blue-950 truncate" title="${escaparHtml(eps.nombre)}">
-                                ${escaparHtml(eps.nombre)}
-                            </span>
+                            ${labelEpsHtml}
                         </div>
 
                         <!-- Pista Temporal Eje X con división mensual exacta -->
@@ -3294,7 +3349,7 @@
 
                     const estadoTexto = esSuspendido ? 'Evaluación Suspendida (Sin evaluación)' : (item.estado || 'Evaluado');
                     const docRef = item.infFisc || item.infPas || 'Sin informe registrado';
-                    const tooltip = `${eps.cod}. ${eps.nombre}
+                    const tooltip = `${eps.cod}. ${eps.nombre}${eps.esMultiServicio ? ' (' + eps.tipoServicio + ')' : ''}
 ${item.periodo} - ${item.anio}${esPt ? ' (Año en Transición)' : ''}
 Estado: ${estadoTexto}
 Rango Oficial: ${item.rango || 'N/D'}
@@ -3305,7 +3360,7 @@ Documento: ${docRef}`;
                         <div class="gantt-bloque-anio absolute h-7 rounded flex items-center justify-center border text-[10px] cursor-pointer select-none pointer-events-auto ${estiloClase}" 
                              style="left: ${blockLeft}%; width: calc(${blockWidth}% - 2px);" 
                              title="${escaparHtml(tooltip)}"
-                             onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}')">
+                             onclick="abrirDetalleAnioGantt('${eps.cod}', '${escaparHtml(item.periodo)}', '${escaparHtml(item.anio)}', '${escaparHtml(eps.tipoServicio || '')}')">
                             ${iconoEstado}<span>${etiquetaAnio}</span>
                         </div>
                     `;
@@ -3321,7 +3376,7 @@ Documento: ${docRef}`;
             cuerpoEl.innerHTML = htmlCuerpo;
         }
 
-        function abrirDetalleAnioGantt(codEps, periodo, anio) {
+        function abrirDetalleAnioGantt(codEps, periodo, anio, tipoServicio) {
             cerrarModalGantt();
             navegarDesdePortada('matriz');
 
@@ -3332,6 +3387,10 @@ Documento: ${docRef}`;
                         const nombre = (codEps === '008') ? 'UE AGUA TUMBES' : epsMatch.Nombre_EPS;
                         const etiqueta = `${codEps}. ${nombre}`;
                         dropdownEpsMatrizInstance.setValor([etiqueta]);
+                        const selServMatriz = document.getElementById('filtro-servicio-matriz');
+                        if (selServMatriz) {
+                            selServMatriz.value = tipoServicio || '';
+                        }
                         if (typeof actualizarPeriodosMatriz === 'function') {
                             actualizarPeriodosMatriz();
                         }

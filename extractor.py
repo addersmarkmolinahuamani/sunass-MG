@@ -249,7 +249,7 @@ def parse_periodo_banner(texto, periodos_ya_vistos=None, cod_ep=None):
 
     return p_detectado, tipo_servicio
 
-def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
+def detectar_columnas_bloque(df, r_ban, r_fin_bloque, tipo_servicio='Agua y Saneamiento'):
     """
     Detecta columnas y etapas en un bloque específico (soporta tanto bloques multi-etapa
     horizontales como tablas únicas de periodos históricos).
@@ -257,24 +257,10 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
     mapa_etapas = {}
     
     # 0. Buscar si hay etiquetas en fila 0 (Excel fila 1, ej: celdas de texto blanco F1)
-    if len(df) > 0:
+    if len(df) > 0 and r_ban <= 6:
         for idx_col, valor in enumerate(df.iloc[0, :]):
             valor_str = str(valor).strip().upper()
-            if 'RESULTADO' in valor_str and 'RESULTADO_ACTUAL' not in mapa_etapas:
-                mapa_etapas['RESULTADO_ACTUAL'] = idx_col
-            elif 'FISC' in valor_str and 'FISCALIZACIÓN' not in mapa_etapas:
-                mapa_etapas['FISCALIZACIÓN'] = idx_col
-            elif 'INSTRU' in valor_str and 'INSTRUCCIÓN' not in mapa_etapas:
-                mapa_etapas['INSTRUCCIÓN'] = idx_col
-            elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
-                mapa_etapas['DECISIÓN'] = idx_col
-
-    # 1. Buscar si hay etapas en filas cercanas al banner
-    for num_fila in range(max(0, r_ban - 1), min(r_ban + 4, len(df))):
-        fila_etapas = df.iloc[num_fila, :]
-        for idx_col, valor in enumerate(fila_etapas):
-            valor_str = str(valor).strip().upper()
-            if 'RESULTADOS DEL CUMPLIMIENTO' in valor_str:
+            if tipo_servicio == 'Agua y Saneamiento' and 'SUBTERR' in valor_str:
                 continue
             if 'RESULTADO' in valor_str and 'RESULTADO_ACTUAL' not in mapa_etapas:
                 mapa_etapas['RESULTADO_ACTUAL'] = idx_col
@@ -284,6 +270,32 @@ def detectar_columnas_bloque(df, r_ban, r_fin_bloque):
                 mapa_etapas['INSTRUCCIÓN'] = idx_col
             elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
                 mapa_etapas['DECISIÓN'] = idx_col
+            elif 'RECONSID' in valor_str and 'RECONSIDERACIÓN' not in mapa_etapas:
+                mapa_etapas['RECONSIDERACIÓN'] = idx_col
+            elif 'APELAC' in valor_str and 'APELACIÓN' not in mapa_etapas:
+                mapa_etapas['APELACIÓN'] = idx_col
+
+    # 1. Buscar si hay etapas en filas cercanas al banner
+    for num_fila in range(max(0, r_ban - 1), min(r_ban + 4, len(df))):
+        fila_etapas = df.iloc[num_fila, :]
+        for idx_col, valor in enumerate(fila_etapas):
+            valor_str = str(valor).strip().upper()
+            if 'RESULTADOS DEL CUMPLIMIENTO' in valor_str:
+                continue
+            if tipo_servicio == 'Agua y Saneamiento' and 'SUBTERR' in valor_str:
+                continue
+            if 'RESULTADO' in valor_str and 'RESULTADO_ACTUAL' not in mapa_etapas:
+                mapa_etapas['RESULTADO_ACTUAL'] = idx_col
+            elif 'FISC' in valor_str and 'FISCALIZACIÓN' not in mapa_etapas:
+                mapa_etapas['FISCALIZACIÓN'] = idx_col
+            elif 'INSTRU' in valor_str and 'INSTRUCCIÓN' not in mapa_etapas:
+                mapa_etapas['INSTRUCCIÓN'] = idx_col
+            elif ('DECIS' in valor_str or 'DESIC' in valor_str) and 'DECISIÓN' not in mapa_etapas:
+                mapa_etapas['DECISIÓN'] = idx_col
+            elif 'RECONSID' in valor_str and 'RECONSIDERACIÓN' not in mapa_etapas:
+                mapa_etapas['RECONSIDERACIÓN'] = idx_col
+            elif 'APELAC' in valor_str and 'APELACIÓN' not in mapa_etapas:
+                mapa_etapas['APELACIÓN'] = idx_col
 
     # Detección automática para bloques multi-etapa:
     # Si se detectaron etapas (como FISCALIZACIÓN, INSTRUCCIÓN, DECISIÓN) pero no 'RESULTADO_ACTUAL'
@@ -495,7 +507,7 @@ def extraer_todas_las_eps_dinamico():
             r_fin_bloque = bloques[idx_b + 1][0] if idx_b + 1 < len(bloques) else len(df)
             periodo_reg_romano = norm_periodo(periodo_reg)
             
-            mapa_etapas, columnas_metricas, r_start = detectar_columnas_bloque(df, r_ban, r_fin_bloque)
+            mapa_etapas, columnas_metricas, r_start = detectar_columnas_bloque(df, r_ban, r_fin_bloque, tipo_servicio)
             
             meta_eps_gen = dict_eps_meta.get((cod_ep_num, periodo_reg_romano, tipo_servicio)) or dict_eps_meta.get((cod_ep_num, periodo_reg_romano), {})
             departamento_val = meta_eps_gen.get('Departamento')
@@ -503,6 +515,7 @@ def extraer_todas_las_eps_dinamico():
             
             memoria_id_meta = ""
             memoria_meta_principal = ""
+            registros_por_etapa = {etapa: [] for etapa in mapa_etapas.keys()}
             
             for row_idx in range(r_start, r_fin_bloque):
                 id_meta_crudo = str(df.iloc[row_idx, 1]).strip()
@@ -558,11 +571,17 @@ def extraer_todas_las_eps_dinamico():
                         elif etapa == 'DECISIÓN':
                             inf_etapa = info_cruce.get('Inf_PAS_Decision')
                             inf_etapa_link = info_cruce.get('Inf_PAS_Decision_Link')
+                        elif etapa == 'RECONSIDERACIÓN':
+                            inf_etapa = info_cruce.get('Recurso_Reconsideracion')
+                            inf_etapa_link = info_cruce.get('Recurso_Reconsideracion_Link')
+                        elif etapa == 'APELACIÓN':
+                            inf_etapa = info_cruce.get('Recurso_Apelacion')
+                            inf_etapa_link = info_cruce.get('Recurso_Apelacion_Link')
                         elif etapa == 'RESULTADO_ACTUAL':
                             inf_etapa = info_cruce.get('Inf_Fiscalizacion') or info_cruce.get('Inf_Fisc_Final') or info_cruce.get('Inf_Fisc_Inicial')
                             inf_etapa_link = info_cruce.get('Inf_Fiscalizacion_Link') or info_cruce.get('Inf_Fisc_Final_Link') or info_cruce.get('Inf_Fisc_Inicial_Link')
                             
-                        datos_extraidos_totales.append({
+                        registros_por_etapa[etapa].append({
                             'Cod_EP': cod_ep,
                             'Nombre_EPS': nombre_eps,
                             'Periodo_Regulatorio': periodo_reg,
@@ -667,6 +686,18 @@ def extraer_todas_las_eps_dinamico():
                         
                 if es_fila_icg:
                     break
+                    
+            for etapa, regs in registros_por_etapa.items():
+                if etapa in ('RECONSIDERACIÓN', 'APELACIÓN'):
+                    tiene_ici = any(
+                        r.get('ICI') is not None
+                        and str(r.get('ICI')).strip() not in ('', '-')
+                        and r.get('ID_Meta_General') != 'ICG'
+                        for r in regs
+                    )
+                    if not tiene_ici:
+                        continue
+                datos_extraidos_totales.extend(regs)
 
     if datos_extraidos_totales:
         df_final = pd.DataFrame(datos_extraidos_totales)

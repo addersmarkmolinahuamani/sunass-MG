@@ -979,6 +979,8 @@
                         <option value="FISCALIZACIÓN">Fiscalización</option>
                         <option value="INSTRUCCIÓN">Instrucción</option>
                         <option value="DECISIÓN">Decisión</option>
+                        <option value="RECONSIDERACIÓN">Reconsideración</option>
+                        <option value="APELACIÓN">Apelación</option>
                     </select>
                 </div>
                 
@@ -2132,10 +2134,10 @@
     </div>
 
     <!-- Importar la base de datos JS y mapeos oficiales -->
-    <script src="fechas_informes.js?v=20261110_v3"></script>
-    <script src="estudios_tarifarios.js?v=20261110_v3"></script>
-    <script src="resoluciones_cd.js?v=20261110_v3"></script>
-    <script src="datos_sunass.js?v=20261110_v3"></script>
+    <script src="fechas_informes.js?v=20261110_v4"></script>
+    <script src="estudios_tarifarios.js?v=20261110_v4"></script>
+    <script src="resoluciones_cd.js?v=20261110_v4"></script>
+    <script src="datos_sunass.js?v=20261110_v4"></script>
 
     <script>
         let db_global = [];
@@ -5007,7 +5009,7 @@ Documento: ${docRef}`;
             const etapasDisponibles = [...new Set(datosEpsPeriodo.map(item => item.Etapa))];
             
             // Orden canónico de etapas
-            const ordenEtapas = ['RESULTADO_ACTUAL', 'FISCALIZACIÓN', 'INSTRUCCIÓN', 'DECISIÓN'];
+            const ordenEtapas = ['RESULTADO_ACTUAL', 'FISCALIZACIÓN', 'INSTRUCCIÓN', 'DECISIÓN', 'RECONSIDERACIÓN', 'APELACIÓN'];
             etapasDisponibles.sort((a, b) => ordenEtapas.indexOf(a) - ordenEtapas.indexOf(b));
 
             if (!etapasDisponibles.includes(etapaSeleccionadaGlobal) && etapasDisponibles.length > 0) {

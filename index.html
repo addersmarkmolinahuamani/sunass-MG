@@ -5789,7 +5789,7 @@ Documento: ${docRef}`;
             // Construir Pivot con Año Base, Años Base del periodo, PT y Acumulado
             const metasPivot = new Map();
             datosFiltrados.forEach(fila => {
-                const clave = fila.ID_Meta_General + "|" + fila.Descripcion_Especifica;
+                const clave = fila.ID_Meta_General + "|" + (fila.Meta_Principal || "") + "|" + fila.Descripcion_Especifica;
                 if (!metasPivot.has(clave)) {
                     metasPivot.set(clave, {
                         id: fila.ID_Meta_General,

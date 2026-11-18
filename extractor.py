@@ -8,7 +8,10 @@ def norm_cod(c):
     """Normaliza el código de EPS a un entero o identificador limpio."""
     if c is None or pd.isna(c):
         return None
-    s = str(c).strip().split('-')[0]
+    s = str(c).strip()
+    if s.startswith('='):
+        return None
+    s = s.split('-')[0]
     nums = re.sub(r'\D', '', s)
     return int(nums) if nums else None
 
@@ -85,6 +88,15 @@ def cargar_informes_totales(file_path):
     dict_inf = {}
     dict_eps_meta = {} # Metadatos a nivel de EPS (Departamento, Tamaño)
     
+    cur_cod = None
+    cur_dep = None
+    cur_nom = None
+    cur_per = None
+    cur_tipo_per = None
+    cur_clase_mg = None
+    cur_tam = None
+    cur_quinq = None
+    
     for r in range(7, ws.max_row + 1):
         c_cod = ws.cell(r, 1).value
         c_dep = ws.cell(r, 2).value
@@ -92,19 +104,37 @@ def cargar_informes_totales(file_path):
         c_per = ws.cell(r, 4).value
         c_tipo_per = ws.cell(r, 5).value
         c_clase_mg = ws.cell(r, 6).value
+        c_quinq = ws.cell(r, 7).value
         c_eval = ws.cell(r, 14).value
         c_est = ws.cell(r, 15).value
         c_tam = ws.cell(r, 17).value
         
-        tipo_servicio = 'Aguas Subterráneas' if (str(c_clase_mg).strip() == 'MyGUAS' or str(c_tipo_per).strip() == 'AS') else 'Agua y Saneamiento'
-        
-        cod_n = norm_cod(c_cod)
-        per_n = norm_periodo(c_per)
+        # Propagar valores precedentes si las celdas vienen vacías o con fórmulas relativas
+        cod_val = norm_cod(c_cod)
+        if cod_val is not None:
+            cur_cod = cod_val
+            if c_dep and not str(c_dep).startswith('='): cur_dep = c_dep
+            if c_nom and not str(c_nom).startswith('='): cur_nom = c_nom
+            if c_tam and not str(c_tam).startswith('='): cur_tam = c_tam
+
+        if c_per and not str(c_per).startswith('='):
+            cur_per = c_per
+        if c_tipo_per and not str(c_tipo_per).startswith('='):
+            cur_tipo_per = c_tipo_per
+        if c_clase_mg and not str(c_clase_mg).startswith('='):
+            cur_clase_mg = c_clase_mg
+        if c_quinq and not str(c_quinq).startswith('='):
+            cur_quinq = c_quinq
+            
+        cod_n = cur_cod
+        per_n = norm_periodo(cur_per)
         anio_n = norm_anio(c_eval)
         
+        tipo_servicio = 'Aguas Subterráneas' if (str(cur_clase_mg).strip() == 'MyGUAS' or str(cur_tipo_per).strip() == 'AS') else 'Agua y Saneamiento'
+        
         if cod_n:
-            dep_limpio = str(c_dep).strip() if c_dep else None
-            tam_limpio = str(c_tam).strip() if c_tam else None
+            dep_limpio = str(cur_dep).strip() if cur_dep else None
+            tam_limpio = str(cur_tam).strip() if cur_tam else None
             if dep_limpio or tam_limpio:
                 dict_eps_meta[(cod_n, per_n, tipo_servicio)] = {
                     'Departamento': dep_limpio,
@@ -163,12 +193,12 @@ def cargar_informes_totales(file_path):
                 return s
 
             reg_data = {
-                'Departamento': str(c_dep).strip() if c_dep else None,
-                'Empresa_Informes': str(c_nom).strip() if c_nom else None,
-                'Tamano_EPS': str(c_tam).strip() if c_tam else None,
+                'Departamento': str(cur_dep).strip() if cur_dep else None,
+                'Empresa_Informes': str(cur_nom).strip() if cur_nom else None,
+                'Tamano_EPS': str(cur_tam).strip() if cur_tam else None,
                 'Estado_Evaluacion': str(c_est).strip() if c_est else None,
                 'Tipo_Servicio': tipo_servicio,
-                'Quinquenio': fmt_quinq(c_quinq),
+                'Quinquenio': fmt_quinq(cur_quinq),
                 'Rango_Anio': fmt_rango_an(c_rango_an),
                 'Inf_Fisc_Inicial': fisc_ini_txt,
                 'Inf_Fisc_Inicial_Link': fisc_ini_lnk,

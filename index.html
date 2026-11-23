@@ -1026,43 +1026,16 @@
                     </div>
                 </div>
 
-                <!-- BUSCAR META / INDICADOR -->
-                <div class="relative" id="contenedor-filtro-meta-reportes">
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Buscar Meta / Indicador</label>
-                    <div class="relative" id="dropdown-meta-reportes">
-                        <button type="button" id="btn-trigger-meta-reportes"
-                                class="w-full p-2.5 bg-white text-slate-800 rounded flex items-center justify-between text-xs font-semibold shadow-sm hover:bg-slate-50 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-left transition select-none">
-                            <span class="truncate pr-2" id="lbl-trigger-meta-reportes">Todas</span>
-                            <svg id="arrow-trigger-meta-reportes" class="w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-                        <div id="menu-dropdown-meta-reportes" class="hidden absolute left-0 right-0 top-full mt-1.5 z-50 bg-white rounded-lg shadow-2xl border border-slate-200 overflow-hidden flex flex-col text-xs">
-                            <div class="p-2 border-b border-slate-200 bg-slate-50/90 sticky top-0 z-10 flex items-center gap-1.5">
-                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                                </svg>
-                                <input type="text" id="input-buscar-meta-reportes" placeholder="Buscar" autocomplete="off"
-                                       class="w-full py-1 px-1.5 text-xs text-slate-800 bg-transparent border-none focus:outline-none placeholder-slate-400">
-                                <button type="button" id="btn-limpiar-meta-reportes" class="hidden text-slate-400 hover:text-slate-600 text-xs px-1 cursor-pointer">✕</button>
-                            </div>
-                            <div id="lista-opciones-meta-reportes" class="max-h-60 overflow-y-auto divide-y divide-slate-100 py-1">
-                                <!-- Generado dinámicamente por JS -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                <!-- PERIODO REGULATORIO -->
                 <div>
-                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Etapa</label>
-                    <select id="rep-filtro-etapa" onchange="generarReporte()" class="w-full p-2.5 rounded bg-white text-gray-800 text-sm font-medium focus:ring-2 focus:ring-blue-500 cursor-pointer">
-                        <option value="RESULTADO_ACTUAL" selected>Resultado Actual</option>
-                        <option value="TODAS">-- Todas las Etapas --</option>
-                        <option value="FISCALIZACIÓN">Fiscalización</option>
-                        <option value="INSTRUCCIÓN">Instrucción</option>
-                        <option value="DECISIÓN">Decisión</option>
-                        <option value="RECONSIDERACIÓN">Reconsideración</option>
-                        <option value="APELACIÓN">Apelación</option>
+                    <label class="block text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">Periodo Regulatorio</label>
+                    <select id="rep-filtro-periodo" onchange="generarReporte()" class="w-full p-2.5 rounded bg-white text-gray-800 text-xs font-semibold focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <option value="TODOS" selected>Todos</option>
+                        <option value="I PR">I PR</option>
+                        <option value="II PR">II PR</option>
+                        <option value="III PR">III PR</option>
+                        <option value="IV PR">IV PR</option>
+                        <option value="V PR">V PR</option>
                     </select>
                 </div>
                 
@@ -2010,7 +1983,7 @@
                     <button onclick="toggleSidebar()" type="button" class="p-2 -ml-2 rounded-lg text-slate-500 hover:text-blue-900 hover:bg-blue-50 transition border border-transparent hover:border-blue-100 flex items-center justify-center cursor-pointer" title="Contraer o expandir panel lateral">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/></svg>
                     </button>
-                    <h1 class="text-3xl font-extrabold text-[#003366]">Generador dinámico de reportes</h1>
+                    <h1 class="text-3xl font-extrabold text-[#003366]">Generador dinámico de reportes (ICG)</h1>
                 </div>
                 <div class="flex items-center gap-2.5">
                     <!-- Selector de vista en Evaluación y Reportes -->
@@ -2231,24 +2204,23 @@
         let dashboardIniciado = false;
         let etapaSeleccionadaGlobal = 'RESULTADO_ACTUAL';
         
-        // Configuración de las columnas para el Creador de Reportes
+        // Configuración de las columnas para el Creador de Reportes (Orientado exclusivamente a ICG por Etapas)
         const TODAS_LAS_COLUMNAS = [
             { id: 'Cod_EP', nombre: 'Cód EPS', activa: true },
             { id: 'Nombre_EPS', nombre: 'Nombre EPS', activa: true },
             { id: 'Departamento', nombre: 'Departamento', activa: false },
             { id: 'Tamano_EPS', nombre: 'Tamaño EPS', activa: false },
-            { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: true },
+            { id: 'Tipo_Servicio', nombre: 'Tipo de Servicio', activa: false },
+            { id: 'Periodo_Regulatorio', nombre: 'Periodo', activa: false },
             { id: 'Quinquenio', nombre: 'Rango Periodo', activa: true },
-            { id: 'Etapa', nombre: 'Etapa', activa: false },
-            { id: 'Nivel_Evaluacion', nombre: 'Nivel', activa: false },
-            { id: 'ID_Meta_General', nombre: 'ID Meta', activa: false },
-            { id: 'Descripcion_Especifica', nombre: 'Descripción de Meta', activa: true },
-            { id: 'Unidad_Medida', nombre: 'Unidad', activa: false },
             { id: 'Año_Regulatorio', nombre: 'Año / Periodo', activa: true },
             { id: 'Rango_Anio', nombre: 'Rango Año', activa: true },
-            { id: 'Valor_Exigido', nombre: 'Valor Meta', activa: false },
-            { id: 'Valor_Ejecutado', nombre: 'Valor Obtenido', activa: false },
-            { id: 'ICI', nombre: 'ICI (%)', activa: true },
+            { id: 'ICG_FISCALIZACION', nombre: 'FISCALIZACIÓN', activa: true, esEtapaIcg: true },
+            { id: 'ICG_INSTRUCCION', nombre: 'INSTRUCCIÓN', activa: true, esEtapaIcg: true },
+            { id: 'ICG_DECISION', nombre: 'DECISIÓN', activa: true, esEtapaIcg: true },
+            { id: 'ICG_RECONSIDERACION', nombre: 'RECONSIDERACIÓN', activa: true, esEtapaIcg: true },
+            { id: 'ICG_APELACION', nombre: 'APELACIÓN', activa: true, esEtapaIcg: true },
+            { id: 'ICG_RESULTADO_ACTUAL', nombre: 'RESULTADO ACTUAL', activa: true, esEtapaIcg: true },
             { id: 'Informe_Etapa', nombre: 'Informe / Resolución', activa: true },
             { id: 'Informe_Etapa_Link', nombre: 'Enlace Web', activa: false }
         ];
@@ -5176,47 +5148,8 @@ Documento: ${docRef}`;
                 }
             });
 
-            // 4. DROPDOWN BUSCAR META / INDICADOR PARA REPORTES (Selección múltiple con buscador)
-            const mapMetasUnicas = new Map();
-            db_global.forEach(item => {
-                const desc = String(item.Descripcion_Especifica || '').trim();
-                const idM = String(item.ID_Meta_General || '').trim();
-                const princ = String(item.Meta_Principal || '').trim();
-                if (desc && !mapMetasUnicas.has(desc)) {
-                    mapMetasUnicas.set(desc, {
-                        desc: desc,
-                        id: (idM && idM !== 'null') ? idM : '',
-                        princ: (princ && princ !== 'null') ? princ : ''
-                    });
-                }
-            });
-            const metasOrdenadas = Array.from(mapMetasUnicas.values()).sort((a, b) => 
-                a.desc.localeCompare(b.desc, 'es', { sensitivity: 'base' })
-            );
-            const opcionesReportesMeta = metasOrdenadas.map(m => ({
-                value: m.desc,
-                label: m.desc,
-                searchText: `${m.id} ${m.princ} ${m.desc}`
-            }));
-
-            dropdownMetaReportesInstance = crearDropdownPowerBI({
-                idContenedor: 'contenedor-filtro-meta-reportes',
-                idTrigger: 'btn-trigger-meta-reportes',
-                idLabel: 'lbl-trigger-meta-reportes',
-                idArrow: 'arrow-trigger-meta-reportes',
-                idMenu: 'menu-dropdown-meta-reportes',
-                idInput: 'input-buscar-meta-reportes',
-                idBtnLimpiar: 'btn-limpiar-meta-reportes',
-                idLista: 'lista-opciones-meta-reportes',
-                opciones: opcionesReportesMeta,
-                esMultiple: true,
-                permitirTodas: true,
-                textoTodas: "Todas",
-                valorInicial: [],
-                onSelect: () => {
-                    generarReporte();
-                }
-            });
+            // 4. Reportes orientado exclusivamente a ICG (no se inicializa filtro de Meta / Indicador)
+            dropdownMetaReportesInstance = null;
 
             const selectServTablero = document.getElementById('filtro-servicio-tablero');
             if (selectServTablero && !selectServTablero.dataset.wired) {
@@ -6886,50 +6819,112 @@ Documento: ${docRef}`;
             generarReporte();
         }
 
+        function formatearIcgReporte(val) {
+            if (val === null || val === undefined || val === '' || val === '-') return '';
+            const num = Number(val);
+            if (!isNaN(num)) {
+                return num.toFixed(2);
+            }
+            return String(val).trim();
+        }
+
         function obtenerDatosFiltradosReporte() {
             const epsSeleccionadas = dropdownEpsReportesInstance ? dropdownEpsReportesInstance.getValores() : [];
             const deptosSeleccionados = dropdownDeptoReportesInstance ? dropdownDeptoReportesInstance.getValores() : [];
-            const metasSeleccionadas = dropdownMetaReportesInstance ? dropdownMetaReportesInstance.getValores() : [];
-            const queryMetaTexto = dropdownMetaReportesInstance ? dropdownMetaReportesInstance.getQuery().toLowerCase().trim() : "";
-            const filtroEtapa = document.getElementById('rep-filtro-etapa') ? document.getElementById('rep-filtro-etapa').value : "RESULTADO_ACTUAL";
+            const filtroPeriodo = document.getElementById('rep-filtro-periodo') ? document.getElementById('rep-filtro-periodo').value : 'TODOS';
 
             const setEps = new Set(epsSeleccionadas);
             const setDeptos = new Set(deptosSeleccionados.map(d => d.toLowerCase()));
-            const setMetas = new Set(metasSeleccionadas.map(m => m.toLowerCase()));
 
-            return db_global.filter(fila => {
+            const mapaEtapaCol = {
+                'FISCALIZACIÓN': 'ICG_FISCALIZACION',
+                'INSTRUCCIÓN': 'ICG_INSTRUCCION',
+                'DECISIÓN': 'ICG_DECISION',
+                'RECONSIDERACIÓN': 'ICG_RECONSIDERACION',
+                'APELACIÓN': 'ICG_APELACION',
+                'RESULTADO_ACTUAL': 'ICG_RESULTADO_ACTUAL'
+            };
+
+            const pivotMap = new Map();
+
+            db_global.forEach(fila => {
+                // Orientado exclusivamente al Índice de Cumplimiento Global (ICG)
+                const idMeta = String(fila.ID_Meta_General || '').trim().toUpperCase();
+                const metaPrinc = String(fila.Meta_Principal || '').trim().toUpperCase();
+                const esIcg = idMeta === 'ICG' || metaPrinc.includes('ÍNDICE DE CUMPLIMIENTO GLOBAL') || metaPrinc.includes('INDICE DE CUMPLIMIENTO GLOBAL');
+                if (!esIcg) return;
+
+                const anio = String(fila.Año_Regulatorio || '').trim();
+                if (!anio || anio === 'Año Base' || anio === 'Acumulado') return;
+
                 const nombreEps = String(fila.Nombre_EPS || '').trim();
                 const codFila = normalizarCodigoEps(fila.Cod_EP);
                 const etiquetaEps = `${codFila}. ${nombreEps}`;
                 const depto = String(fila.Departamento || '').toLowerCase().trim();
-                const descMeta = String(fila.Descripcion_Especifica || '').toLowerCase().trim();
-                const idMeta = String(fila.ID_Meta_General || '').toLowerCase().trim();
-                const metaPrinc = String(fila.Meta_Principal || '').toLowerCase().trim();
-                const nombreMetaCompleto = (idMeta + " " + metaPrinc + " " + descMeta).toLowerCase();
+                const periodo = String(fila.Periodo_Regulatorio || '').trim();
 
-                // 1. Filtro Empresa Prestadora (si no hay seleccionadas, coincide con todas)
+                // 1. Filtro Empresa Prestadora
                 const cumpleEps = setEps.size === 0 || setEps.has(etiquetaEps) || setEps.has(nombreEps) || setEps.has(codFila);
+                if (!cumpleEps) return;
 
-                // 2. Filtro Departamento (si no hay seleccionados, coincide con todos)
+                // 2. Filtro Departamento
                 const cumpleDepto = setDeptos.size === 0 || setDeptos.has(depto);
+                if (!cumpleDepto) return;
 
-                // 3. Filtro Meta / Indicador
-                let cumpleMeta = true;
-                if (setMetas.size > 0) {
-                    cumpleMeta = setMetas.has(descMeta);
-                } else if (queryMetaTexto !== "") {
-                    cumpleMeta = nombreMetaCompleto.includes(queryMetaTexto);
-                    if (!cumpleMeta) {
-                        const docsAnio = obtenerInformesDelAnio(fila);
-                        cumpleMeta = docsAnio.some(d => d.texto.toLowerCase().includes(queryMetaTexto));
-                    }
+                // 3. Filtro Periodo Regulatorio
+                const cumplePeriodo = filtroPeriodo === 'TODOS' || periodo === filtroPeriodo;
+                if (!cumplePeriodo) return;
+
+                const servicio = String(fila.Tipo_Servicio || 'Agua y Saneamiento').trim();
+                const clave = `${codFila}|${periodo}|${servicio}|${anio}`;
+
+                if (!pivotMap.has(clave)) {
+                    pivotMap.set(clave, {
+                        Cod_EP: fila.Cod_EP,
+                        _codNum: parseInt(codFila, 10) || 0,
+                        Nombre_EPS: nombreEps,
+                        Departamento: fila.Departamento || '',
+                        Tamano_EPS: fila.Tamano_EPS || '',
+                        Tipo_Servicio: servicio,
+                        Periodo_Regulatorio: periodo,
+                        Año_Regulatorio: anio,
+                        ICG_FISCALIZACION: null,
+                        ICG_INSTRUCCION: null,
+                        ICG_DECISION: null,
+                        ICG_RECONSIDERACION: null,
+                        ICG_APELACION: null,
+                        ICG_RESULTADO_ACTUAL: null,
+                        _tieneAlgunIcg: false
+                    });
                 }
 
-                // 4. Filtro Etapa
-                const cumpleEtapa = filtroEtapa === "TODAS" || fila.Etapa === filtroEtapa;
-
-                return cumpleEps && cumpleDepto && cumpleMeta && cumpleEtapa;
+                const reg = pivotMap.get(clave);
+                const colEtapa = mapaEtapaCol[fila.Etapa];
+                if (colEtapa && fila.ICI !== null && fila.ICI !== undefined && String(fila.ICI).trim() !== '' && String(fila.ICI).trim() !== '-') {
+                    reg[colEtapa] = fila.ICI;
+                    reg._tieneAlgunIcg = true;
+                }
             });
+
+            const ordenPeriodos = { 'I PR': 1, 'II PR': 2, 'III PR': 3, 'IV PR': 4, 'V PR': 5 };
+            const ordenAnio = (a) => {
+                const s = String(a || '').toUpperCase();
+                const mPt = s.match(/PT\s*(\d+)/);
+                if (mPt) return 100 + parseInt(mPt[1], 10);
+                const m = s.match(/(\d+)/);
+                return m ? parseInt(m[1], 10) : 99;
+            };
+
+            return Array.from(pivotMap.values())
+                .filter(r => r._tieneAlgunIcg)
+                .sort((a, b) => {
+                    if (a._codNum !== b._codNum) return a._codNum - b._codNum;
+                    const pa = ordenPeriodos[a.Periodo_Regulatorio] || 99;
+                    const pb = ordenPeriodos[b.Periodo_Regulatorio] || 99;
+                    if (pa !== pb) return pa - pb;
+                    if (a.Tipo_Servicio !== b.Tipo_Servicio) return a.Tipo_Servicio.localeCompare(b.Tipo_Servicio, 'es');
+                    return ordenAnio(a.Año_Regulatorio) - ordenAnio(b.Año_Regulatorio);
+                });
         }
 
         function generarReporte() {
@@ -6938,7 +6933,11 @@ Documento: ${docRef}`;
 
             const thead = document.getElementById('rep-tabla-head');
             let thHtml = '<tr>';
-            colsActivas.forEach(col => { thHtml += `<th>${col.nombre}</th>`; });
+            colsActivas.forEach(col => {
+                const alignCls = (col.esEtapaIcg || col.id === 'Cod_EP' || col.id === 'Quinquenio' || col.id === 'Año_Regulatorio' || col.id === 'Rango_Anio') ? 'text-center' : '';
+                const extraCls = col.id === 'ICG_RESULTADO_ACTUAL' ? 'bg-[#002244] text-amber-200' : '';
+                thHtml += `<th class="${alignCls} ${extraCls} whitespace-nowrap">${col.nombre}</th>`;
+            });
             thHtml += '</tr>';
             thead.innerHTML = thHtml;
 
@@ -6947,20 +6946,21 @@ Documento: ${docRef}`;
             let tbHtml = '';
 
             if (dataFiltrada.length === 0) {
-                tbHtml = `<tr><td colspan="${colsActivas.length}" class="text-center py-8 text-gray-500 italic">No se encontraron registros con esos filtros.</td></tr>`;
+                tbHtml = `<tr><td colspan="${colsActivas.length}" class="text-center py-8 text-gray-500 italic">No se encontraron registros de ICG con esos filtros.</td></tr>`;
             } else {
                 const dataMostrar = dataFiltrada.slice(0, LIMITE_VISUAL);
                 dataMostrar.forEach(fila => {
                     tbHtml += '<tr>';
                     colsActivas.forEach(col => {
                         let cellHtml = '';
+                        let tdClass = '';
                         
                         if (col.id === 'Informe_Etapa') {
                             const docs = obtenerInformesDelAnio(fila);
                             if (docs.length === 0) {
                                 cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
                             } else {
-                                cellHtml = `<div class="flex flex-col gap-1.5 py-0.5 text-left min-w-[210px]">` +
+                                cellHtml = `<div class="flex flex-col gap-1.5 py-0.5 text-left min-w-[230px]">` +
                                     docs.map(doc => {
                                         const lineas = doc.texto.split('\n').map(l => escaparHtml(l.trim())).filter(Boolean).join('<br>');
                                         if (doc.link && doc.link.startsWith('http')) {
@@ -6995,6 +6995,7 @@ Documento: ${docRef}`;
                                 `</div>`;
                             }
                         } else if (col.id === 'Quinquenio') {
+                            tdClass = 'text-center';
                             const quinq = obtenerQuinquenioFila(fila);
                             if (!quinq || quinq === '-') {
                                 cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
@@ -7002,32 +7003,41 @@ Documento: ${docRef}`;
                                 cellHtml = `<span class="inline-block px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200/80 text-[11px] font-bold whitespace-nowrap">${escaparHtml(quinq)}</span>`;
                             }
                         } else if (col.id === 'Rango_Anio') {
+                            tdClass = 'text-center';
                             const rangoAn = obtenerRangoAnioFila(fila);
                             if (!rangoAn || rangoAn === '-') {
                                 cellHtml = '<span class="text-gray-400 font-mono text-xs">-</span>';
                             } else {
                                 cellHtml = `<span class="inline-block font-semibold text-slate-600 text-[11px] bg-white px-2 py-0.5 rounded border border-slate-200/80 shadow-2xs whitespace-nowrap">${escaparHtml(rangoAn)}</span>`;
                             }
+                        } else if (col.esEtapaIcg) {
+                            const valFmt = formatearIcgReporte(fila[col.id]);
+                            const esActual = col.id === 'ICG_RESULTADO_ACTUAL';
+                            tdClass = `text-center tabular-nums whitespace-nowrap ${esActual ? 'bg-blue-50/50 font-extrabold text-[#003366]' : 'font-semibold text-slate-700'}`;
+                            cellHtml = valFmt ? escaparHtml(valFmt) : '<span class="text-slate-300">-</span>';
                         } else {
+                            if (col.id === 'Cod_EP' || col.id === 'Año_Regulatorio' || col.id === 'Periodo_Regulatorio') {
+                                tdClass = 'text-center whitespace-nowrap';
+                            }
                             let valor = fila[col.id];
                             if (valor === null || valor === undefined || valor === "") valor = '-';
                             cellHtml = escaparHtml(valor);
                         }
                         
-                        tbHtml += `<td>${cellHtml}</td>`;
+                        tbHtml += `<td class="${tdClass}">${cellHtml}</td>`;
                     });
                     tbHtml += '</tr>';
                 });
 
                 if (dataFiltrada.length > LIMITE_VISUAL) {
                     tbHtml += `<tr><td colspan="${colsActivas.length}" class="text-center py-4 bg-yellow-50 text-yellow-700 text-xs font-bold border-t border-yellow-200">
-                        Mostrando ${LIMITE_VISUAL} filas por rendimiento. Se encontraron ${dataFiltrada.length} en total. Exporta a CSV para ver el 100%.
+                        Mostrando ${LIMITE_VISUAL} filas por rendimiento. Se encontraron ${dataFiltrada.length} en total. Exporta a Excel para ver el 100%.
                     </td></tr>`;
                 }
             }
 
             tbody.innerHTML = tbHtml;
-            document.getElementById('rep-contador').innerText = `Mostrando ${dataFiltrada.length} registros`;
+            document.getElementById('rep-contador').innerText = `Mostrando ${dataFiltrada.length} registros de ICG`;
         }
 
         function exportarReportesExcel() {
@@ -7050,24 +7060,31 @@ Documento: ${docRef}`;
                 let filaDatos = colsActivas.map(col => {
                     if (col.id === 'Informe_Etapa') {
                         const docs = obtenerInformesDelAnio(fila);
-                        if (docs.length === 0) return '-';
+                        if (docs.length === 0) return '';
                         return docs.map(d => d.texto.trim()).join("\n");
                     } else if (col.id === 'Informe_Etapa_Link') {
                         const docs = obtenerInformesDelAnio(fila);
                         const links = docs.filter(d => d.link && d.link.startsWith('http')).map(d => d.link);
-                        if (links.length === 0) return '-';
+                        if (links.length === 0) return '';
                         return links.join("\n");
                     } else if (col.id === 'Quinquenio') {
-                        return obtenerQuinquenioFila(fila);
+                        const q = obtenerQuinquenioFila(fila);
+                        return (!q || q === '-') ? '' : q;
                     } else if (col.id === 'Rango_Anio') {
-                        return obtenerRangoAnioFila(fila);
+                        const r = obtenerRangoAnioFila(fila);
+                        return (!r || r === '-') ? '' : r;
+                    } else if (col.esEtapaIcg) {
+                        const val = fila[col.id];
+                        if (val === null || val === undefined || val === '' || val === '-') return '';
+                        const n = Number(val);
+                        return !isNaN(n) ? Number(n.toFixed(2)) : String(val).trim();
                     } else {
                         let valor = fila[col.id];
                         if (valor === null || valor === undefined || valor === '') return '';
                         if (typeof valor === 'number') return valor;
-                        if (typeof valor === 'string' && /^-?\d+(\.\d+)?$/.test(valor.trim()) && !valor.trim().startsWith('0') && col.id !== 'Cod_EP') {
-                            const n = Number(valor.trim());
-                            if (!isNaN(n)) return n;
+                        if (col.id === 'Cod_EP') {
+                            const n = parseInt(String(valor).replace(/\D/g, ''), 10);
+                            return !isNaN(n) ? n : valor;
                         }
                         return valor;
                     }
@@ -7082,20 +7099,20 @@ Documento: ${docRef}`;
                 // Ajustar anchos automáticos de columnas
                 const colWidths = cabeceras.map((cab, colIdx) => {
                     let maxLen = cab.length;
-                    for (let r = 1; r < Math.min(filasExcel.length, 120); r++) {
+                    for (let r = 1; r < Math.min(filasExcel.length, 150); r++) {
                         const val = filasExcel[r][colIdx];
                         if (val !== undefined && val !== null) {
                             const lines = String(val).split('\n');
                             lines.forEach(l => { if (l.length > maxLen) maxLen = l.length; });
                         }
                     }
-                    return { wch: Math.min(Math.max(maxLen + 3, 12), 50) };
+                    return { wch: Math.min(Math.max(maxLen + 3, 12), 52) };
                 });
                 ws['!cols'] = colWidths;
 
                 const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Reporte_SUNASS");
-                XLSX.writeFile(wb, `Reporte_Personalizado_SUNASS_${fecha}.xlsx`);
+                XLSX.utils.book_append_sheet(wb, ws, "Reporte_ICG_SUNASS");
+                XLSX.writeFile(wb, `Reporte_ICG_SUNASS_${fecha}.xlsx`);
             } else {
                 // Fallback CSV con UTF-8 BOM
                 let csvContent = "\uFEFF";
@@ -7106,7 +7123,7 @@ Documento: ${docRef}`;
                 const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement("a");
                 link.setAttribute("href", URL.createObjectURL(blob));
-                link.setAttribute("download", `Reporte_Personalizado_SUNASS_${fecha}.csv`);
+                link.setAttribute("download", `Reporte_ICG_SUNASS_${fecha}.csv`);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();

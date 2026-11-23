@@ -1996,6 +1996,11 @@
                         </button>
                     </div>
                     
+                    <button onclick="abrirModalDescargarInformes()" class="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Descargar todos los informes filtrados ordenados en carpetas por EPS, Periodo y Año (con pausa y reanudación automática)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        Descargar Informes
+                    </button>
+
                     <button onclick="exportarReportesExcel()" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold shadow-md transition flex items-center gap-2 text-sm cursor-pointer" title="Exportar el reporte actual a formato Excel (.xlsx)">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         Exportar a Excel
@@ -7458,6 +7463,297 @@ Documento: ${docRef}`;
             }
         }
 
+        // =========================================================================
+        // DESCARGA MASIVA ORDENADA Y PAUSABLE DE INFORMES FILTRADOS (REPORTES ICG)
+        // =========================================================================
+        function limpiarNombreArchivoWin(str, maxLen = 95) {
+            let s = String(str || '').replace(/[\r\n]+/g, ' ').replace(/[<>:"/\\|?*\x00-\x1F]/g, '').replace(/\s+/g, ' ').trim();
+            s = s.replace(/[. ]+$/g, '');
+            if (s.length > maxLen) s = s.slice(0, maxLen).trim();
+            return s || 'Documento';
+        }
+
+        function recolectarInformesFiltradosParaDescarga() {
+            const dataFiltrada = obtenerDatosFiltradosReporte();
+            const items = [];
+            const epsSet = new Set();
+            let sinLink = 0;
+            const vistos = new Set();
+
+            dataFiltrada.forEach(fila => {
+                const cod = normalizarCodigoEps(fila.Cod_EP);
+                const nom = String(fila.Nombre_EPS || '').replace(/\s+/g, ' ').trim();
+                const epsFolder = limpiarNombreArchivoWin(`${cod}. ${nom}`, 65);
+                const quinq = obtenerQuinquenioFila(fila);
+                const perFolder = limpiarNombreArchivoWin(
+                    (quinq && quinq !== '-') ? `${fila.Periodo_Regulatorio} (${quinq})` : `${fila.Periodo_Regulatorio}`,
+                    45
+                );
+                const rangoAn = obtenerRangoAnioFila(fila);
+                const anioFolder = limpiarNombreArchivoWin(
+                    (rangoAn && rangoAn !== '-') ? `${fila.Año_Regulatorio} (${rangoAn})` : `${fila.Año_Regulatorio}`,
+                    40
+                );
+
+                const docs = obtenerInformesDelAnio(fila);
+                docs.forEach(doc => {
+                    if (doc.link && doc.link.startsWith('http')) {
+                        const nombreBase = limpiarNombreArchivoWin(doc.texto, 95);
+                        const claveUnica = `${epsFolder}|${perFolder}|${anioFolder}|${doc.link}`;
+                        if (vistos.has(claveUnica)) return;
+                        vistos.add(claveUnica);
+                        epsSet.add(cod);
+                        items.push({
+                            eps: epsFolder,
+                            periodo: perFolder,
+                            anio: anioFolder,
+                            etapa: doc.etapa || '',
+                            nombre: nombreBase,
+                            url: doc.link
+                        });
+                    } else {
+                        sinLink++;
+                    }
+                });
+            });
+
+            return { items, totalEps: epsSet.size, totalFilas: dataFiltrada.length, sinLink };
+        }
+
+        function abrirModalDescargarInformes() {
+            const resumen = recolectarInformesFiltradosParaDescarga();
+            const modal = document.getElementById('modal-descargar-informes');
+            if (!modal) return;
+
+            document.getElementById('dl-stat-docs').textContent = resumen.items.length.toLocaleString('es-PE');
+            document.getElementById('dl-stat-eps').textContent = resumen.totalEps.toLocaleString('es-PE');
+            document.getElementById('dl-stat-sinlink').textContent = resumen.sinLink.toLocaleString('es-PE');
+
+            const btnDescargar = document.getElementById('btn-generar-bat-informes');
+            const avisoVacio = document.getElementById('dl-aviso-vacio');
+            if (resumen.items.length === 0) {
+                if (btnDescargar) btnDescargar.disabled = true;
+                if (avisoVacio) avisoVacio.classList.remove('hidden');
+            } else {
+                if (btnDescargar) btnDescargar.disabled = false;
+                if (avisoVacio) avisoVacio.classList.add('hidden');
+            }
+
+            const ejemploEl = document.getElementById('dl-ejemplo-ruta');
+            if (ejemploEl) {
+                if (resumen.items.length > 0) {
+                    const ex = resumen.items[0];
+                    ejemploEl.textContent = `Informes_SUNASS_Descargados\\${ex.eps}\\${ex.periodo}\\${ex.anio}\\${ex.nombre}.pdf`;
+                } else {
+                    ejemploEl.textContent = 'Informes_SUNASS_Descargados\\<Empresa>\\<Periodo>\\<Año>\\<Documento>.pdf';
+                }
+            }
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function cerrarModalDescargarInformes() {
+            const modal = document.getElementById('modal-descargar-informes');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function textoUtf8ABase64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let bin = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+            }
+            return btoa(bin);
+        }
+
+        function generarDescargadorInformesBat() {
+            const resumen = recolectarInformesFiltradosParaDescarga();
+            if (resumen.items.length === 0) {
+                alert('No hay informes con enlace disponible en los filtros actuales.');
+                return;
+            }
+
+            const jsonB64 = textoUtf8ABase64(JSON.stringify(resumen.items));
+            const fecha = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
+            const psScript = [
+                "$ErrorActionPreference = 'Continue'",
+                "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8",
+                "$baseDir = Join-Path $env:BAT_DIR 'Informes_SUNASS_Descargados'",
+                "$cookieFile = Join-Path $env:TEMP ('sunass_dl_ck_' + $PID + '.txt')",
+                "$logFile = Join-Path $baseDir 'Resumen_Descarga.txt'",
+                "New-Item -ItemType Directory -Force -Path $baseDir | Out-Null",
+                "",
+                "$b64 = $env:SUNASS_JSON_B64",
+                "if (-not $b64) {",
+                "    $allLines = [System.IO.File]::ReadAllLines($env:BAT_PATH, [System.Text.Encoding]::UTF8)",
+                "    $idx = [Array]::IndexOf($allLines, '::JSON_B64_START')",
+                "    if ($idx -ge 0) { $b64 = ($allLines[($idx+1)..($allLines.Length-1)] -join '').Trim() }",
+                "}",
+                "$jsonText = [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($b64))",
+                "$items = $jsonText | ConvertFrom-Json",
+                "if ($items -isnot [System.Array]) { $items = @($items) }",
+                "$total = $items.Count",
+                "",
+                "Write-Host '====================================================================' -ForegroundColor Cyan",
+                "Write-Host ('  DESCARGADOR AUTOMATICO DE INFORMES SUNASS (' + $total + ' documentos)') -ForegroundColor Cyan",
+                "Write-Host '  - Carpetas ordenadas: Empresa / Periodo Regulatorio / Anio' -ForegroundColor Gray",
+                "Write-Host '  - Si se corta el internet, se PAUSA y REANUDA automaticamente.' -ForegroundColor Gray",
+                "Write-Host '====================================================================' -ForegroundColor Cyan",
+                "Write-Host ''",
+                "",
+                "function Esperar-Internet {",
+                "    Write-Host '  [PAUSADO - SIN INTERNET] Esperando reconexion (revisando cada 5 seg)...' -ForegroundColor Yellow",
+                "    while ($true) {",
+                "        Start-Sleep -Seconds 5",
+                "        & curl.exe -sI --connect-timeout 5 --max-time 8 'https://www.microsoft.com' -o NUL 2>$null",
+                "        if ($LASTEXITCODE -eq 0) {",
+                "            Write-Host '  [CONEXION RESTAURADA] Reanudando descarga desde donde se quedo...' -ForegroundColor Green",
+                "            break",
+                "        }",
+                "    }",
+                "}",
+                "",
+                "function Normalizar-UrlDescarga([string]$u) {",
+                "    if ($u -match 'sharepoint\\.com') {",
+                "        if ($u -notmatch 'download=1') {",
+                "            if ($u.Contains('?')) { return $u + '&download=1' } else { return $u + '?download=1' }",
+                "        }",
+                "        return $u",
+                "    }",
+                "    if ($u -match 'drive\\.google\\.com/file/d/([^/]+)') {",
+                "        return 'https://drive.google.com/uc?export=download&id=' + $Matches[1]",
+                "    }",
+                "    return $u",
+                "}",
+                "",
+                "$descargados = 0; $existentes = 0; $requierenRevision = @()",
+                "$i = 0",
+                "foreach ($it in $items) {",
+                "    $i++",
+                "    $cleanEps  = ($it.eps     -replace '[.\\s]+$', '')",
+                "    $cleanPer  = ($it.periodo -replace '[.\\s]+$', '')",
+                "    $cleanAnio = ($it.anio    -replace '[.\\s]+$', '')",
+                "    $cleanNom  = ($it.nombre  -replace '[.\\s]+$', '')",
+                "    $destDir = Join-Path (Join-Path (Join-Path $baseDir $cleanEps) $cleanPer) $cleanAnio",
+                "    New-Item -ItemType Directory -Force -Path $destDir | Out-Null",
+                "    $destPdf = Join-Path $destDir ($cleanNom + '.pdf')",
+                "    $partFile = $destPdf + '.part'",
+                "",
+                "    if ((Test-Path -LiteralPath $destPdf) -and ((Get-Item -LiteralPath $destPdf).Length -gt 1024)) {",
+                "        $existentes++",
+                "        Write-Host ('[' + $i + '/' + $total + '] [YA EXISTE] ' + $cleanEps + ' / ' + $cleanNom) -ForegroundColor DarkGray",
+                "        continue",
+                "    }",
+                "",
+                "    $dlUrl = Normalizar-UrlDescarga $it.url",
+                "    Write-Host ('[' + $i + '/' + $total + '] Descargando: ' + $cleanEps + ' > ' + $cleanPer + ' > ' + $cleanAnio + ' > ' + $cleanNom) -ForegroundColor White",
+                "",
+                "    $completado = $false",
+                "    $intentosRed = 0",
+                "    while (-not $completado) {",
+                "        $resumeArgs = @('-sS', '-L', '-c', $cookieFile, '-b', $cookieFile, '-A', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', '--connect-timeout', '20', '--max-time', '300')",
+                "        if ((Test-Path -LiteralPath $partFile) -and ((Get-Item -LiteralPath $partFile).Length -gt 0)) {",
+                "            $resumeArgs += @('-C', '-')",
+                "        }",
+                "        $resumeArgs += @('-o', $partFile, $dlUrl)",
+                "        & curl.exe @resumeArgs 2>$null",
+                "        $code = $LASTEXITCODE",
+                "",
+                "        # Codigos de error de red / corte de internet en curl",
+                "        if ($code -in @(6, 7, 18, 28, 35, 52, 55, 56)) {",
+                "            Esperar-Internet",
+                "            continue",
+                "        }",
+                "        # Si -C - fallo porque el servidor no soporta Range (codigo 33), reintentar archivo limpio",
+                "        if ($code -eq 33) {",
+                "            if (Test-Path -LiteralPath $partFile) { Remove-Item -LiteralPath $partFile -Force -ErrorAction SilentlyContinue }",
+                "            continue",
+                "        }",
+                "        if ($code -ne 0) {",
+                "            $intentosRed++",
+                "            if ($intentosRed -lt 2) { Start-Sleep -Seconds 3; continue }",
+                "            if (Test-Path -LiteralPath $partFile) { Remove-Item -LiteralPath $partFile -Force -ErrorAction SilentlyContinue }",
+                "            $requierenRevision += ($cleanEps + ' | ' + $cleanPer + ' | ' + $cleanAnio + ' | ' + $cleanNom + ' -> ' + $it.url + ' (Error curl ' + $code + ')')",
+                "            Write-Host '  [OMITIDO] Error al descargar (registrado en Resumen_Descarga.txt)' -ForegroundColor Red",
+                "            $completado = $true",
+                "            continue",
+                "        }",
+                "",
+                "        # Validar que el archivo no sea una pagina HTML de login o error",
+                "        if ((Test-Path -LiteralPath $partFile) -and ((Get-Item -LiteralPath $partFile).Length -gt 200)) {",
+                "            $bytes = [System.IO.File]::ReadAllBytes($partFile)",
+                "            $headLen = [Math]::Min(64, $bytes.Length)",
+                "            $headStr = [System.Text.Encoding]::ASCII.GetString($bytes, 0, $headLen).TrimStart()",
+                "            if ($headStr -match '^(<!DOCTYPE|<html|<HTML)') {",
+                "                Remove-Item -LiteralPath $partFile -Force -ErrorAction SilentlyContinue",
+                "                $requierenRevision += ($cleanEps + ' | ' + $cleanPer + ' | ' + $cleanAnio + ' | ' + $cleanNom + ' -> ' + $it.url + ' (Requiere login o enlace no publico)')",
+                "                Write-Host '  [REQUIERE LOGIN] Enlace privado en SharePoint/Drive (anotado en Resumen_Descarga.txt)' -ForegroundColor Yellow",
+                "            } else {",
+                "                Move-Item -LiteralPath $partFile -Destination $destPdf -Force",
+                "                $descargados++",
+                "                $kb = [Math]::Round((Get-Item -LiteralPath $destPdf).Length / 1024, 1)",
+                "                Write-Host ('  [OK] Guardado (' + $kb + ' KB)') -ForegroundColor Green",
+                "            }",
+                "        } else {",
+                "            if (Test-Path -LiteralPath $partFile) { Remove-Item -LiteralPath $partFile -Force -ErrorAction SilentlyContinue }",
+                "            $requierenRevision += ($cleanEps + ' | ' + $cleanPer + ' | ' + $cleanAnio + ' | ' + $cleanNom + ' -> ' + $it.url + ' (Archivo vacio)')",
+                "            Write-Host '  [VACIO] Registrado en Resumen_Descarga.txt' -ForegroundColor Yellow",
+                "        }",
+                "        $completado = $true",
+                "    }",
+                "}",
+                "",
+                "if (Test-Path $cookieFile) { Remove-Item $cookieFile -Force -ErrorAction SilentlyContinue }",
+                "$resumenTxt = @(",
+                "    'RESUMEN DE DESCARGA DE INFORMES SUNASS - ' + (Get-Date -Format 'dd/MM/yyyy HH:mm'),",
+                "    'Total documentos en lista: ' + $total,",
+                "    'Descargados nuevos:        ' + $descargados,",
+                "    'Ya existentes (omitidos):  ' + $existentes,",
+                "    'Requieren revision/login:  ' + $requierenRevision.Count,",
+                "    ''",
+                ") + $requierenRevision",
+                "[System.IO.File]::WriteAllLines($logFile, $resumenTxt, [System.Text.Encoding]::UTF8)",
+                "",
+                "Write-Host ''",
+                "Write-Host '====================================================================' -ForegroundColor Green",
+                "Write-Host ('  FINALIZADO: ' + $descargados + ' descargados | ' + $existentes + ' ya existentes | ' + $requierenRevision.Count + ' por revisar') -ForegroundColor Green",
+                "Write-Host ('  Carpeta: ' + $baseDir) -ForegroundColor Cyan",
+                "Write-Host '====================================================================' -ForegroundColor Green",
+                "Start-Process explorer.exe $baseDir"
+            ].join("\r\n");
+
+            const batContent = [
+                "@echo off",
+                "chcp 65001 >nul",
+                "title Descargador Automatico de Informes SUNASS",
+                "set \"BAT_PATH=%~f0\"",
+                "set \"BAT_DIR=%~dp0\"",
+                "powershell -NoProfile -ExecutionPolicy Bypass -Command \"$lines=[IO.File]::ReadAllLines($env:BAT_PATH,[Text.Encoding]::UTF8); $s=[Array]::IndexOf($lines,'::PS_START'); $e=[Array]::IndexOf($lines,'::JSON_B64_START'); $code=($lines[($s+1)..($e-1)] -join [Environment]::NewLine); Invoke-Expression $code\"",
+                "echo.",
+                "pause",
+                "exit /b",
+                "::PS_START",
+                psScript,
+                "::JSON_B64_START",
+                jsonB64
+            ].join("\r\n");
+
+            const blob = new Blob([batContent], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Descargar_Informes_SUNASS_${fecha}.bat`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }
+
         // Mantener compatibilidad por si se invoca exportarCSV()
         const exportarCSV = exportarReportesExcel;
 
@@ -7468,5 +7764,74 @@ Documento: ${docRef}`;
         }
         window.addEventListener('load', initDashboard);
     </script>
+
+    <!-- MODAL: DESCARGA MASIVA ORDENADA Y PAUSABLE DE INFORMES -->
+    <div id="modal-descargar-informes" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs items-center justify-center p-4" onclick="if(event.target===this) cerrarModalDescargarInformes()">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-xl overflow-hidden">
+            <div class="bg-[#002244] text-white px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-black flex items-center gap-2">
+                        <span>📥</span> Descarga Masiva de Informes Filtrados
+                    </h2>
+                    <p class="text-xs text-blue-200 mt-0.5">Descarga ordenada en carpetas con pausa y reanudación automática</p>
+                </div>
+                <button type="button" onclick="cerrarModalDescargarInformes()" class="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer transition" title="Cerrar">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <!-- KPIs de la selección actual -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 text-center">
+                        <div class="text-[10px] font-bold uppercase text-blue-700">Informes con enlace</div>
+                        <div id="dl-stat-docs" class="text-2xl font-black text-[#003366] mt-0.5">0</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+                        <div class="text-[10px] font-bold uppercase text-slate-500">Empresas (EPS)</div>
+                        <div id="dl-stat-eps" class="text-2xl font-black text-slate-800 mt-0.5">0</div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-center">
+                        <div class="text-[10px] font-bold uppercase text-amber-700">Sin enlace web</div>
+                        <div id="dl-stat-sinlink" class="text-2xl font-black text-amber-800 mt-0.5">0</div>
+                    </div>
+                </div>
+
+                <!-- Estructura de carpetas -->
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs">
+                    <div class="font-bold text-slate-700 mb-1.5 flex items-center gap-1.5">
+                        <span>📂</span> Estructura automática de carpetas:
+                    </div>
+                    <code id="dl-ejemplo-ruta" class="block bg-white px-2.5 py-2 rounded border border-slate-200 text-[11px] text-blue-900 break-all font-mono">
+                        Informes_SUNASS_Descargados\Empresa\Periodo\Año\Documento.pdf
+                    </code>
+                </div>
+
+                <!-- Beneficios e instrucciones -->
+                <div class="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-950 space-y-1.5">
+                    <div class="font-extrabold text-emerald-900">¿Cómo funciona?</div>
+                    <ul class="list-disc pl-4 space-y-1">
+                        <li>Al hacer clic abajo se descargará el archivo <strong>Descargar_Informes_SUNASS.bat</strong> (no requiere instalar programas adicionales en Windows).</li>
+                        <li>Dale <strong>doble clic</strong> al archivo descargado: creará las carpetas y bajará los PDFs automáticamente.</li>
+                        <li><strong>Anticortes de internet:</strong> si pierdes la señal, la descarga se <strong>pausa</strong> y se <strong>reanuda sola</strong> exactamente desde donde se quedó apenas vuelva la conexión.</li>
+                        <li>Si cierras la ventana y vuelves a abrir el archivo después, omitirá los PDFs ya descargados y solo bajará los faltantes.</li>
+                    </ul>
+                </div>
+
+                <div id="dl-aviso-vacio" class="hidden bg-rose-50 border border-rose-200 text-rose-800 rounded-lg p-3 text-xs font-bold text-center">
+                    Los filtros actuales no tienen informes con enlace web disponible para descargar.
+                </div>
+
+                <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+                    <button type="button" onclick="cerrarModalDescargarInformes()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer transition">
+                        Cancelar
+                    </button>
+                    <button type="button" id="btn-generar-bat-informes" onclick="generarDescargadorInformesBat()" class="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-40 text-white text-xs font-bold shadow-md flex items-center gap-2 cursor-pointer transition">
+                        <span>⬇️</span> Generar Descargador (.bat)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

@@ -8,8 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js para visualización de ICG -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS para exportación nativa a Excel (.xlsx) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- SheetJS (xlsx-js-style) para exportación nativa a Excel (.xlsx) con celdas combinadas y estilos -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <style>
         body { background-color: #f0f4f8; font-family: 'Segoe UI', system-ui, sans-serif; }
         
@@ -7096,6 +7096,84 @@ Documento: ${docRef}`;
 
             if (typeof XLSX !== 'undefined') {
                 const ws = XLSX.utils.aoa_to_sheet(filasExcel);
+
+                // Combinar celdas verticalmente para columnas de EPS (Cód EPS, Nombre EPS, Depto, Tamaño)
+                // y de Periodo (Rango Periodo, Periodo, Tipo de Servicio) cuando coinciden consecutivamente
+                const merges = [];
+                const colsNivelEps = new Set(['Cod_EP', 'Nombre_EPS', 'Departamento', 'Tamano_EPS']);
+                const colsNivelPeriodo = new Set(['Quinquenio', 'Periodo_Regulatorio', 'Tipo_Servicio']);
+
+                colsActivas.forEach((col, colIdx) => {
+                    const esNivelEps = colsNivelEps.has(col.id);
+                    const esNivelPeriodo = colsNivelPeriodo.has(col.id);
+                    if (!esNivelEps && !esNivelPeriodo) return;
+
+                    let inicio = 1; // fila 1 en hoja (fila 0 es cabecera)
+                    while (inicio <= dataExportar.length) {
+                        const fIni = dataExportar[inicio - 1];
+                        const codIni = normalizarCodigoEps(fIni.Cod_EP);
+                        const valIni = filasExcel[inicio][colIdx];
+                        const keyIni = esNivelEps
+                            ? codIni
+                            : `${codIni}|${fIni.Periodo_Regulatorio || ''}|${fIni.Tipo_Servicio || ''}|${valIni}`;
+
+                        let fin = inicio;
+                        while (fin + 1 <= dataExportar.length) {
+                            const fSig = dataExportar[fin];
+                            const codSig = normalizarCodigoEps(fSig.Cod_EP);
+                            const valSig = filasExcel[fin + 1][colIdx];
+                            const keySig = esNivelEps
+                                ? codSig
+                                : `${codSig}|${fSig.Periodo_Regulatorio || ''}|${fSig.Tipo_Servicio || ''}|${valSig}`;
+                            if (keySig === keyIni && valIni !== '' && valIni !== null && valIni !== undefined) {
+                                fin++;
+                            } else {
+                                break;
+                            }
+                        }
+
+                        if (fin > inicio) {
+                            merges.push({ s: { r: inicio, c: colIdx }, e: { r: fin, c: colIdx } });
+                        }
+                        inicio = fin + 1;
+                    }
+                });
+
+                if (merges.length > 0) {
+                    ws['!merges'] = merges;
+                }
+
+                // Aplicar estilos profesionales (cabecera azul SUNASS, bordes y centrado vertical en celdas combinadas)
+                const bordeFino = { style: "thin", color: { rgb: "94A3B8" } };
+                const bordes = { top: bordeFino, bottom: bordeFino, left: bordeFino, right: bordeFino };
+                const colsCentradas = new Set(['Cod_EP', 'Nombre_EPS', 'Quinquenio', 'Periodo_Regulatorio', 'Rango_Anio', 'Departamento', 'Tamano_EPS', 'Tipo_Servicio']);
+
+                for (let r = 0; r < filasExcel.length; r++) {
+                    for (let c = 0; c < colsActivas.length; c++) {
+                        const ref = XLSX.utils.encode_cell({ r, c });
+                        if (!ws[ref]) ws[ref] = { t: 's', v: '' };
+                        const col = colsActivas[c];
+                        if (r === 0) {
+                            ws[ref].s = {
+                                font: { name: "Calibri", sz: 11, bold: true, color: { rgb: "FFFFFF" } },
+                                fill: { fgColor: { rgb: "003366" } },
+                                alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                                border: bordes
+                            };
+                        } else {
+                            const esCentrado = colsCentradas.has(col.id) || col.esEtapaIcg;
+                            ws[ref].s = {
+                                font: { name: "Calibri", sz: 10, bold: col.id === 'ICG_RESULTADO_ACTUAL', color: { rgb: "0F172A" } },
+                                alignment: { horizontal: esCentrado ? "center" : "left", vertical: "center", wrapText: true },
+                                border: bordes
+                            };
+                            if (col.esEtapaIcg && typeof ws[ref].v === 'number') {
+                                ws[ref].z = '0.00';
+                            }
+                        }
+                    }
+                }
+
                 // Ajustar anchos automáticos de columnas
                 const colWidths = cabeceras.map((cab, colIdx) => {
                     let maxLen = cab.length;

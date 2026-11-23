@@ -69,3 +69,8 @@ if __name__ == "__main__":
         generar_estudios_tarifarios()
     except Exception as e:
         print(f"Nota: No se pudo generar estudios_tarifarios.js: {e}")
+    try:
+        from generar_auditoria import ejecutar_auditoria
+        ejecutar_auditoria()
+    except Exception as e:
+        print(f"Nota: No se pudo generar auditoria_datos.js: {e}")

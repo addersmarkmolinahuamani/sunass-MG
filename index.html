@@ -530,6 +530,10 @@
             <button onclick="volverAPortada()" class="w-full py-2 px-3 text-xs font-bold rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white transition flex items-center justify-center gap-2 border border-blue-700/50 shadow-sm">
                 🏠 Portada de Inicio
             </button>
+            <button onclick="abrirModalAuditoria()" id="btn-sidebar-auditoria" class="w-full py-1.5 px-3 text-xs font-bold rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 hover:text-white transition flex items-center justify-between gap-2 border border-amber-400/40 shadow-sm cursor-pointer" title="Ver errores e inconsistencias detectadas en la base de datos">
+                <span class="flex items-center gap-1.5"><span>⚠️</span> Auditoría de Datos</span>
+                <span id="badge-sidebar-auditoria" class="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-rose-600 text-white leading-none">0</span>
+            </button>
             <!-- NAVEGACIÓN GENERAL (Espacio de trabajo: Evaluación y Reportes) -->
             <div id="nav-sidebar-general" class="space-y-1.5">
                 <div class="flex items-center justify-between px-1 mb-0.5">
@@ -1287,6 +1291,12 @@
                         </button>
                     </div>
 
+                    <!-- Acceso a Auditoría de Calidad de Datos -->
+                    <button onclick="abrirModalAuditoria()" id="btn-header-auditoria" class="px-3.5 py-2 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded font-bold shadow-sm transition flex items-center gap-1.5 text-xs cursor-pointer" title="Abrir panel de auditoría de errores e inconsistencias de la base de datos">
+                        <span>⚠️ Auditoría</span>
+                        <span id="badge-header-auditoria" class="px-1.5 py-0.5 text-[10px] font-black rounded-full bg-rose-600 text-white leading-none">0</span>
+                    </button>
+
                     <!-- Acceso al Estudio Tarifario en Header -->
                     <div id="contenedor-header-estudio-tarifario" class="relative inline-block"></div>
                     
@@ -1384,6 +1394,9 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- BANNER CONTEXTUAL DE AUDITORÍA DE CALIDAD DE DATOS -->
+                <div id="banner-auditoria-contextual" class="hidden mb-4"></div>
 
                 <!-- FILTRO HORIZONTAL DE ETAPAS (ENCIMA DE LA TABLA) -->
                 <div class="mb-4 bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 flex-wrap">
@@ -2221,7 +2234,8 @@
     <script src="fechas_informes.js?v=20261110_v4"></script>
     <script src="estudios_tarifarios.js?v=20261110_v4"></script>
     <script src="resoluciones_cd.js?v=20261110_v4"></script>
-    <script src="datos_sunass.js?v=20261110_v4"></script>
+    <script src="datos_sunass.js?v=20261123_v5"></script>
+    <script src="auditoria_datos.js?v=20261123_v1"></script>
 
     <script>
         let db_global = [];
@@ -5266,11 +5280,22 @@ Documento: ${docRef}`;
                 const claseBtn = esActiva
                     ? 'bg-blue-600 text-white font-bold shadow-md hover:bg-blue-700'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold border border-slate-200';
+                const alertasEt = (typeof obtenerHallazgosEtapa === 'function' && mostrarAlertasAuditoria)
+                    ? obtenerHallazgosEtapa(codEps, periodoSelect, tipoServicio, etapa)
+                    : [];
+                let badgeAlerta = '';
+                let titleAlerta = '';
+                if (alertasEt.length > 0) {
+                    const tieneCrit = alertasEt.some(h => h.severidad === 'CRÍTICO');
+                    const colorDot = tieneCrit ? 'bg-rose-600 text-white' : 'bg-amber-500 text-white';
+                    badgeAlerta = `<span class="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.2 rounded-full text-[10px] font-black ${colorDot} leading-tight">⚠️ ${alertasEt.length}</span>`;
+                    titleAlerta = `title="${escaparHtml(alertasEt.map(h => `[${h.severidad}] ${h.anio}: ${h.categoria}`).join(' | '))}"`;
+                }
                 
                 return `
-                    <button type="button" onclick="seleccionarEtapa('${etapa}')" 
-                            class="px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all duration-150 ${claseBtn}">
-                        ${nombreMostrar}
+                    <button type="button" onclick="seleccionarEtapa('${etapa}')" ${titleAlerta}
+                            class="px-3.5 py-1.5 rounded-lg text-xs uppercase tracking-wider transition-all duration-150 inline-flex items-center ${claseBtn}">
+                        <span>${nombreMostrar}</span>${badgeAlerta}
                     </button>
                 `;
             }).join('');
@@ -5689,11 +5714,19 @@ Documento: ${docRef}`;
                     const claveAn = `${codEps}_${periodo}_${an}`;
                     const rangoAn = (typeof MAPA_RANGOS_ANIOS !== 'undefined' ? MAPA_RANGOS_ANIOS[claveAn] : '')
                         || ((db_informes ? (db_informes.find(i => normalizarCodigoEps(i.Cod_EP) === codEps && i.Periodo_Regulatorio === periodo && i.Año_Regulatorio === an && i.Rango_Anio) || {}).Rango_Anio : '') || '-');
+                    const alertaFecha = (typeof obtenerAlertaFechaAnio === 'function' && mostrarAlertasAuditoria)
+                        ? obtenerAlertaFechaAnio(codEps, periodo, an)
+                        : null;
+                    const clsChip = alertaFecha
+                        ? 'bg-amber-50 hover:bg-amber-100 border-amber-400 ring-1 ring-amber-300'
+                        : 'bg-slate-50 hover:bg-slate-100 border-slate-200/70';
+                    const titleChip = alertaFecha ? `title="⚠️ ${escaparHtml(alertaFecha.detalle)}"` : '';
+                    const iconoChip = alertaFecha ? ' <span class="text-amber-600">⚠️</span>' : '';
                     
                     htmlAnios += `
-                        <div class="flex items-center justify-between gap-1 px-2 py-1 bg-slate-50 hover:bg-slate-100 rounded-md border border-slate-200/70 text-xs transition">
-                            <span class="font-black text-[#003366] text-[10.5px] shrink-0">${an}</span>
-                            <span class="font-semibold text-slate-600 text-[9px] bg-white px-1.5 py-0.5 rounded border border-slate-200/60 shadow-2xs whitespace-nowrap">${rangoAn}</span>
+                        <div ${titleChip} class="flex items-center justify-between gap-1 px-2 py-1 ${clsChip} rounded-md border text-xs transition">
+                            <span class="font-black text-[#003366] text-[10.5px] shrink-0">${an}${iconoChip}</span>
+                            <span class="font-semibold ${alertaFecha ? 'text-amber-900 border-amber-300' : 'text-slate-600 border-slate-200/60'} text-[9px] bg-white px-1.5 py-0.5 rounded border shadow-2xs whitespace-nowrap">${rangoAn}</span>
                         </div>
                     `;
                 });
@@ -5918,9 +5951,22 @@ Documento: ${docRef}`;
                 // ICI: Años Base del Periodo
                 aniosBaseNums.forEach(i => {
                     let val = filaIcg.ici[i];
+                    const alertaIcg = (typeof obtenerAlertaIcgCelda === 'function' && mostrarAlertasAuditoria)
+                        ? obtenerAlertaIcgCelda(codEps, periodoSelect, tipoServicioSelect, 'Año ' + i, etapaActual)
+                        : null;
+                    const estiloAlerta = alertaIcg
+                        ? (alertaIcg.severidad === 'CRÍTICO'
+                            ? 'outline: 2.5px solid #ef4444; outline-offset: -2px; box-shadow: inset 0 0 0 2px #fecaca;'
+                            : 'outline: 2.5px solid #f59e0b; outline-offset: -2px; box-shadow: inset 0 0 0 2px #fde68a;')
+                        : '';
+                    const attrTitle = alertaIcg ? `title="⚠️ [${alertaIcg.severidad}] ${escaparHtml(alertaIcg.categoria)}: ${escaparHtml(alertaIcg.detalle)}"` : '';
+                    const badgeIcg = alertaIcg ? `<span class="block text-[9px] font-black leading-none mt-0.5 ${alertaIcg.severidad === 'CRÍTICO' ? 'text-rose-100 bg-rose-700/90' : 'text-amber-950 bg-amber-300'} rounded px-1 py-0.5">⚠️ Revisar</span>` : '';
+
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIcg(val);
-                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
+                        htmlIcg += `<td ${attrTitle} class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem; ${estiloAlerta}">${formNum(val)}${badgeIcg}</td>`;
+                    } else if (alertaIcg) {
+                        htmlIcg += `<td ${attrTitle} class="text-center font-black" style="background: #fef2f2; color: #b91c1c; border: 2px solid #ef4444; font-size: 0.85rem;">- ⚠️<span class="block text-[8.5px] font-extrabold leading-tight">Falta ICG</span></td>`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }
@@ -5929,9 +5975,16 @@ Documento: ${docRef}`;
                 // ICI: PTs
                 ptColumns.forEach(pt => {
                     let val = filaIcg.ici_pt[pt];
+                    const alertaIcg = (typeof obtenerAlertaIcgCelda === 'function' && mostrarAlertasAuditoria)
+                        ? obtenerAlertaIcgCelda(codEps, periodoSelect, tipoServicioSelect, pt, etapaActual)
+                        : null;
+                    const estiloAlerta = alertaIcg ? 'outline: 2.5px solid #ef4444; outline-offset: -2px;' : '';
+                    const attrTitle = alertaIcg ? `title="⚠️ [${alertaIcg.severidad}] ${escaparHtml(alertaIcg.categoria)}: ${escaparHtml(alertaIcg.detalle)}"` : '';
                     if (val !== null && val !== undefined && val !== "" && val !== "-") {
                         let claseColor = obtenerColorIcg(val);
-                        htmlIcg += `<td class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem;">${formNum(val)}</td>`;
+                        htmlIcg += `<td ${attrTitle} class="text-center ${claseColor}" style="color: ${claseColor.includes('yellow') ? 'black' : 'white'}; border: 1px solid white; font-size: 0.95rem; ${estiloAlerta}">${formNum(val)}</td>`;
+                    } else if (alertaIcg) {
+                        htmlIcg += `<td ${attrTitle} class="text-center font-black" style="background: #fef2f2; color: #b91c1c; border: 2px solid #ef4444; font-size: 0.85rem;">- ⚠️</td>`;
                     } else {
                         htmlIcg += `<td class="text-center text-blue-800 border-[#003366]">-</td>`;
                     }
@@ -5941,6 +5994,9 @@ Documento: ${docRef}`;
                 tbody.appendChild(trIcg);
             }
 
+            if (typeof renderizarBannerAuditoriaContextual === 'function') {
+                renderizarBannerAuditoriaContextual(codEps, periodoSelect, tipoServicioSelect);
+            }
             dibujarGrafico(filaIcg, ptColumns, aniosBaseNums);
             dibujarGraficosIci(metasNormales, ptColumns, aniosBaseNums);
         }
@@ -7366,12 +7422,411 @@ Documento: ${docRef}`;
         // Mantener compatibilidad por si se invoca exportarCSV()
         const exportarCSV = exportarReportesExcel;
 
+        // =========================================================================
+        // MÓDULO DE AUDITORÍA DE CALIDAD DE DATOS Y ALERTAS VISUALES
+        // =========================================================================
+        let mostrarAlertasAuditoria = true;
+        let bannerAuditoriaExpandido = true;
+
+        function obtenerHallazgosDataset() {
+            return (typeof auditoriaHallazgos !== 'undefined' && Array.isArray(auditoriaHallazgos))
+                ? auditoriaHallazgos
+                : [];
+        }
+
+        function obtenerResumenAuditoria() {
+            return (typeof auditoriaResumen !== 'undefined' && auditoriaResumen)
+                ? auditoriaResumen
+                : { criticos: 0, altos: 0, medios: 0, links_faltantes: 0, total_hallazgos: 0, por_categoria: [], fecha_auditoria: '-' };
+        }
+
+        function coincideServicioAuditoria(codEps, servHallazgo, servActual) {
+            if (codEps !== '026' && codEps !== '028') return true;
+            return (servHallazgo || 'Agua y Saneamiento') === (servActual || 'Agua y Saneamiento');
+        }
+
+        function obtenerHallazgosEpsPeriodo(codEps, periodo, tipoServicio) {
+            const lista = obtenerHallazgosDataset();
+            return lista.filter(h =>
+                h.cod_eps === codEps &&
+                (h.periodo === periodo || h.periodo === 'General') &&
+                coincideServicioAuditoria(codEps, h.servicio, tipoServicio)
+            );
+        }
+
+        function obtenerHallazgosEtapa(codEps, periodo, tipoServicio, etapa) {
+            return obtenerHallazgosEpsPeriodo(codEps, periodo, tipoServicio).filter(h => h.etapa === etapa);
+        }
+
+        function obtenerAlertaFechaAnio(codEps, periodo, anio) {
+            return obtenerHallazgosDataset().find(h =>
+                h.cod_eps === codEps &&
+                h.periodo === periodo &&
+                h.anio === anio &&
+                h.tipo_visual === 'fecha'
+            ) || null;
+        }
+
+        function obtenerAlertaIcgCelda(codEps, periodo, tipoServicio, anio, etapa) {
+            const matches = obtenerHallazgosEpsPeriodo(codEps, periodo, tipoServicio).filter(h =>
+                h.anio === anio &&
+                h.etapa === etapa &&
+                (h.tipo_visual === 'icg' || h.tipo_visual === 'etapa')
+            );
+            if (!matches.length) return null;
+            return matches.find(m => m.severidad === 'CRÍTICO') || matches[0];
+        }
+
+        function badgeSeveridadHtml(sev) {
+            if (sev === 'CRÍTICO') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800 border border-rose-300">CRÍTICO</span>';
+            if (sev === 'ALTO') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-800 border border-orange-300">ALTO</span>';
+            if (sev === 'MEDIO') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300">MEDIO</span>';
+            return '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-sky-100 text-sky-800 border border-sky-300">BAJO</span>';
+        }
+
+        function renderizarBannerAuditoriaContextual(codEps, periodo, tipoServicio) {
+            const cont = document.getElementById('banner-auditoria-contextual');
+            if (!cont) return;
+            const hallazgos = obtenerHallazgosEpsPeriodo(codEps, periodo, tipoServicio);
+            if (!hallazgos.length) {
+                cont.classList.add('hidden');
+                cont.innerHTML = '';
+                return;
+            }
+            cont.classList.remove('hidden');
+
+            const nCrit = hallazgos.filter(h => h.severidad === 'CRÍTICO').length;
+            const nAlto = hallazgos.filter(h => h.severidad === 'ALTO').length;
+            const nMed = hallazgos.filter(h => h.severidad === 'MEDIO').length;
+            const esCritico = nCrit > 0;
+
+            const bgBorder = esCritico
+                ? 'bg-rose-50/90 border-rose-300 text-rose-950'
+                : 'bg-amber-50/90 border-amber-300 text-amber-950';
+            const badgeResumen = [
+                nCrit ? `<span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-black">${nCrit} Crítico${nCrit > 1 ? 's' : ''}</span>` : '',
+                nAlto ? `<span class="px-2 py-0.5 rounded-full bg-orange-500 text-white text-[10px] font-black">${nAlto} Alto${nAlto > 1 ? 's' : ''}</span>` : '',
+                nMed ? `<span class="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black">${nMed} Medio${nMed > 1 ? 's' : ''}</span>` : ''
+            ].filter(Boolean).join(' ');
+
+            const itemsHtml = hallazgos.map(h => `
+                <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 py-1.5 px-2.5 bg-white/85 rounded-lg border ${h.severidad === 'CRÍTICO' ? 'border-rose-200' : 'border-amber-200'} text-xs">
+                    <div class="flex items-start gap-2">
+                        <div class="shrink-0 mt-0.5">${badgeSeveridadHtml(h.severidad)}</div>
+                        <div>
+                            <span class="font-extrabold text-slate-800">${escaparHtml(h.anio !== '-' ? h.anio : 'Hoja Excel')} · ${escaparHtml(h.etapa.replace('_', ' '))}</span>
+                            <span class="text-slate-500 font-semibold"> — ${escaparHtml(h.categoria)}:</span>
+                            <span class="text-slate-700">${escaparHtml(h.detalle)}</span>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+
+            cont.innerHTML = `
+                <div class="rounded-xl border ${bgBorder} shadow-sm overflow-hidden">
+                    <div class="px-4 py-2.5 flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-base">${esCritico ? '🚨' : '⚠️'}</span>
+                            <span class="text-xs sm:text-sm font-extrabold">
+                                Auditoría de Datos: ${hallazgos.length} observación${hallazgos.length > 1 ? 'es' : ''} en esta EPS (${escaparHtml(periodo)})
+                            </span>
+                            <div class="flex items-center gap-1">${badgeResumen}</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="toggleAlertasAuditoria()" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/90 hover:bg-white text-slate-700 border border-slate-300 cursor-pointer transition" title="Activar o desactivar resaltado de celdas y botones">
+                                ${mostrarAlertasAuditoria ? '👁️ Resaltado: ON' : '👁️‍🗨️ Resaltado: OFF'}
+                            </button>
+                            <button type="button" onclick="toggleDetalleBannerAuditoria()" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white/90 hover:bg-white text-slate-800 border border-slate-300 cursor-pointer transition">
+                                ${bannerAuditoriaExpandido ? '▲ Ocultar detalle' : '▼ Ver detalle'}
+                            </button>
+                            <button type="button" onclick="abrirModalAuditoria('${codEps}')" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-[#003366] hover:bg-blue-900 text-white cursor-pointer transition">
+                                Ver reporte completo →
+                            </button>
+                        </div>
+                    </div>
+                    <div id="lista-detalle-banner-auditoria" class="${bannerAuditoriaExpandido ? '' : 'hidden'} px-4 pb-3 pt-1 border-t ${esCritico ? 'border-rose-200/80' : 'border-amber-200/80'}">
+                        <ul class="space-y-1.5">${itemsHtml}</ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleDetalleBannerAuditoria() {
+            bannerAuditoriaExpandido = !bannerAuditoriaExpandido;
+            const codEps = normalizarCodigoEps(document.getElementById('filtro-eps')?.value || '');
+            const periodo = document.getElementById('filtro-periodo')?.value || '';
+            const serv = (codEps === '026' || codEps === '028')
+                ? (document.getElementById('filtro-servicio-tablero')?.value || 'Agua y Saneamiento')
+                : 'Agua y Saneamiento';
+            renderizarBannerAuditoriaContextual(codEps, periodo, serv);
+        }
+
+        function toggleAlertasAuditoria() {
+            mostrarAlertasAuditoria = !mostrarAlertasAuditoria;
+            actualizarBotonesEtapa();
+            renderizarSoloTabla();
+        }
+
+        function inicializarAuditoriaUI() {
+            const res = obtenerResumenAuditoria();
+            const totalCritAlto = (res.criticos || 0) + (res.altos || 0);
+            const bSide = document.getElementById('badge-sidebar-auditoria');
+            const bHead = document.getElementById('badge-header-auditoria');
+            if (bSide) bSide.textContent = res.total_hallazgos || 0;
+            if (bHead) bHead.textContent = res.total_hallazgos || 0;
+
+            const elFecha = document.getElementById('aud-fecha');
+            if (elFecha) elFecha.textContent = res.fecha_auditoria || '-';
+            const setKpi = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setKpi('aud-kpi-criticos', res.criticos || 0);
+            setKpi('aud-kpi-altos', res.altos || 0);
+            setKpi('aud-kpi-medios', res.medios || 0);
+            setKpi('aud-kpi-links', res.links_faltantes || 0);
+
+            const selCat = document.getElementById('aud-filtro-categoria');
+            if (selCat && selCat.options.length <= 1 && Array.isArray(res.por_categoria)) {
+                res.por_categoria.forEach(c => {
+                    const opt = document.createElement('option');
+                    opt.value = c.categoria;
+                    opt.textContent = `[${c.severidad}] ${c.categoria} (${c.cantidad})`;
+                    selCat.appendChild(opt);
+                });
+            }
+        }
+
+        function abrirModalAuditoria(codEpsFiltro = '') {
+            inicializarAuditoriaUI();
+            const modal = document.getElementById('modal-auditoria-datos');
+            if (!modal) return;
+            const inpBuscar = document.getElementById('aud-filtro-buscar');
+            if (inpBuscar && codEpsFiltro) {
+                inpBuscar.value = codEpsFiltro;
+            }
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            renderizarTablaAuditoria();
+        }
+
+        function cerrarModalAuditoria() {
+            const modal = document.getElementById('modal-auditoria-datos');
+            if (!modal) return;
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        function obtenerHallazgosFiltradosModal() {
+            const sev = document.getElementById('aud-filtro-severidad')?.value || 'TODAS';
+            const cat = document.getElementById('aud-filtro-categoria')?.value || 'TODAS';
+            const q = (document.getElementById('aud-filtro-buscar')?.value || '').trim().toLowerCase();
+            return obtenerHallazgosDataset().filter(h => {
+                if (sev !== 'TODAS' && h.severidad !== sev) return false;
+                if (cat !== 'TODAS' && h.categoria !== cat) return false;
+                if (q) {
+                    const hay = `${h.id} ${h.cod_eps} ${h.nombre_eps} ${h.periodo} ${h.anio} ${h.etapa} ${h.categoria} ${h.detalle}`.toLowerCase();
+                    if (!hay.includes(q)) return false;
+                }
+                return true;
+            });
+        }
+
+        function renderizarTablaAuditoria() {
+            const tbody = document.getElementById('aud-tabla-cuerpo');
+            const lblCount = document.getElementById('aud-conteo-filtrado');
+            if (!tbody) return;
+            const lista = obtenerHallazgosFiltradosModal();
+            if (lblCount) lblCount.textContent = `Mostrando ${lista.length} de ${obtenerHallazgosDataset().length} hallazgos de datos`;
+
+            if (!lista.length) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400 font-semibold">No se encontraron observaciones con los filtros actuales.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lista.map(h => `
+                <tr class="hover:bg-slate-50 border-b border-slate-100 transition text-xs">
+                    <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                        <div class="font-mono text-[10px] text-slate-400 mb-0.5">${escaparHtml(h.id)}</div>
+                        ${badgeSeveridadHtml(h.severidad)}
+                    </td>
+                    <td class="px-3 py-2.5">
+                        <div class="font-extrabold text-[#003366]">${escaparHtml(h.cod_eps)}. ${escaparHtml(h.nombre_eps)}</div>
+                        <div class="text-[11px] text-slate-500 font-semibold">${escaparHtml(h.periodo)} · ${escaparHtml(h.anio)} · <span class="text-slate-700">${escaparHtml(h.etapa.replace('_', ' '))}</span></div>
+                    </td>
+                    <td class="px-3 py-2.5 font-bold text-slate-800">${escaparHtml(h.categoria)}</td>
+                    <td class="px-3 py-2.5 text-slate-700 leading-snug">${escaparHtml(h.detalle)}</td>
+                    <td class="px-3 py-2.5 text-slate-600 leading-snug">${escaparHtml(h.accion)}</td>
+                    <td class="px-3 py-2.5 text-center whitespace-nowrap">
+                        <button type="button" onclick="irAHallazgoEnTablero('${escaparHtml(h.cod_eps)}', '${escaparHtml(h.periodo)}', '${escaparHtml(h.servicio)}', '${escaparHtml(h.etapa)}')"
+                                class="px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-[11px] shadow-xs cursor-pointer transition">
+                            Ver en Tablero →
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function irAHallazgoEnTablero(codEps, periodo, servicio, etapa) {
+            cerrarModalAuditoria();
+            if (typeof cambiarModulo === 'function') {
+                cambiarModulo('tablero');
+            }
+            const portada = document.getElementById('vista-portada');
+            if (portada && !portada.classList.contains('hidden')) {
+                navegarDesdePortada('evaluacion');
+            }
+
+            const selectEps = document.getElementById('filtro-eps');
+            if (selectEps) {
+                const opt = Array.from(selectEps.options).find(o => normalizarCodigoEps(o.value) === codEps);
+                if (opt) {
+                    selectEps.value = opt.value;
+                    const lblEps = document.getElementById('lbl-trigger-eps-tablero');
+                    if (lblEps) lblEps.textContent = opt.textContent;
+                }
+            }
+
+            if ((codEps === '026' || codEps === '028') && servicio) {
+                const selServ = document.getElementById('filtro-servicio-tablero');
+                if (selServ) selServ.value = servicio;
+            }
+
+            if (typeof updateSubFilters === 'function') {
+                updateSubFilters();
+            }
+
+            const selectPer = document.getElementById('filtro-periodo');
+            if (selectPer && periodo && periodo !== 'General') {
+                const optP = Array.from(selectPer.options).find(o => o.value === periodo);
+                if (optP) {
+                    selectPer.value = optP.value;
+                }
+            }
+
+            const etapasValidas = ['RESULTADO_ACTUAL', 'FISCALIZACIÓN', 'INSTRUCCIÓN', 'DECISIÓN', 'RECONSIDERACIÓN', 'APELACIÓN'];
+            if (etapasValidas.includes(etapa)) {
+                etapaSeleccionadaGlobal = etapa;
+            } else {
+                etapaSeleccionadaGlobal = 'RESULTADO_ACTUAL';
+            }
+
+            actualizarBotonesEtapa();
+            renderizarTablero();
+        }
+
+        function exportarAuditoriaExcel() {
+            const lista = obtenerHallazgosFiltradosModal();
+            if (!lista.length) return;
+            const fecha = new Date().toISOString().slice(0, 10);
+            const filas = [
+                ['ID', 'Severidad', 'Cód. EPS', 'Empresa Prestadora', 'Periodo', 'Tipo de Servicio', 'Año', 'Etapa', 'Categoría de Error', 'Detalle del Problema', 'Acción Correctiva Sugerida', 'Estado Corrección']
+            ];
+            lista.forEach(h => {
+                filas.push([h.id, h.severidad, h.cod_eps, h.nombre_eps, h.periodo, h.servicio, h.anio, h.etapa, h.categoria, h.detalle, h.accion, 'Pendiente']);
+            });
+            if (typeof XLSX !== 'undefined') {
+                const ws = XLSX.utils.aoa_to_sheet(filas);
+                ws['!cols'] = [
+                    { wch: 10 }, { wch: 12 }, { wch: 10 }, { wch: 28 }, { wch: 10 }, { wch: 18 },
+                    { wch: 10 }, { wch: 18 }, { wch: 34 }, { wch: 52 }, { wch: 42 }, { wch: 16 }
+                ];
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Auditoria_Datos');
+                XLSX.writeFile(wb, `Auditoria_Base_Datos_SUNASS_${fecha}.xlsx`);
+            }
+        }
+
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDashboard);
+            document.addEventListener('DOMContentLoaded', () => { initDashboard(); inicializarAuditoriaUI(); });
         } else {
             initDashboard();
+            inicializarAuditoriaUI();
         }
-        window.addEventListener('load', initDashboard);
+        window.addEventListener('load', () => { initDashboard(); inicializarAuditoriaUI(); });
     </script>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL INTERACTIVO: AUDITORÍA DE CALIDAD DE LA BASE DE DATOS               -->
+    <!-- ========================================================================= -->
+    <div id="modal-auditoria-datos" class="hidden fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-xs items-center justify-center p-3 sm:p-6" onclick="if(event.target===this) cerrarModalAuditoria()">
+        <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-6xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Header Modal -->
+            <div class="bg-[#002244] text-white px-6 py-4 flex items-center justify-between gap-4 shrink-0">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black flex items-center gap-2">
+                        <span>⚠️</span> Auditoría de Calidad de la Base de Datos
+                    </h2>
+                    <p class="text-xs text-blue-200 mt-0.5">
+                        Inconsistencias, ICG faltantes o desactualizados, errores de fórmula y rangos anómalos detectados automáticamente · Último análisis: <span id="aud-fecha" class="font-bold text-white">-</span>
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="exportarAuditoriaExcel()" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm flex items-center gap-1.5 cursor-pointer transition">
+                        <span>📥</span> Exportar Excel
+                    </button>
+                    <button type="button" onclick="cerrarModalAuditoria()" class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white cursor-pointer transition" title="Cerrar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPIs -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 px-6 py-4 bg-slate-50 border-b border-slate-200 shrink-0">
+                <div onclick="document.getElementById('aud-filtro-severidad').value='CRÍTICO'; renderizarTablaAuditoria();" class="bg-rose-50 border border-rose-200 rounded-xl p-3 cursor-pointer hover:shadow-sm transition">
+                    <div class="text-[10px] font-black uppercase tracking-wider text-rose-700">Errores Críticos</div>
+                    <div id="aud-kpi-criticos" class="text-2xl font-black text-rose-800 mt-0.5">0</div>
+                    <div class="text-[10px] text-rose-600 font-medium">ICG faltante / desactualizado / #REF!</div>
+                </div>
+                <div onclick="document.getElementById('aud-filtro-severidad').value='ALTO'; renderizarTablaAuditoria();" class="bg-orange-50 border border-orange-200 rounded-xl p-3 cursor-pointer hover:shadow-sm transition">
+                    <div class="text-[10px] font-black uppercase tracking-wider text-orange-700">Prioridad Alta</div>
+                    <div id="aud-kpi-altos" class="text-2xl font-black text-orange-800 mt-0.5">0</div>
+                    <div class="text-[10px] text-orange-600 font-medium">Etapas vacías / Fechas / ICI anómalos</div>
+                </div>
+                <div onclick="document.getElementById('aud-filtro-severidad').value='MEDIO'; renderizarTablaAuditoria();" class="bg-amber-50 border border-amber-200 rounded-xl p-3 cursor-pointer hover:shadow-sm transition">
+                    <div class="text-[10px] font-black uppercase tracking-wider text-amber-700">Prioridad Media</div>
+                    <div id="aud-kpi-medios" class="text-2xl font-black text-amber-800 mt-0.5">0</div>
+                    <div class="text-[10px] text-amber-600 font-medium">Sin rango de fecha / Recursos sin cuadro</div>
+                </div>
+                <div class="bg-sky-50 border border-sky-200 rounded-xl p-3">
+                    <div class="text-[10px] font-black uppercase tracking-wider text-sky-700">Enlaces Faltantes</div>
+                    <div id="aud-kpi-links" class="text-2xl font-black text-sky-800 mt-0.5">0</div>
+                    <div class="text-[10px] text-sky-600 font-medium">Docs sin hipervínculo (ver Excel)</div>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="px-6 py-3 bg-white border-b border-slate-200 flex flex-wrap items-center gap-3 shrink-0">
+                <select id="aud-filtro-severidad" onchange="renderizarTablaAuditoria()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-bold text-slate-700 bg-white">
+                    <option value="TODAS">Todas las prioridades</option>
+                    <option value="CRÍTICO">Solo CRÍTICO</option>
+                    <option value="ALTO">Solo ALTO</option>
+                    <option value="MEDIO">Solo MEDIO</option>
+                </select>
+                <select id="aud-filtro-categoria" onchange="renderizarTablaAuditoria()" class="px-3 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold text-slate-700 bg-white max-w-xs sm:max-w-sm">
+                    <option value="TODAS">Todas las categorías</option>
+                </select>
+                <input id="aud-filtro-buscar" oninput="renderizarTablaAuditoria()" type="text" placeholder="Buscar EPS, código, periodo o detalle..." class="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button type="button" onclick="document.getElementById('aud-filtro-severidad').value='TODAS'; document.getElementById('aud-filtro-categoria').value='TODAS'; document.getElementById('aud-filtro-buscar').value=''; renderizarTablaAuditoria();" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold cursor-pointer">
+                    Limpiar
+                </button>
+            </div>
+
+            <!-- Tabla de Hallazgos -->
+            <div class="flex-1 overflow-y-auto px-6 py-2">
+                <div id="aud-conteo-filtrado" class="text-[11px] font-bold text-slate-500 mb-2"></div>
+                <table class="w-full text-left border-collapse">
+                    <thead class="sticky top-0 bg-slate-100 text-slate-700 text-[10.5px] uppercase tracking-wider border-b border-slate-200 z-10">
+                        <tr>
+                            <th class="px-3 py-2 text-center w-24">Prioridad</th>
+                            <th class="px-3 py-2 w-56">EPS / Periodo / Etapa</th>
+                            <th class="px-3 py-2 w-48">Tipo de Error</th>
+                            <th class="px-3 py-2">Detalle del Problema</th>
+                            <th class="px-3 py-2 w-56">Acción Sugerida</th>
+                            <th class="px-3 py-2 text-center w-32">Navegar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="aud-tabla-cuerpo"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
